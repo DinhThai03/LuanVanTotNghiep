@@ -1,12 +1,16 @@
 <?php
 
 namespace App\Models;
+namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
+    use Notifiable;
+
     protected $fillable = [
         'username',
         'password',
@@ -48,5 +52,15 @@ class User extends Authenticatable
     public function parentModel()
     {
         return $this->hasOne(ParentModel::class, 'user_id');
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }
