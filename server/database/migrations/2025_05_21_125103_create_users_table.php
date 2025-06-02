@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('full_name', 100);
             $table->string('address', 150);
             $table->string('phone', 15);
+            $table->boolean('is_active')->default(1);
             $table->rememberToken()->nullable();
             $table->timestamps();
         });
