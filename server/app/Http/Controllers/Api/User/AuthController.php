@@ -26,6 +26,11 @@ class AuthController extends BaseController
 
     public function register(RegisterRequest $request)
     {
+        $currentUser = Auth::user();
+        if (!$currentUser || $currentUser->role !== 'admin') {
+            return response()->json(['error' => 'Không được phép! Chỉ có admin mới có quyền tạo tài khoản mới.'], 403);
+        }
+
         $validated = $request->validated();
         $validated['password'] = Hash::make($validated['password']);
         $user = User::create($validated);

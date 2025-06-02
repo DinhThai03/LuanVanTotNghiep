@@ -16,7 +16,7 @@ class Student extends Model
         'user_id',
     ];
 
-    
+
 
     public function user()
     {
@@ -30,7 +30,7 @@ class Student extends Model
 
     public function parents()
     {
-        return $this->hasMany(ParentModel::class, 'student_code', 'code');
+        return $this->hasMany(GuardianModel::class, 'student_code', 'code');
     }
 
     public function registrations()

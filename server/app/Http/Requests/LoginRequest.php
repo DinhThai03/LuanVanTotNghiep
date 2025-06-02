@@ -44,4 +44,17 @@ class LoginRequest extends FormRequest
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
         ];
     }
+
+    /**
+     * Đặt lại nhãn tên trường để hiển thị rõ ràng hơn trong thông báo lỗi (nếu muốn).
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'username' => 'tên đăng nhập',
+            'password' => 'mật khẩu mới',
+        ];
+    }
 }

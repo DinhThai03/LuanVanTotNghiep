@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->char('code', 10)->primary(); // mã giáo viên, là khóa chính
             $table->unsignedBigInteger('user_id')->unique(); // khóa ngoại tới bảng users
             $table->timestamps();
-        
+
             $table->foreign('user_id')->references('id')->on('users'); // ràng buộc khóa ngoại
         });
     }
