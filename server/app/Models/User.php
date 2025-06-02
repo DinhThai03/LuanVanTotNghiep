@@ -50,10 +50,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Student::class, 'user_id');
     }
 
-    // Quan hệ với ParentModel
-    public function parentModel()
+    // Quan hệ với GuardianModel
+    public function Guardian()
     {
-        return $this->hasOne(ParentModel::class, 'user_id');
+        return $this->hasOne(GuardianModel::class, 'user_id');
     }
 
     public function getJWTIdentifier()

@@ -13,16 +13,15 @@ return new class extends Migration
     {
         Schema::create('parents', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->unsignedBigInteger('user_id')->primary();
             $table->char('student_code', 10)->notNullable();
-        
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('student_code')->references('code')->on('students')->onDelete('cascade');
-        
+
             $table->timestamps();
         });
-        
     }
 
     /**
