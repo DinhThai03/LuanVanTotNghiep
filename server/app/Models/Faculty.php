@@ -10,7 +10,7 @@ class Faculty extends Model
         'name',
     ];
 
-    
+
 
     public function subjects()
     {

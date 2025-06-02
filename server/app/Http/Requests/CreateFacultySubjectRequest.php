@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SemesterSubjectRequest extends FormRequest
+class CreateFacultySubjectRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,26 +14,32 @@ class SemesterSubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'year' => ['required', 'integer', 'min:1', 'max:4'],
             'subject_id' => ['required', 'integer', 'exists:subjects,id'],
-            'semester_id' => ['required', 'integer', 'exists:semesters,id'],
+            'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'year.required' => 'Năm là bắt buộc.',
+            'year.integer' => 'Năm phải là số nguyên.',
+            'year.min' => 'Năm không hợp lệ.',
+            'year.max' => 'Năm không hợp lệ.',
             'subject_id.required' => 'Môn học là bắt buộc.',
             'subject_id.exists' => 'Môn học không tồn tại.',
-            'semester_id.required' => 'Học kỳ là bắt buộc.',
-            'semester_id.exists' => 'Học kỳ không tồn tại.',
+            'faculty_id.required' => 'Khoa là bắt buộc.',
+            'faculty_id.exists' => 'Khoa không tồn tại.',
         ];
     }
 
     public function attributes(): array
     {
         return [
+            'year' => 'năm',
             'subject_id' => 'môn học',
-            'semester_id' => 'học kỳ',
+            'faculty_id' => 'khoa',
         ];
     }
 }
