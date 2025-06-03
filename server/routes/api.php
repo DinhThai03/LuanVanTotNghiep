@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\Academic\SemesterSubjectController;
 use App\Http\Controllers\Api\Academic\SubjectController;
 use App\Http\Controllers\Api\Communication\AnnouncementController;
 use App\Http\Controllers\Api\Communication\ClassAnnouncementController;
+use App\Http\Controllers\Api\Examination\ExamClassRoomController;
+use App\Http\Controllers\Api\Examination\ExamScheduleController;
 use App\Http\Controllers\Api\Profile\PasswordController;
 use App\Http\Controllers\Api\Teaching\LessonController;
 use App\Http\Controllers\Api\Teaching\LessonRoomController;
@@ -166,4 +168,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('class_announcements', [ClassAnnouncementController::class, 'index']);
     Route::post('class_announcement', [ClassAnnouncementController::class, 'store']);
     Route::delete('class_announcement/{class_id}/{announcement_id}', [ClassAnnouncementController::class, 'destroy']);
+
+    //============== EXAM SCHEDULE ==============
+    Route::get('exam_schedules', [ExamScheduleController::class, 'index']);
+    Route::get('exam_schedule/{id}', [ExamScheduleController::class, 'show']);
+    Route::post('exam_schedule', [ExamScheduleController::class, 'store']);
+    Route::post('exam_schedule/{id}', [ExamScheduleController::class, 'update']);
+    Route::delete('exam_schedule/{id}', [ExamScheduleController::class, 'destroy']);
+
+    //============== EXAM CLASSROOM ==============
+    Route::get('exam_classrooms', [ExamClassRoomController::class, 'index']);
+    Route::get('exam_classroom/{id}', [ExamClassRoomController::class, 'show']);
+    Route::post('exam_classroom', [ExamClassRoomController::class, 'store']);
+    Route::post('exam_classroom/{id}', [ExamClassRoomController::class, 'update']);
+    Route::delete('exam_classroom/{id}', [ExamClassRoomController::class, 'destroy']);
 });
