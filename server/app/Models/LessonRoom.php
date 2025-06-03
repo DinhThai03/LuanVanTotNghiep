@@ -8,8 +8,6 @@ class LessonRoom extends Model
 {
     protected $table = 'lesson_rooms';
 
-    
-
     protected $fillable = [
         'lesson_id',
         'room_id',

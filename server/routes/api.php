@@ -8,6 +8,10 @@ use App\Http\Controllers\Api\Academic\SemesterController;
 use App\Http\Controllers\Api\Academic\SemesterSubjectController;
 use App\Http\Controllers\Api\Academic\SubjectController;
 use App\Http\Controllers\Api\Profile\PasswordController;
+use App\Http\Controllers\Api\Teaching\LessonController;
+use App\Http\Controllers\Api\Teaching\LessonRoomController;
+use App\Http\Controllers\Api\Teaching\RoomController;
+use App\Http\Controllers\Api\Teaching\TeacherSubjectController;
 use App\Http\Controllers\Api\User\StudentController;
 use App\Http\Controllers\Api\User\AdminController;
 use App\Http\Controllers\Api\User\AuthController;
@@ -120,4 +124,32 @@ Route::middleware(['auth'])->group(function () {
     Route::post('faculty_subject', [FacultySubjectController::class, 'store']);
     Route::post('faculty_subject/{id}', [FacultySubjectController::class, 'update']);
     Route::delete('faculty_subject/{id}', [FacultySubjectController::class, 'destroy']);
+
+    //============== LESSON ==============
+    Route::get('lessons', [LessonController::class, 'index']);
+    Route::get('lesson/{id}', [LessonController::class, 'show']);
+    Route::post('lesson', [LessonController::class, 'store']);
+    Route::post('lesson/{id}', [LessonController::class, 'update']);
+    Route::delete('lesson/{id}', [LessonController::class, 'destroy']);
+
+    //============== ROOM ==============
+    Route::get('rooms', [RoomController::class, 'index']);
+    Route::get('room/{id}', [RoomController::class, 'show']);
+    Route::post('room', [RoomController::class, 'store']);
+    Route::post('room/{id}', [RoomController::class, 'update']);
+    Route::delete('room/{id}', [RoomController::class, 'destroy']);
+
+    //============== LESSON_ROOM ==============
+    Route::get('lesson_rooms', [LessonRoomController::class, 'index']);
+    Route::get('lesson_room/{id}', [LessonRoomController::class, 'show']);
+    Route::post('lesson_room', [LessonRoomController::class, 'store']);
+    Route::post('lesson_room/{id}', [LessonRoomController::class, 'update']);
+    Route::delete('lesson_room/{id}', [LessonRoomController::class, 'destroy']);
+
+    //============== TEACHER_SUBJECT ==============
+    Route::get('teacher_subjects', [TeacherSubjectController::class, 'index']);
+    Route::get('teacher_subject/{id}', [TeacherSubjectController::class, 'show']);
+    Route::post('teacher_subject', [TeacherSubjectController::class, 'store']);
+    Route::post('teacher_subject/{id}', [TeacherSubjectController::class, 'update']);
+    Route::delete('teacher_subject/{id}', [TeacherSubjectController::class, 'destroy']);
 });
