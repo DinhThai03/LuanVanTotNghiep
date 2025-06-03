@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\Academic\FacultySubjectController;
 use App\Http\Controllers\Api\Academic\SemesterController;
 use App\Http\Controllers\Api\Academic\SemesterSubjectController;
 use App\Http\Controllers\Api\Academic\SubjectController;
+use App\Http\Controllers\Api\Communication\AnnouncementController;
+use App\Http\Controllers\Api\Communication\ClassAnnouncementController;
 use App\Http\Controllers\Api\Profile\PasswordController;
 use App\Http\Controllers\Api\Teaching\LessonController;
 use App\Http\Controllers\Api\Teaching\LessonRoomController;
@@ -152,4 +154,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('teacher_subject', [TeacherSubjectController::class, 'store']);
     Route::post('teacher_subject/{id}', [TeacherSubjectController::class, 'update']);
     Route::delete('teacher_subject/{id}', [TeacherSubjectController::class, 'destroy']);
+
+    //============== ANNOUNCEMENT ==============
+    Route::get('announcements', [AnnouncementController::class, 'index']);
+    Route::get('announcement/{id}', [AnnouncementController::class, 'show']);
+    Route::post('announcement', [AnnouncementController::class, 'store']);
+    Route::post('announcement/{id}', [AnnouncementController::class, 'update']);
+    Route::delete('announcement/{id}', [AnnouncementController::class, 'destroy']);
+
+    //============== CLASS_ANNOUNCEMENT ==============
+    Route::get('class_announcements', [ClassAnnouncementController::class, 'index']);
+    Route::post('class_announcement', [ClassAnnouncementController::class, 'store']);
+    Route::delete('class_announcement/{class_id}/{announcement_id}', [ClassAnnouncementController::class, 'destroy']);
 });
