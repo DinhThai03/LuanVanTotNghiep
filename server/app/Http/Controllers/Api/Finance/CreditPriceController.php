@@ -3,9 +3,65 @@
 namespace App\Http\Controllers\Api\Finance;
 
 use App\Http\Controllers\Api\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\CreateCreditPriceRequest;
+use App\Http\Requests\UpdateCreditPriceRequest;
+use App\Models\CreditPrice;
 
 class CreditPriceController extends Controller
 {
-    //
+    public function index()
+    {
+        return response()->json(CreditPrice::all());
+    }
+
+    public function store(CreateCreditPriceRequest $request)
+    {
+        $creditPrice = CreditPrice::create($request->validated());
+
+        return response()->json([
+            'message' => 'Tạo đơn giá tín chỉ thành công.',
+            'data' => $creditPrice,
+        ], 201);
+    }
+
+    public function show($id)
+    {
+        $creditPrice = CreditPrice::find($id);
+
+        if (!$creditPrice) {
+            return response()->json(['message' => 'Không tìm thấy đơn giá tín chỉ.'], 404);
+        }
+
+        return response()->json($creditPrice);
+    }
+
+    public function update(UpdateCreditPriceRequest $request, $id)
+    {
+        $creditPrice = CreditPrice::find($id);
+
+        if (!$creditPrice) {
+            return response()->json(['message' => 'Không tìm thấy đơn giá tín chỉ.'], 404);
+        }
+
+
+        $creditPrice->update($request->validated());
+
+        return response()->json([
+            'message' => 'Cập nhật đơn giá tín chỉ thành công.',
+            'data' => $creditPrice,
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $creditPrice = CreditPrice::find($id);
+
+        if (!$creditPrice) {
+            return response()->json(['message' => 'Không tìm thấy đơn giá tín chỉ.'], 404);
+        }
+
+        $creditPrice->delete();
+
+        return response()->json(['message' => 'Xóa đơn giá tín chỉ thành công.']);
+    }
 }

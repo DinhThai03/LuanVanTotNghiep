@@ -11,6 +11,10 @@ use App\Http\Controllers\Api\Communication\AnnouncementController;
 use App\Http\Controllers\Api\Communication\ClassAnnouncementController;
 use App\Http\Controllers\Api\Examination\ExamClassRoomController;
 use App\Http\Controllers\Api\Examination\ExamScheduleController;
+use App\Http\Controllers\Api\Finance\CreditPriceController;
+use App\Http\Controllers\Api\Finance\GradeController;
+use App\Http\Controllers\Api\Finance\RegistrationController;
+use App\Http\Controllers\Api\Finance\TuitionFeeController;
 use App\Http\Controllers\Api\Profile\PasswordController;
 use App\Http\Controllers\Api\Teaching\LessonController;
 use App\Http\Controllers\Api\Teaching\LessonRoomController;
@@ -36,11 +40,10 @@ Route::group([
     Route::get('profile', [AuthController::class, 'profile']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
-
-    Route::post('change_password', [PasswordController::class, 'changeUserPassword']);
-
     Route::post('forgot-password', [AuthController::class, 'sendResetLinkEmail']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
+
+    Route::post('change_password', [PasswordController::class, 'changeUserPassword']);
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -182,4 +185,32 @@ Route::middleware(['auth'])->group(function () {
     Route::post('exam_classroom', [ExamClassRoomController::class, 'store']);
     Route::post('exam_classroom/{id}', [ExamClassRoomController::class, 'update']);
     Route::delete('exam_classroom/{id}', [ExamClassRoomController::class, 'destroy']);
+
+    //============== Credit Price ==============
+    Route::get('credit_prices', [CreditPriceController::class, 'index']);
+    Route::get('credit_price/{id}', [CreditPriceController::class, 'show']);
+    Route::post('credit_price', [CreditPriceController::class, 'store']);
+    Route::post('credit_price/{id}', [CreditPriceController::class, 'update']);
+    Route::delete('credit_price/{id}', [CreditPriceController::class, 'destroy']);
+
+    //============== Grade ==============
+    Route::get('grades', [GradeController::class, 'index']);
+    Route::get('grade/{id}', [GradeController::class, 'show']);
+    Route::post('grade', [GradeController::class, 'store']);
+    Route::post('grade/{id}', [GradeController::class, 'update']);
+    Route::delete('grade/{id}', [GradeController::class, 'destroy']);
+
+    //============== Registration ==============
+    Route::get('registrations', [RegistrationController::class, 'index']);
+    Route::get('registration/{id}', [RegistrationController::class, 'show']);
+    Route::post('registration', [RegistrationController::class, 'store']);
+    Route::post('registration/{id}', [RegistrationController::class, 'update']);
+    Route::delete('registration/{id}', [RegistrationController::class, 'destroy']);
+
+    //============== Tuition Fee ==============
+    Route::get('tuition_fees', [TuitionFeeController::class, 'index']);
+    Route::get('tuition_fee/{id}', [TuitionFeeController::class, 'show']);
+    Route::post('tuition_fee', [TuitionFeeController::class, 'store']);
+    Route::post('tuition_fee/{id}', [TuitionFeeController::class, 'update']);
+    Route::delete('tuition_fee/{id}', [TuitionFeeController::class, 'destroy']);
 });

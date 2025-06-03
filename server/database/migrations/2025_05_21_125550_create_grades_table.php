@@ -13,17 +13,16 @@ return new class extends Migration
     {
         Schema::create('grades', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->unsignedBigInteger('registration_id')->primary();
             $table->decimal('process_score', 5, 2)->nullable();
             $table->decimal('midterm_score', 5, 2)->nullable();
             $table->decimal('final_score', 5, 2)->nullable();
-        
+
             $table->foreign('registration_id')->references('id')->on('registrations')->onDelete('cascade');
-        
+
             $table->timestamps();
         });
-        
     }
 
     /**
