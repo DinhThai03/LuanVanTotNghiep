@@ -43,22 +43,25 @@ export function LoginForm({
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    setLoginError(""); // Reset lỗi cũ
+    setLoginError("");
     try {
       const res = await login(data.user_name, data.password);
       const res_login = res.data;
-      Cookies.set("access_token", res_login.access_token, { expires: 1 }); // expires: 1 = 1 ngày
-      Cookies.set("refresh_token", res_login.refresh_token, { expires: 7 }); // ví dụ 7 ngày
+      Cookies.set("access_token", res_login.access_token, { expires: 1 });
+      Cookies.set("refresh_token", res_login.refresh_token, { expires: 7 });
       const access_token = Cookies.get('access_token')
 
       const res_profile = await profile(String(access_token));
-      const role = res_profile.data.role;
+      const role = res_profile.role;
       switch (role) {
         case 'admin':
           router.push("admin/home/");
           break;
         case 'student':
+        case 'parent':
+        case 'teacher':
           router.push("/");
+
           break;
 
       }
