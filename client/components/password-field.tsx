@@ -8,8 +8,9 @@ interface PasswordFieldProps {
     register: UseFormRegisterReturn;
     error?: FieldError;
     label?: string;
-    forgotPasswordLink?: string;
+    forgotPasswordLink?: string | null;   // cho phép ẩn link nếu truyền null
     id?: string;
+    placeholder?: string;
     className?: string;
 }
 
@@ -17,42 +18,55 @@ export default function PasswordField({
     register,
     error,
     label = "Mật khẩu",
-    forgotPasswordLink = "#",
+    forgotPasswordLink = "",
     id = "password",
+    placeholder = "••••••••",
     className = "",
 }: PasswordFieldProps) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
         <div className={`grid gap-3 ${className}`}>
+            {/* Tiêu đề + link quên mật khẩu */}
             <div className="flex items-center">
                 <Label htmlFor={id}>{label}</Label>
-                <a
-                    href={forgotPasswordLink}
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
-                >
-                    Quên mật khẩu?
-                </a>
+                {forgotPasswordLink && (
+                    <a
+                        href={forgotPasswordLink}
+                        className="ml-auto text-sm underline-offset-4 hover:underline"
+                    >
+                        Quên mật khẩu?
+                    </a>
+                )}
             </div>
+
+            {/* Ô nhập + nút hiện/ẩn mật khẩu */}
             <div className="relative">
                 <Input
                     id={id}
                     type={showPassword ? "text" : "password"}
+                    placeholder={placeholder}
                     {...register}
                     className="pr-10"
                 />
                 <button
                     type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
                     onClick={() => setShowPassword((prev) => !prev)}
                     aria-label="Toggle password visibility"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
                 >
-                    {showPassword ? <Eye className="w-5 h-5 cursor-pointer" /> : <EyeOff className="w-5 h-5 cursor-pointer" />}
+                    {showPassword ? (
+                        <Eye className="w-5 h-5" />
+                    ) : (
+                        <EyeOff className="w-5 h-5" />
+                    )}
                 </button>
             </div>
-            {error && (
-                <p className="text-xs text-red-400">{error.message}</p>
-            )}
+
+            {/* Vùng hiển thị lỗi có chiều cao cố định */}
+            <div className="min-h-[18px] transition-all duration-200">
+                {error && <p className="text-xs text-red-500">{error.message}</p>}
+            </div>
         </div>
     );
 }

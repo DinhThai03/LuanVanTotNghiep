@@ -30,25 +30,25 @@ const menuItems = [
       {
         icon: <FaUserShield className="w-4.5 h-4.5" />,
         label: "Quản trị viên",
-        href: "/admin/list/admins",
+        href: "/admin/lists/admins",
         visible: ["admin"],
       },
       {
         icon: <FaChalkboardTeacher className="w-4.5 h-4.5" />,
         label: "Giảng viên",
-        href: "/admin/list/teachers",
+        href: "/admin/lists/teachers",
         visible: ["admin"],
       },
       {
         icon: <FaUserGraduate className="w-4.5 h-4.5" />,
         label: "Sinh viên",
-        href: "/admin/list/students",
+        href: "/admin/lists/students",
         visible: ["admin"],
       },
       {
         icon: <FaUserFriends className="w-4.5 h-4.5" />,
         label: "Phụ Huynh",
-        href: "/admin/list/students",
+        href: "/admin/lists/students",
         visible: ["admin"],
       },
     ],
@@ -152,9 +152,8 @@ const Menu = () => {
   const [currentUser, setCurrentUser] = useState<User>();
 
   useEffect(() => {
-    const accessToken = String(Cookies.get('access_token'));
     const fetchCurrentUser = async () => {
-      const res = await profile(accessToken)
+      const res = await profile()
       if (res)
         setCurrentUser(res);
     }

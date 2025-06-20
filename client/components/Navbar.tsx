@@ -2,14 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import Acount from "./Acount";
+import NavUser from "./nav-user";
 import { FaRegMessage } from "react-icons/fa6";
 import { BsBell } from "react-icons/bs";
 import { FaUserCircle } from "react-icons/fa";
-import Sidebar from "./Sidebar";
 import { User } from "@/types/UserType";
 import Cookies from "js-cookie";
 import { profile } from "@/features/auth/api";
+import Sidebar from "./sidebar";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,9 +39,8 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const accessToken = String(Cookies.get('access_token'));
     const fetchCurrentUser = async () => {
-      const res = await profile(accessToken)
+      const res = await profile()
       if (res)
         setCurrentUser(res);
     }
@@ -49,7 +48,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="relative flex bg-white shadow-sm z-20 h-[60px] items-center">
+    <div className="relative flex bg-white shadow-sm z-40 h-[60px] items-center">
       <div className="flex w-full items-center justify-between px-4 md:px-8">
         <div
           className="flex items-center gap-2 cursor-pointer lg:cursor-default"
@@ -66,12 +65,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* SEARCH BAR */}
-        {/* <div className="hidden md:flex items-center gap-2 text-xs rounded-full ring-[1.5px] ring-gray-300 px-2">
-          <Search width={14} height={14} />
-          <input type="text" placeholder="Search..." className="w-[200px] p-2 bg-transparent outline-none" />
-        </div> */}
-
         {/* ICONS AND USER */}
         <div className="flex items-center gap-6 justify-end w-fit">
           <div className="bg-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
@@ -79,32 +72,28 @@ const Navbar = () => {
           </div>
           <div className="bg-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer relative">
             <BsBell className="w-5 h-5 text-gray-600" />
-            <div className="absolute -top-3 -right-3 w-5 h-5 flex items-center justify-center bg-purple-500 text-white rounded-full text-xs">1</div>
+
+            {
+              false ?
+                <div className="absolute -top-3 -right-3 w-5 h-5 flex items-center justify-center bg-purple-500 text-white rounded-full text-xs">1</div> : ""
+            }
           </div>
           <div className="flex flex-col">
-            <span className="text-xs leading-3 font-medium">{currentUser?.full_name}</span>
+            <span className="text-xs leading-3 font-medium">{currentUser?.last_name + " " + currentUser?.first_name}</span>
             <span className="text-[10px] text-gray-500 text-right">{currentUser?.role}</span>
           </div>
 
           {/* AVATAR & MENU */}
           <div className="relative" ref={menuRef}>
-            {/* <Image
-              src=""
-              alt=""
-              width={36}
-              height={36}
-              className="rounded-full cursor-pointer object-cover w-[45px] h-[45px]"
-              onClick={() => setMenuOpen((prev) => !prev)}
-              onError={() => setAvatar("/avatar.png")}
-            /> */}
+
             <FaUserCircle
               className="w-8 h-8 text-gray-500 cursor-pointer"
               onClick={() => setMenuOpen((prev) => !prev)}
             />
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-max bg-white shadow-lg rounded-lg  p-2 z-10 border border-gray-200">
-                <Acount />
+              <div className="absolute right-0 mt-2 w-max bg-white shadow-lg rounded-lg  p-2 z-50 border border-gray-200">
+                <NavUser />
               </div>
             )}
           </div>

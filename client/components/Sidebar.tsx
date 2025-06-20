@@ -29,13 +29,13 @@ const Sidebar = ({ isOpen, role, onClose }: SidebarProps) => {
         <>
 
             <div
-                className={`fixed inset-0 bg-black z-40 transition ${isOpen ? 'opacity-30' : 'opacity-0 pointer-events-none'}`}
+                className={`fixed inset-0 bg-black z-40 transition lg:hidden ${isOpen ? 'opacity-30' : 'opacity-0 pointer-events-none'}`}
                 onClick={onClose}
                 aria-hidden="true"
             />
 
             <div
-                className={`fixed top-0 left-0 w-64 h-screen bg-white z-50 shadow-lg transform transition-transform duration-500 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
+                className={`fixed top-0 left-0 w-64 h-screen bg-white z-50 shadow-lg transform transition-transform duration-500 ease-in-out lg:-translate-x-full ${isOpen ? "translate-x-0" : "-translate-x-full"
                     }`}
                 role="dialog"
                 aria-modal="true"

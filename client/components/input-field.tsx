@@ -30,9 +30,11 @@ export default function InputField({
                 placeholder={placeholder}
                 {...register}
             />
-            {error && (
-                <p className="text-xs text-red-400">{error.message}</p>
-            )}
+            <div className="min-h-[18px] transition-all duration-200">
+                {error && (
+                    <p className="text-xs text-red-500">{error.message}</p>
+                )}
+            </div>
         </div>
     );
 }

@@ -11,8 +11,8 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import PasswordField from "../../../components/PasswordField";
-import InputField from "../../../components/InputField";
+import PasswordField from "../../../components/password-field";
+import InputField from "../../../components/input-field";
 import { login, profile } from "../api";
 import { AxiosError } from "axios";
 import Cookies from 'js-cookie'
@@ -49,9 +49,8 @@ export function LoginForm({
       const res_login = res.data;
       Cookies.set("access_token", res_login.access_token, { expires: 1 });
       Cookies.set("refresh_token", res_login.refresh_token, { expires: 7 });
-      const access_token = Cookies.get('access_token')
 
-      const res_profile = await profile(String(access_token));
+      const res_profile = await profile();
       const role = res_profile.role;
       switch (role) {
         case 'admin':
@@ -104,6 +103,7 @@ export function LoginForm({
                 <PasswordField
                   register={register("password")}
                   error={errors.password}
+                  forgotPasswordLink="#"
                 />
               </div>
 

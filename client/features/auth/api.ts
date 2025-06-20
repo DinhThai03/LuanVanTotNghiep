@@ -1,4 +1,5 @@
 import axios from "axios"
+import Cookies from "js-cookie";
 
 export const login = async (username: string, password: string) => {
     const res = await axios.post(
@@ -13,9 +14,10 @@ export const login = async (username: string, password: string) => {
     return res;
 }
 
-export const profile = async (accessToken: string) => {
+export const profile = async () => {
+    const accessToken = String(Cookies.get('access_token'));
     const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,  
         {
             headers: {
                 'Accept': 'application/json',
