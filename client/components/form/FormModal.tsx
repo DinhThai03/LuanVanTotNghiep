@@ -2,14 +2,16 @@
 
 import { AdminForm } from "./AdminForm";
 import { AdminData } from "@/types/AdminType";
+import { TeacherForm } from "./TeacherForm";
+import { TeacherData } from "@/types/TeacherType";
 
 export type ModalType = "create" | "update";
-type TableType = "admin" | "ads";
+type TableType = "admin" | "teacher";
 
 interface FormModalProps {
   table: TableType;
   type: ModalType;
-  data?: AdminData;
+  data?: AdminData | TeacherData;
   onClose?: () => void;
   onSubmitSuccess?: (item: any) => void;
 }
@@ -28,7 +30,16 @@ const FormModal = ({
         return (
           <AdminForm
             type={type}
-            data={data}
+            data={data as AdminData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
+
+      case "teacher":
+        return (
+          <TeacherForm
+            type={type}
+            data={data as TeacherData}
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );
@@ -38,8 +49,8 @@ const FormModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-30">
-      <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative max-h-screen md:max-h-[calc(100vh-100px)] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/30 flex items-end md:items-center justify-center z-30">
+      <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative max-h-[calc(100vh-50px)] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-3xl cursor-pointer hover:text-gray-900 hover:rotate-90 duration-150 ease-in-out"

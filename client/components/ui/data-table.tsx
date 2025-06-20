@@ -54,8 +54,14 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [globalFilter, setGlobalFilter] = useState('')
+    const initialVisibility: VisibilityState = Object.fromEntries(
+        columns
+            .filter((col) => (col.meta as any)?.hidden)
+            .map((col) => [col.id, false])
+    )
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialVisibility)
+
     const [searchValue, setSearchValue] = useState(globalFilter)
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -73,7 +79,6 @@ export function DataTable<TData, TValue>({
         if (table.getRowModel().rows.length === 0 && pageIndex > 0) {
             table.setPageIndex(pageIndex - 1)
         }
-
     }, [data])
 
     const table = useReactTable({
@@ -95,7 +100,6 @@ export function DataTable<TData, TValue>({
         getSortedRowModel: getSortedRowModel(),
         globalFilterFn: fuzzyFilter,
         autoResetPageIndex: false,
-
     })
 
     const getPageNumbers = () => {

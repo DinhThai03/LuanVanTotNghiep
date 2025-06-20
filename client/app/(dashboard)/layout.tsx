@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/navbar";
 import Menu from "@/components/menu";
+import { Toaster } from "sonner";
+
 
 
 export const metadata: Metadata = {
@@ -24,6 +26,7 @@ export default function RootLayout({
                     {children}
                 </div>
             </div>
+            <Toaster richColors position="top-center" />
         </>
 
     );

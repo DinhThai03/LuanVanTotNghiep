@@ -7,43 +7,44 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { FaRegPenToSquare } from "react-icons/fa6";
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { getAdmins, deleteAdmin } from "@/services/Admins";
-import { AdminData } from "@/types/AdminType";
 import { DataTable } from "@/components/ui/data-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DefaultHeader } from "@/components/ui/defautl-header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
+import { deleteTeacher, getTeachers } from "@/services/teacher";
+import { TeacherData } from "@/types/TeacherType";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
-const columnHelper = createColumnHelper<AdminData>();
+const columnHelper = createColumnHelper<TeacherData>();
 
-const AdminsPage = () => {
-    const [adminMap, setAdminMap] = useState<Map<number, AdminData>>(new Map());
+const TeacherPage = () => {
+    const [teacherMap, setTeacherMap] = useState<Map<number, TeacherData>>(new Map());
     const [loading, setLoading] = useState(true);
 
     const [showConfirm, setShowConfirm] = useState(false);
-    const [selectedAdmin, setSelectedAdmin] = useState<AdminData | null>(null);
-    const [editingAdmin, setEditingAdmin] = useState<AdminData | null>(null);
+    const [selectedTeacher, setSelectedTeacher] = useState<TeacherData | null>(null);
+    const [editingTeacher, setEditingTeacher] = useState<TeacherData | null>(null);
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
 
     useEffect(() => {
-        const fetchAdmins = async () => {
+        const fetchTeachers = async () => {
             try {
                 setLoading(true);
-                const res = await getAdmins();
+                const res = await getTeachers();
+                console.log(res);
                 if (res) {
-                    const newMap = new Map<number, AdminData>();
-                    res.forEach((admin: AdminData) => newMap.set(admin.user_id, admin));
-                    setAdminMap(newMap);
+                    const newMap = new Map<number, TeacherData>();
+                    res.data.forEach((teacher: TeacherData) => newMap.set(teacher.user_id, teacher));
+                    setTeacherMap(newMap);
                 }
             } catch (err) {
                 const axiosErr = err as AxiosError<any>;
                 let message;
-                console.error("Chi tiết lỗi khi lấy danh sách admins:", axiosErr.response?.data);
+                console.error("Chi tiết lỗi khi lấy danh sách teacher:", axiosErr.response?.data);
 
                 if (axiosErr.response?.data?.message) {
                     message = (axiosErr.response.data.message);
@@ -53,10 +54,10 @@ const AdminsPage = () => {
                 else if (axiosErr.message === "Network Error") {
                     message = ("Không thể kết nối đến server.");
                 } else {
-                    message = ("Đã có lỗi xảy ra khi lấy danh sách admins.");
+                    message = ("Đã có lỗi xảy ra khi lấy danh sách teacher.");
                 }
 
-                console.error("Lỗi khi lấy danh sách admins:", err);
+                console.error("Lỗi khi lấy danh sách teacher:", err);
                 toast.error(message, {
                     description: "Vui lòng kiểm tra lại",
                 });
@@ -65,24 +66,24 @@ const AdminsPage = () => {
             }
         };
 
-        fetchAdmins();
+        fetchTeachers();
     }, []);
 
-    const handleAddSuccess = (admin: AdminData) => {
-        setAdminMap(prev => new Map(prev).set(admin.user_id, admin));
+    const handleAddSuccess = (teacher: TeacherData) => {
+        setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
     };
 
-    const handleUpdateSuccess = (admin: AdminData) => {
-        setAdminMap(prev => new Map(prev).set(admin.user_id, admin));
+    const handleUpdateSuccess = (teacher: TeacherData) => {
+        setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
     };
 
     const handleDelete = async () => {
-        if (!selectedAdmin) return;
+        if (!selectedTeacher) return;
         try {
-            await deleteAdmin(selectedAdmin.user_id);
-            setAdminMap(prev => {
+            await deleteTeacher(selectedTeacher.code);
+            setTeacherMap(prev => {
                 const newMap = new Map(prev);
-                newMap.delete(selectedAdmin.user_id);
+                newMap.delete(selectedTeacher.user_id);
                 return newMap;
             });
             toast.success("Xóa thành công")
@@ -97,7 +98,7 @@ const AdminsPage = () => {
             });
         } finally {
             setShowConfirm(false);
-            setSelectedAdmin(null);
+            setSelectedTeacher(null);
         }
     };
 
@@ -126,60 +127,72 @@ const AdminsPage = () => {
             },
             size: 30,
         }),
-        columnHelper.accessor(
-            (r) => `${r.user.last_name} ${r.user.first_name}`,
-            {
-                id: "full_name",
-                header: (info) => <DefaultHeader info={info} name="Họ & Tên" />,
-                meta: {
-                    displayName: "Họ & Tên",
-                },
-                enableGlobalFilter: true,
-                size: 200,
-            }
-        ),
+        columnHelper.accessor((r) => `${r.code}`, {
+            id: "code",
+            header: (info) => <DefaultHeader info={info} name="Mã giảng viên" />,
+            enableGlobalFilter: true,
+            size: 120,
+            meta: {
+                displayName: "Mã giảng viên",
+            },
+        }),
+        columnHelper.accessor((r) => `${r.user.last_name} ${r.user.first_name}`, {
+            id: "full_name",
+            header: (info) => <DefaultHeader info={info} name="Họ & Tên" />,
+            enableGlobalFilter: true,
+            size: 180,
+            meta: {
+                displayName: "Họ & Tên",
+            },
+        }),
         columnHelper.accessor((r) => r.user.username, {
             id: "username",
             header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
-            meta: {
-                displayName: "Tên đăng nhập",
-            },
             enableGlobalFilter: true,
             size: 150,
+            meta: {
+                displayName: "Tên đăng nhập",
+                hidden: true,
+            },
         }),
         columnHelper.accessor((r) => r.user.email, {
             id: "email",
             header: (info) => <DefaultHeader info={info} name="Email" />,
             enableGlobalFilter: true,
             size: 250,
+            meta: {
+                displayName: "Email",
+            },
         }),
         columnHelper.accessor(
             (r) => format(new Date(r.user.date_of_birth), "dd/MM/yyyy", { locale: vi }),
             {
                 id: "date_of_birth",
                 header: (info) => <DefaultHeader info={info} name="Ngày sinh" />,
+                enableGlobalFilter: true,
+                size: 110,
                 meta: {
                     displayName: "Ngày sinh",
                 },
-                enableGlobalFilter: true,
-                size: 110,
             }
         ),
         columnHelper.accessor((r) => r.user.address, {
             id: "address",
             header: (info) => <DefaultHeader info={info} name="Địa chỉ" />,
-            enableGlobalFilter: true, meta: {
+            enableGlobalFilter: true,
+            size: 250,
+            meta: {
                 displayName: "Địa chỉ",
             },
-            size: 250,
         }),
         columnHelper.accessor((r) => r.user.phone, {
             id: "phone",
             header: (info) => <DefaultHeader info={info} name="Số điện thoại" />,
-            enableGlobalFilter: true, meta: {
+            enableGlobalFilter: true,
+            size: 120,
+            meta: {
                 displayName: "Số điện thoại",
             },
-            size: 120,
         }),
         columnHelper.accessor((r) => r.user.is_active, {
             id: "is_active",
@@ -192,34 +205,24 @@ const AdminsPage = () => {
                     </span>
                 );
             },
-            enableGlobalFilter: false, meta: {
-                displayName: "Trạng thái",
-            },
+            enableGlobalFilter: false,
             size: 100,
-        }),
-        columnHelper.accessor((r) => r.admin_level, {
-            id: "admin_level",
-            header: (info) => <DefaultHeader info={info} name="Cấp" />,
-            cell: ({ getValue }) =>
-                <span className="text-sm font-medium">
-                    {getValue() == 1 ? "Super Admin" : getValue() == 2 ? "Admin" : "Khác"}
-                </span>,
-            enableGlobalFilter: false, meta: {
-                displayName: "Cấp",
+            meta: {
+                displayName: "Trạng thái",
+                hidden: true,
             },
-            size: 90,
         }),
         columnHelper.display({
             id: "actions",
             header: () => "Tùy chọn",
             cell: ({ row }) => {
-                const admin = row.original;
+                const teacher = row.original;
                 return (
                     <div className="flex text-lg gap-4">
                         <button
                             className="text-orange-500"
                             onClick={() => {
-                                setEditingAdmin(admin);
+                                setEditingTeacher(teacher);
                                 setShowUpdateForm(true);
                                 setShowAddForm(false);
                             }}
@@ -229,7 +232,7 @@ const AdminsPage = () => {
                         <button
                             className="text-red-500"
                             onClick={() => {
-                                setSelectedAdmin(admin);
+                                setSelectedTeacher(teacher);
                                 setShowConfirm(true);
                             }}
                         >
@@ -238,10 +241,11 @@ const AdminsPage = () => {
                     </div>
                 );
             },
-            enableGlobalFilter: false, meta: {
+            enableGlobalFilter: false,
+            size: 90,
+            meta: {
                 displayName: "Tùy chọn",
             },
-            size: 90,
         }),
     ];
 
@@ -249,37 +253,37 @@ const AdminsPage = () => {
         <div className="w-full bg-white shadow-lg shadow-gray-500 p-4">
             {loading ? (
                 <div className="text-center py-10 text-gray-500">
-                    Đang tải danh sách admin...
+                    Đang tải danh sách teacher...
                 </div>
             ) : (
                 <>
-                    <DataTable<AdminData, any>
+                    <DataTable<TeacherData, any>
                         columns={columns}
-                        data={Array.from(adminMap.values())}
+                        data={Array.from(teacherMap.values())}
                         onAddClick={() => {
                             setShowAddForm(true);
                             setShowUpdateForm(false);
-                            setEditingAdmin(null);
+                            setEditingTeacher(null);
                         }}
                     />
 
                     {showAddForm && (
                         <FormModal
-                            table="admin"
+                            table="teacher"
                             type="create"
                             onClose={() => setShowAddForm(false)}
                             onSubmitSuccess={handleAddSuccess}
                         />
                     )}
 
-                    {showUpdateForm && editingAdmin && (
+                    {showUpdateForm && editingTeacher && (
                         <FormModal
-                            table="admin"
+                            table="teacher"
                             type="update"
-                            data={editingAdmin}
+                            data={editingTeacher}
                             onClose={() => {
                                 setShowUpdateForm(false);
-                                setEditingAdmin(null);
+                                setEditingTeacher(null);
                             }}
                             onSubmitSuccess={handleUpdateSuccess}
                         />
@@ -288,12 +292,12 @@ const AdminsPage = () => {
                     <ConfirmDialog
                         open={showConfirm}
                         title="Xác nhận xóa"
-                        message={`Bạn có chắc chắn muốn xóa admin “${selectedAdmin?.user.first_name}” không?`}
+                        message={`Bạn có chắc chắn muốn xóa teacher “${selectedTeacher?.user.first_name}” không?`}
                         confirmText="Xóa"
                         cancelText="Hủy"
                         onCancel={() => {
                             setShowConfirm(false);
-                            setSelectedAdmin(null);
+                            setSelectedTeacher(null);
                         }}
                         onConfirm={handleDelete}
                     />
@@ -303,4 +307,4 @@ const AdminsPage = () => {
     );
 };
 
-export default AdminsPage;
+export default TeacherPage;

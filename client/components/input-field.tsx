@@ -29,6 +29,7 @@ export default function InputField({
                 type={type}
                 placeholder={placeholder}
                 {...register}
+                className={`${type === "date" ? "w-full relative pr-8" : ""}`}
             />
             <div className="min-h-[18px] transition-all duration-200">
                 {error && (

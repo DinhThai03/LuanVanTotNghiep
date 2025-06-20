@@ -4,15 +4,15 @@ import { z } from "zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { AdminData } from "@/types/AdminType";
 import { ModalType } from "./FormModal";
-import { addAdmin, updateAdmin } from "@/services/Admins";
 import { AxiosError } from "axios";
 import InputField from "../input-field";
 import PasswordField from "../password-field";
 import SelectField from "../select-field";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { TeacherData } from "@/types/TeacherType";
+import { addTeacher, updateTeacher } from "@/services/teacher";
 
 const binaryEnum = z.union([z.literal(0), z.literal(1)]);
 
@@ -25,10 +25,7 @@ const baseSchema = z.object({
     date_of_birth: z
         .string()
         .min(1, "Vui lòng nhập ngày sinh")
-        .refine(
-            (val) => !isNaN(Date.parse(val)),
-            "Ngày sinh không hợp lệ"
-        )
+        .refine((val) => !isNaN(Date.parse(val)), "Ngày sinh không hợp lệ")
         .refine((val) => {
             const year = new Date(val).getFullYear();
             const currentYear = new Date().getFullYear();
@@ -41,20 +38,19 @@ const baseSchema = z.object({
         .max(11, "Số điện thoại tối đa 11 số")
         .regex(/^\d+$/, "Số điện thoại chỉ gồm chữ số"),
     is_active: binaryEnum,
-    admin_level: z
-        .coerce.number({ invalid_type_error: "Cấp quản trị là số" })
-        .min(1, "Cấp quản trị phải từ 1 đến 3")
-        .max(3, "Cấp quản trị phải từ 1 đến 3"),
 });
 
 const createSchema = baseSchema.extend({
     username: z.string().min(1, "Tên đăng nhập không được để trống"),
     password: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
+    code: z.string()
+        .length(10, "Mã giảng viên phải đúng 10 ký tự"),
 });
 
 const updateSchema = baseSchema.extend({
     username: z.string().optional(),
     password: z.string().optional(),
+    code: z.string().optional(),
 });
 
 type CreateFormData = z.infer<typeof createSchema>;
@@ -63,37 +59,36 @@ type FormData = CreateFormData | UpdateFormData;
 
 const buildFormData = (fd: FormData, type: ModalType) => {
     const form = new FormData();
-
     form.append("email", fd.email);
     form.append("last_name", fd.last_name);
     form.append("first_name", fd.first_name);
-    form.append("role", "admin");
+    form.append("role", "teacher");
     form.append("sex", fd.sex.toString());
     form.append("date_of_birth", fd.date_of_birth);
     form.append("address", fd.address);
     form.append("phone", fd.phone);
     form.append("is_active", fd.is_active.toString());
-    form.append("admin_level", fd.admin_level.toString());
 
     if (type === "create") {
         const cfd = fd as CreateFormData;
+        form.append("code", cfd.code);
         form.append("username", cfd.username);
         form.append("password", cfd.password);
     }
     return form;
 };
 
-interface AdminFormProps {
+interface TeacherFormProps {
     type: ModalType;
-    data?: AdminData;
-    onSubmitSuccess?: (admin: AdminData) => void;
+    data?: TeacherData;
+    onSubmitSuccess?: (teacher: TeacherData) => void;
 }
 
-export const AdminForm = ({
+export const TeacherForm = ({
     type,
     data,
     onSubmitSuccess,
-}: AdminFormProps) => {
+}: TeacherFormProps) => {
     const [loading, setLoading] = useState(false);
 
     const {
@@ -108,6 +103,7 @@ export const AdminForm = ({
         defaultValues: {
             id: data?.user.id,
             username: data?.user.username ?? "",
+            code: data?.code ?? "",
             last_name: data?.user.last_name ?? "",
             first_name: data?.user.first_name ?? "",
             email: data?.user.email ?? "",
@@ -118,36 +114,34 @@ export const AdminForm = ({
             phone: data?.user.phone ?? "",
             sex: data ? (data.user.sex ? 1 : 0) : 1,
             is_active: data ? (data.user.is_active ? 1 : 0) : 1,
-            admin_level: data?.admin_level ?? 1,
             password: type === "create" ? "" : undefined,
         },
     });
 
-    watch(["sex", "is_active", "admin_level"]);
+    watch(["sex", "is_active"]);
 
     const onSubmit: SubmitHandler<FormData> = async (formData) => {
         setLoading(true);
-
         try {
             if (type === "create") {
-                const res = await addAdmin(buildFormData(formData, "create"));
-                const message = res.data.message || "Thêm quản trị viên thành công.";
-                toast.success(message);
+                const res = await addTeacher(buildFormData(formData, "create"));
+                toast.success(res.data.message || "Thêm quản trị viên thành công.");
                 reset();
-                onSubmitSuccess?.(res.data.admin);
+                onSubmitSuccess?.(res.data.data);
             } else {
-                if (!formData.id) throw new Error("Thiếu ID người dùng khi cập nhật");
-                const res = await updateAdmin(formData.id, buildFormData(formData, "update"));
-                const message = res.data.message || "Cập nhật thành công.";
-                toast.success(message);
-                onSubmitSuccess?.(res.data.admin);
+                if (!formData.code) throw new Error("Thiếu code khi cập nhật");
+                const res = await updateTeacher(
+                    formData.code!,
+                    buildFormData(formData, "update")
+                );
+                toast.success(res.data.message || "Cập nhật thành công.");
+                onSubmitSuccess?.(res.data.data);
             }
         } catch (err) {
             const axiosErr = err as AxiosError<any>;
-            let message;
             console.error("Chi tiết lỗi server:", axiosErr.response?.data);
+            let message = "Đã có lỗi xảy ra.";
 
-            // Nếu backend trả về validation dạng { field: ["msg"] }
             if (axiosErr.response?.status === 422 && axiosErr.response.data?.errors) {
                 const backendErrors = axiosErr.response.data.errors;
                 Object.entries(backendErrors).forEach(([field, msgs]) => {
@@ -159,18 +153,16 @@ export const AdminForm = ({
             }
 
             if (axiosErr.response?.data?.message) {
-                message = (axiosErr.response.data.message);
+                message = axiosErr.response.data.message;
             } else if (axiosErr.response?.data?.error) {
-                message = (axiosErr.response.data.error);
+                message = axiosErr.response.data.error;
+            } else if (axiosErr.message === "Network Error") {
+                message = "Không thể kết nối đến server.";
             }
-            else if (axiosErr.message === "Network Error") {
-                message = ("Không thể kết nối đến server.");
-            } else {
-                message = ("Đã có lỗi xảy ra.");
-            }
+
             toast.error(message, {
-                description: "vui lòng kiểm tra lại",
-            })
+                description: "Vui lòng kiểm tra lại",
+            });
         } finally {
             setLoading(false);
         }
@@ -198,8 +190,16 @@ export const AdminForm = ({
                                 register={register("password")}
                                 error={errors.password}
                             />
+                            <InputField
+                                id="code"
+                                label="Mã giảng viên"
+                                type="text"
+                                register={register("code")}
+                                error={errors.code}
+                            />
                         </>
                     )}
+
 
                     <InputField
                         id="email"
@@ -269,18 +269,6 @@ export const AdminForm = ({
                         ]}
                         register={register("is_active", { valueAsNumber: true })}
                         error={errors.is_active}
-                    />
-
-                    <SelectField
-                        id="admin_level"
-                        label="Cấp quản trị"
-                        options={[
-                            { label: "1 - Quản trị viên", value: 1 },
-                            { label: "2 - Quản lý", value: 2 },
-                            { label: "3 - Nhân viên", value: 3 },
-                        ]}
-                        register={register("admin_level", { valueAsNumber: true })}
-                        error={errors.admin_level}
                     />
                 </div>
 
