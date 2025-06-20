@@ -17,6 +17,7 @@ class CreateStudentRequest extends FormRequest
             'code' => ['required', 'string', 'size:10', 'unique:students,code'],
             'class_id' => ['required', 'integer', 'exists:school_classes,id'],
             'user_id' => ['required', 'integer', 'exists:users,id', 'unique:students,user_id'],
+            'place_of_birth' => 'required|string|max:150',
         ];
     }
 
@@ -31,6 +32,8 @@ class CreateStudentRequest extends FormRequest
             'user_id.required' => 'Tài khoản người dùng là bắt buộc.',
             'user_id.exists' => 'Người dùng không tồn tại.',
             'user_id.unique' => 'Người dùng này đã là sinh viên.',
+            'place_of_birth.max'      => 'Nơi sinh không được vượt quá 150 ký tự.',
+
         ];
     }
 }

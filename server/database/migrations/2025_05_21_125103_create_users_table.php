@@ -19,7 +19,9 @@ return new class extends Migration
             $table->enum('role', ['admin', 'teacher', 'student', 'parent']);
             $table->string('email', 100);
             $table->date('date_of_birth');
-            $table->string('full_name', 100);
+            $table->string('first_name', 100);
+            $table->string('last_name', 100);
+            $table->boolean('sex')->default(1);
             $table->string('address', 150);
             $table->string('phone', 15);
             $table->boolean('is_active')->default(1);

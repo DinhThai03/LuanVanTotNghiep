@@ -3,13 +3,20 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Api\Controller;
-use App\Http\Requests\AdminRequest;
-use App\Http\Requests\CreateAdminRequest;
-use App\Http\Requests\UpdateAdminRequest;
+use App\Models\User;
 use App\Models\Admin;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Monolog\Level;
+use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateAdminRequest;
+use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+
+use function Pest\Laravel\get;
 
 class AdminController extends Controller
 {
@@ -29,18 +36,63 @@ class AdminController extends Controller
     /**
      * Tạo mới admin.
      */
-    public function store(CreateAdminRequest $request)
+    public function store(Request $request)
     {
         $currentUser = Auth::user();
         if (!$currentUser || $currentUser->role !== 'admin') {
-            return response()->json(['error' => 'Không được phép! Chỉ có admin mới có quyền thêm admin mới.'], 403);
+            return response()->json(['error' => 'Không được phép! Chỉ admin mới có quyền thêm admin.'], 403);
         }
-        $admin = Admin::create($request->validated());
-        return response()->json([
-            'message' => 'Tạo quản trị viên thành công.',
-            'data' => $admin,
-        ], 201);
+
+        $userRequest = new CreateUserRequest();
+        $userValidator = Validator::make(
+            $request->all(),
+            $userRequest->rules(),
+            $userRequest->messages()
+        );
+
+        if ($userValidator->fails()) {
+            throw new ValidationException($userValidator);
+        }
+
+        $adminRequest = new UpdateAdminRequest();
+        $adminValidator = Validator::make(
+            $request->all(),
+            $adminRequest->rules(),
+            $adminRequest->messages()
+        );
+
+        if ($adminValidator->fails()) {
+            throw new ValidationException($adminValidator);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $userData = $userValidator->validated();
+            $userData['password'] = bcrypt($userData['password']);
+            $user = User::create($userData);
+
+            $adminData = $adminValidator->validated();
+            $adminData['user_id'] = $user->id;
+            $admin = Admin::create($adminData);
+
+            DB::commit();
+
+            $admin->load('user');
+
+            return response()->json([
+                'message' => 'Tạo quản trị viên và người dùng thành công.',
+                'admin' => $admin,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi khi tạo quản trị viên.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
+
 
     /**
      * Xem chi tiết một admin.
@@ -62,31 +114,91 @@ class AdminController extends Controller
     /**
      * Cập nhật admin.
      */
-    public function update(UpdateAdminRequest $request, $user_id)
-    {
 
+    public function update(Request $request, $user_id)
+    {
         $currentUser = Auth::user();
-        if ($currentUser->id == $user_id)
-            return response()->json(['error' => 'Không được phép sửa level của bản thân!.'], 403);
+
         if (!$currentUser || $currentUser->role !== 'admin') {
             return response()->json(['error' => 'Không được phép! Chỉ có admin mới có quyền chỉnh sửa.'], 403);
         }
-        $currentAdmin = Admin::find($currentUser->id);
-        // return response()->json($currentAdmin->admin_level);
-        if (!$currentAdmin || $currentAdmin->admin_level !== 1)
-            return response()->json(['error' => 'Không được phép! Chỉ có admin level 1 mới có quyền chỉnh sửa.'], 403);
-        $admin = Admin::find($user_id);
-        if (!$admin) {
-            return response()->json(['message' => 'Không tìm thấy quản trị viên.'], 404);
+
+        // Kiểm tra tồn tại user và admin
+        $user = User::find($user_id);
+        $admin = Admin::where('user_id', $user_id)->first();
+
+        if (!$user || !$admin) {
+            return response()->json(['error' => 'Không tìm thấy người dùng hoặc quản trị viên.'], 404);
         }
 
-        $admin->update($request->validated());
+        // Validator
+        $userValidator = Validator::make(
+            $request->all(),
+            (new UpdateUserRequest())->rules(),
+            (new UpdateUserRequest())->messages()
+        );
 
-        return response()->json([
-            'message' => 'Cập nhật quản trị viên thành công.',
-            'data' => $admin,
-        ]);
+        $adminValidator = Validator::make(
+            $request->all(),
+            (new UpdateAdminRequest())->rules(),
+            (new UpdateAdminRequest())->messages()
+        );
+
+        if ($userValidator->fails()) {
+            throw new ValidationException($userValidator);
+        }
+
+        if ($adminValidator->fails()) {
+            throw new ValidationException($adminValidator);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $userData = $userValidator->validated();
+            $adminData = $adminValidator->validated();
+
+            // Nếu có thay đổi level thì kiểm tra quyền của currentAdmin
+            if (isset($adminData['admin_level']) && $adminData['admin_level'] != $admin->admin_level) {
+                $currentAdmin = Admin::where('user_id', $currentUser->id)->first();
+
+                if ($currentUser->id == $user_id && $request->get('admin_level') != $currentAdmin->admin_level) {
+                    return response()->json(['error' => 'Không được phép sửa level của bản thân!.'], 403);
+                }
+
+
+                if (!$currentAdmin || $currentAdmin->admin_level !== 1) {
+                    return response()->json(['error' => 'Chỉ có admin cấp 1 mới được chỉnh sửa level.'], 403);
+                }
+            }
+
+            // Xử lý mật khẩu nếu có
+            if (!empty($userData['password'])) {
+                $userData['password'] = Hash::make($userData['password']);
+            } else {
+                unset($userData['password']);
+            }
+
+            $user->update($userData);
+            $admin->update($adminData);
+
+            DB::commit();
+            $admin->load('user');
+
+            return response()->json([
+                'message' => 'Cập nhật quản trị viên và người dùng thành công.',
+                'admin' => $admin,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi khi cập nhật quản trị viên.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
+
+
 
     /**
      * Xoá một admin.

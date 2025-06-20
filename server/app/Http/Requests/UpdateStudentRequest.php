@@ -15,6 +15,7 @@ class UpdateStudentRequest extends FormRequest
     {
         return [
             'class_id' => ['required', 'integer', 'exists:school_classes,id'],
+            
         ];
     }
 

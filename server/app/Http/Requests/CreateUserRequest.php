@@ -14,15 +14,17 @@ class CreateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username'      => 'required|string|max:50|unique:users,username',
-            'password'      => 'required|string|min:6|max:100',
-            'role'          => 'required|in:admin,teacher,student,parent',
-            'email'         => 'required|email|max:100|unique:users,email',
-            'date_of_birth' => 'required|date',
-            'full_name'     => 'required|string|max:100',
-            'address'       => 'required|string|max:150',
-            'phone'         => 'required|string|max:15',
-            'is_active'     => 'boolean',
+            'username'       => 'required|string|max:50|unique:users,username',
+            'password'       => 'required|string|min:6|max:100',
+            'role'           => 'required|in:admin,teacher,student,parent',
+            'email'          => 'required|email|max:100|unique:users,email',
+            'date_of_birth'  => 'required|date',
+            'first_name'     => 'required|string|max:100',
+            'last_name'      => 'required|string|max:100',
+            'sex'            => 'required|boolean',
+            'address'        => 'required|string|max:150',
+            'phone'          => 'required|string|max:15',
+            'is_active'      => 'boolean',
         ];
     }
 
@@ -48,8 +50,14 @@ class CreateUserRequest extends FormRequest
             'date_of_birth.required' => 'Ngày sinh là bắt buộc.',
             'date_of_birth.date'     => 'Ngày sinh không hợp lệ.',
 
-            'full_name.required' => 'Họ và tên là bắt buộc.',
-            'full_name.max'      => 'Họ và tên không được vượt quá 100 ký tự.',
+            'first_name.required' => 'Tên là bắt buộc.',
+            'first_name.max'      => 'Tên không được vượt quá 100 ký tự.',
+
+            'last_name.required' => 'Họ là bắt buộc.',
+            'last_name.max'      => 'Họ không được vượt quá 100 ký tự.',
+
+            'sex.required'       => 'Giới tính là bắt buộc.',
+            'sex.boolean'        => 'Giới tính không hợp lệ.',
 
             'address.required'   => 'Địa chỉ là bắt buộc.',
             'address.max'        => 'Địa chỉ không được vượt quá 150 ký tự.',
@@ -64,15 +72,17 @@ class CreateUserRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'username'      => 'tên đăng nhập',
-            'password'      => 'mật khẩu',
-            'role'          => 'vai trò',
-            'email'         => 'địa chỉ email',
-            'date_of_birth' => 'ngày sinh',
-            'full_name'     => 'họ và tên',
-            'address'       => 'địa chỉ',
-            'phone'         => 'số điện thoại',
-            'is_active'     => 'trạng thái hoạt động',
+            'username'       => 'tên đăng nhập',
+            'password'       => 'mật khẩu',
+            'role'           => 'vai trò',
+            'email'          => 'địa chỉ email',
+            'date_of_birth'  => 'ngày sinh',
+            'first_name'     => 'tên',
+            'last_name'      => 'họ',
+            'sex'            => 'giới tính',
+            'address'        => 'địa chỉ',
+            'phone'          => 'số điện thoại',
+            'is_active'      => 'trạng thái hoạt động',
         ];
     }
 }

@@ -14,6 +14,7 @@ class Student extends Model
         'code',
         'class_id',
         'user_id',
+        'place_of_birth',
     ];
 
 

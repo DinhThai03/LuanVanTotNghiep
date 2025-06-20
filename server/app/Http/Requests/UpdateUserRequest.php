@@ -13,18 +13,18 @@ class UpdateUserRequest extends FormRequest
 
     public function rules(): array
     {
-        $userId = $this->route('user'); // lấy ID từ URL route nếu có
-
         return [
-            'username'      => 'sometimes|string|max:50|unique:users,username,' . $userId,
-            'password'      => 'sometimes|string|min:6|max:100',
-            'role'          => 'sometimes|in:admin,teacher,student,parent',
-            'email'         => 'sometimes|email|max:100|unique:users,email,' . $userId,
-            'date_of_birth' => 'sometimes|date',
-            'full_name'     => 'sometimes|string|max:100',
-            'address'       => 'sometimes|string|max:150',
-            'phone'         => 'sometimes|string|max:15',
-            'is_active'     => 'sometimes|boolean',
+            'username'       => 'sometimes|string|max:50',
+            'password'       => 'sometimes|string|min:6|max:100',
+            'role'           => 'sometimes|in:admin,teacher,student,parent',
+            'email'          => 'sometimes|email|max:100',
+            'date_of_birth'  => 'sometimes|date',
+            'first_name'     => 'sometimes|string|max:100',
+            'last_name'      => 'sometimes|string|max:100',
+            'sex'            => 'sometimes|boolean',
+            'address'        => 'sometimes|string|max:150',
+            'phone'          => 'sometimes|string|max:15',
+            'is_active'      => 'boolean',
         ];
     }
 
@@ -45,9 +45,16 @@ class UpdateUserRequest extends FormRequest
 
             'date_of_birth.date'     => 'Ngày sinh không hợp lệ.',
 
-            'full_name.max'      => 'Họ và tên không được vượt quá 100 ký tự.',
+            'first_name.max'      => 'Tên không được vượt quá 100 ký tự.',
+
+            'last_name.max'      => 'Họ không được vượt quá 100 ký tự.',
+
+            'sex.boolean'        => 'Giới tính không hợp lệ.',
+
             'address.max'        => 'Địa chỉ không được vượt quá 150 ký tự.',
+
             'phone.max'          => 'Số điện thoại không được vượt quá 15 ký tự.',
+
             'is_active.boolean'  => 'Trạng thái hoạt động không hợp lệ.',
         ];
     }
@@ -55,15 +62,17 @@ class UpdateUserRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'username'      => 'tên đăng nhập',
-            'password'      => 'mật khẩu',
-            'role'          => 'vai trò',
-            'email'         => 'địa chỉ email',
-            'date_of_birth' => 'ngày sinh',
-            'full_name'     => 'họ và tên',
-            'address'       => 'địa chỉ',
-            'phone'         => 'số điện thoại',
-            'is_active'     => 'trạng thái hoạt động',
+            'username'       => 'tên đăng nhập',
+            'password'       => 'mật khẩu',
+            'role'           => 'vai trò',
+            'email'          => 'địa chỉ email',
+            'date_of_birth'  => 'ngày sinh',
+            'first_name'     => 'tên',
+            'last_name'      => 'họ',
+            'sex'            => 'giới tính',
+            'address'        => 'địa chỉ',
+            'phone'          => 'số điện thoại',
+            'is_active'      => 'trạng thái hoạt động',
         ];
     }
 }

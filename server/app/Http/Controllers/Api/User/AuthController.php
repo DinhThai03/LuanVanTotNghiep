@@ -46,7 +46,7 @@ class AuthController extends BaseController
         $credentials = $request->only('username', 'password');
 
         if (! $token = Auth::attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Tài khoản hoặc mật khẩu không đúng'], 401);
         }
 
         $refreshToken = $this->createRefreshToken();
@@ -59,14 +59,14 @@ class AuthController extends BaseController
         try {
             return response()->json(Auth::user());
         } catch (JWTException $exception) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Không được phép'], 401);
         }
     }
 
     public function logout()
     {
         Auth::logout();
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Đã đăng xuất']);
     }
 
     public function refresh(Request $request)
@@ -78,7 +78,7 @@ class AuthController extends BaseController
             $user = User::find($decode['sub']);
 
             if (!$user) {
-                return response()->json(['error' => 'User not found'], 404);
+                return response()->json(['error' => 'Không tìm thấy người dùng'], 404);
             }
 
             Auth::invalidate(); // Invalidate current access token
@@ -88,7 +88,7 @@ class AuthController extends BaseController
             return $this->respondWithToken($token, $newRefreshToken);
             return response()->json($decode);
         } catch (JWTException $exception) {
-            return response()->json(['error' => 'Refresh Token Invalid'], 500);
+            return response()->json(['error' => 'refresh toke không đúng'], 500);
         }
     }
 

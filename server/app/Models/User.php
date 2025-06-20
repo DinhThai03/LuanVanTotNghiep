@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-namespace App\Models;
-
-use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -19,7 +17,9 @@ class User extends Authenticatable implements JWTSubject
         'role',
         'email',
         'date_of_birth',
-        'full_name',
+        'first_name',
+        'last_name',
+        'sex',
         'address',
         'phone',
         'is_active',
@@ -27,35 +27,38 @@ class User extends Authenticatable implements JWTSubject
 
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
+        'sex' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
-    // Quan hệ với Teacher
+    // === Relationships ===
+
     public function teacher()
     {
         return $this->hasOne(Teacher::class, 'user_id');
     }
 
-    // Quan hệ với Admin
     public function admin()
     {
         return $this->hasOne(Admin::class, 'user_id');
     }
 
-    // Quan hệ với Student
     public function student()
     {
         return $this->hasOne(Student::class, 'user_id');
     }
 
-    // Quan hệ với GuardianModel
-    public function Guardian()
+    public function guardian()
     {
         return $this->hasOne(GuardianModel::class, 'user_id');
     }
+
+    // === JWT Methods ===
 
     public function getJWTIdentifier()
     {
@@ -67,8 +70,17 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    // === Notifications ===
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token));
+    }
+
+    // === Accessors (Optional) ===
+
+    public function getFullNameAttribute()
+    {
+        return "{$this->last_name} {$this->first_name}";
     }
 }

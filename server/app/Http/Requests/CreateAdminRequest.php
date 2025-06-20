@@ -26,7 +26,6 @@ class CreateAdminRequest extends FormRequest
                 'required',
                 'integer',
                 'exists:users,id',
-                // Nếu là POST, user_id phải chưa tồn tại trong bảng admins
             ],
             'admin_level' => 'required|integer|min:1',
         ];
