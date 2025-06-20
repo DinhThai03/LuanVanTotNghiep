@@ -15,7 +15,7 @@ class CreateTeacherRequest extends FormRequest
     {
         $rules = [
             'code' => ['required', 'string', 'size:10'],
-            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'user_id' => ['integer', 'exists:users,id'],
         ];
 
         if ($this->isMethod('POST')) {
@@ -32,7 +32,6 @@ class CreateTeacherRequest extends FormRequest
             'code.required' => 'Mã giáo viên là bắt buộc.',
             'code.size' => 'Mã giáo viên phải đúng 10 ký tự.',
             'code.unique' => 'Mã giáo viên đã tồn tại.',
-            'user_id.required' => 'Người dùng là bắt buộc.',
             'user_id.integer' => 'ID người dùng không hợp lệ.',
             'user_id.exists' => 'Người dùng không tồn tại.',
             'user_id.unique' => 'Người dùng này đã là giáo viên.',

@@ -206,15 +206,41 @@ class AdminController extends Controller
     public function destroy($user_id)
     {
         $currentUser = Auth::user();
-        if ($currentUser->id == $user_id)
-            return response()->json(['error' => 'Không được phép xóa tài khoản của bản thân.'], 403);
-        $admin = Admin::find($user_id);
-        if (!$admin) {
-            return response()->json(['message' => 'Không tìm thấy quản trị viên.'], 404);
+
+        // Chỉ cho phép admin thực hiện xoá
+        if (!$currentUser || $currentUser->role !== 'admin') {
+            return response()->json(['error' => 'Không được phép! Chỉ có admin mới có quyền xoá.'], 403);
         }
 
-        $admin->delete();
+        // Không cho phép tự xoá chính mình
+        if ($currentUser->id == $user_id) {
+            return response()->json(['error' => 'Không được phép xóa tài khoản của bản thân.'], 403);
+        }
 
-        return response()->json(['message' => 'Xoá quản trị viên thành công.']);
+        // Tìm admin theo user_id
+        $admin = Admin::where('user_id', $user_id)->first();
+        $user = User::find($user_id);
+
+        if (!$admin || !$user) {
+            return response()->json(['error' => 'Không tìm thấy người dùng hoặc quản trị viên.'], 404);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Xoá cả admin và user nếu cần
+            $admin->delete();
+            $user->delete();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Xoá quản trị viên và người dùng thành công.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi khi xoá.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
