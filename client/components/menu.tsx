@@ -59,7 +59,7 @@ const menuItems = [
       {
         icon: <BiSolidSchool className="w-4.5 h-4.5" />,
         label: "Niên khóa",
-        href: "",
+        href: "/admin/lists/academic-years",
         visible: ["admin"],
       },
       {

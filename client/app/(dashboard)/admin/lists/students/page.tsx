@@ -6,45 +6,43 @@ import { vi } from "date-fns/locale";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaRegPenToSquare } from "react-icons/fa6";
 import { createColumnHelper } from "@tanstack/react-table";
-
 import { DataTable } from "@/components/ui/data-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DefaultHeader } from "@/components/ui/defautl-header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import FormModal from "@/components/form/FormModal";
-import { deleteTeacher, getTeachers } from "@/services/Teacher";
-import { TeacherData } from "@/types/TeacherType";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { StudentData } from "@/types/StudentType";
+import { getStudents } from "@/services/Student";
 
-const columnHelper = createColumnHelper<TeacherData>();
+const columnHelper = createColumnHelper<StudentData>();
 
-const TeacherPage = () => {
-    const [teacherMap, setTeacherMap] = useState<Map<number, TeacherData>>(new Map());
+const StudentPage = () => {
+    const [studentMap, setStudentMap] = useState<Map<number, StudentData>>(new Map());
     const [loading, setLoading] = useState(true);
 
     const [showConfirm, setShowConfirm] = useState(false);
-    const [selectedTeacher, setSelectedTeacher] = useState<TeacherData | null>(null);
-    const [editingTeacher, setEditingTeacher] = useState<TeacherData | null>(null);
+    const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
+    const [editingStudent, setEditingStudent] = useState<StudentData | null>(null);
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
 
     useEffect(() => {
-        const fetchTeachers = async () => {
+        const fetchStudents = async () => {
             try {
                 setLoading(true);
-                const res = await getTeachers();
+                const res = await getStudents();
                 console.log(res);
                 if (res) {
-                    const newMap = new Map<number, TeacherData>();
-                    res.data.forEach((teacher: TeacherData) => newMap.set(teacher.user_id, teacher));
-                    setTeacherMap(newMap);
+                    const newMap = new Map<number, StudentData>();
+                    res.forEach((student: StudentData) => newMap.set(student.user_id, student));
+                    setStudentMap(newMap);
                 }
             } catch (err) {
                 const axiosErr = err as AxiosError<any>;
                 let message;
-                console.error("Chi tiết lỗi khi lấy danh sách teacher:", axiosErr.response?.data);
+                console.error("Chi tiết lỗi khi lấy danh sách student:", axiosErr.response?.data);
 
                 if (axiosErr.response?.data?.message) {
                     message = (axiosErr.response.data.message);
@@ -54,10 +52,10 @@ const TeacherPage = () => {
                 else if (axiosErr.message === "Network Error") {
                     message = ("Không thể kết nối đến server.");
                 } else {
-                    message = ("Đã có lỗi xảy ra khi lấy danh sách teacher.");
+                    message = ("Đã có lỗi xảy ra khi lấy danh sách student.");
                 }
 
-                console.error("Lỗi khi lấy danh sách teacher:", err);
+                console.error("Lỗi khi lấy danh sách student:", err);
                 toast.error(message, {
                     description: "Vui lòng kiểm tra lại",
                 });
@@ -66,27 +64,27 @@ const TeacherPage = () => {
             }
         };
 
-        fetchTeachers();
+        fetchStudents();
     }, []);
 
-    const handleAddSuccess = (teacher: TeacherData) => {
-        setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
+    const handleAddSuccess = (student: StudentData) => {
+        setStudentMap(prev => new Map(prev).set(student.user_id, student));
     };
 
-    const handleUpdateSuccess = (teacher: TeacherData) => {
-        setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
+    const handleUpdateSuccess = (student: StudentData) => {
+        setStudentMap(prev => new Map(prev).set(student.user_id, student));
     };
 
     const handleDelete = async () => {
-        if (!selectedTeacher) return;
+        if (!selectedStudent) return;
         try {
-            await deleteTeacher(selectedTeacher.code);
-            setTeacherMap(prev => {
-                const newMap = new Map(prev);
-                newMap.delete(selectedTeacher.user_id);
-                return newMap;
-            });
-            toast.success("Xóa thành công")
+            // await deleteStudent(selectedStudent.code);
+            // setStudentMap(prev => {
+            //     const newMap = new Map(prev);
+            //     newMap.delete(selectedStudent.user_id);
+            //     return newMap;
+            // });
+            // toast.success("Xóa thành công")
         } catch (err: any) {
             const message =
                 err?.response?.data?.message || // nếu từ axios hoặc fetch API
@@ -98,7 +96,7 @@ const TeacherPage = () => {
             });
         } finally {
             setShowConfirm(false);
-            setSelectedTeacher(null);
+            setSelectedStudent(null);
         }
     };
 
@@ -129,11 +127,11 @@ const TeacherPage = () => {
         }),
         columnHelper.accessor((r) => `${r.code}`, {
             id: "code",
-            header: (info) => <DefaultHeader info={info} name="Mã giảng viên" />,
+            header: (info) => <DefaultHeader info={info} name="Mã sinh viên" />,
             enableGlobalFilter: true,
             size: 120,
             meta: {
-                displayName: "Mã giảng viên",
+                displayName: "Mã sinh viên",
             },
         }),
         columnHelper.accessor((r) => `${r.user.last_name} ${r.user.first_name}`, {
@@ -216,13 +214,13 @@ const TeacherPage = () => {
             id: "actions",
             header: () => "Tùy chọn",
             cell: ({ row }) => {
-                const teacher = row.original;
+                const student = row.original;
                 return (
                     <div className="flex text-lg gap-4">
                         <button
                             className="text-orange-500"
                             onClick={() => {
-                                setEditingTeacher(teacher);
+                                setEditingStudent(student);
                                 setShowUpdateForm(true);
                                 setShowAddForm(false);
                             }}
@@ -232,7 +230,7 @@ const TeacherPage = () => {
                         <button
                             className="text-red-500"
                             onClick={() => {
-                                setSelectedTeacher(teacher);
+                                setSelectedStudent(student);
                                 setShowConfirm(true);
                             }}
                         >
@@ -253,51 +251,51 @@ const TeacherPage = () => {
         <div className="w-full bg-white shadow-lg shadow-gray-500 p-4">
             {loading ? (
                 <div className="text-center py-10 text-gray-500">
-                    Đang tải danh sách teacher...
+                    Đang tải danh sách student...
                 </div>
             ) : (
                 <>
-                    <DataTable<TeacherData, any>
+                    <DataTable<StudentData, any>
                         columns={columns}
-                        data={Array.from(teacherMap.values())}
+                        data={Array.from(studentMap.values())}
                         onAddClick={() => {
                             setShowAddForm(true);
                             setShowUpdateForm(false);
-                            setEditingTeacher(null);
+                            setEditingStudent(null);
                         }}
                     />
 
-                    {showAddForm && (
+                    {/* {showAddForm && (
                         <FormModal
-                            table="teacher"
+                            table="student"
                             type="create"
                             onClose={() => setShowAddForm(false)}
                             onSubmitSuccess={handleAddSuccess}
                         />
                     )}
 
-                    {showUpdateForm && editingTeacher && (
+                    {showUpdateForm && editingStudent && (
                         <FormModal
-                            table="teacher"
+                            table="student"
                             type="update"
-                            data={editingTeacher}
+                            data={editingStudent}
                             onClose={() => {
                                 setShowUpdateForm(false);
-                                setEditingTeacher(null);
+                                setEditingStudent(null);
                             }}
                             onSubmitSuccess={handleUpdateSuccess}
                         />
-                    )}
+                    )} */}
 
                     <ConfirmDialog
                         open={showConfirm}
                         title="Xác nhận xóa"
-                        message={`Bạn có chắc chắn muốn xóa teacher “${selectedTeacher?.user.first_name}” không?`}
+                        message={`Bạn có chắc chắn muốn xóa student “${selectedStudent?.user.first_name}” không?`}
                         confirmText="Xóa"
                         cancelText="Hủy"
                         onCancel={() => {
                             setShowConfirm(false);
-                            setSelectedTeacher(null);
+                            setSelectedStudent(null);
                         }}
                         onConfirm={handleDelete}
                     />
@@ -307,4 +305,4 @@ const TeacherPage = () => {
     );
 };
 
-export default TeacherPage;
+export default StudentPage;

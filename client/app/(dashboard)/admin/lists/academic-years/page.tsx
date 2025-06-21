@@ -12,39 +12,39 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DefaultHeader } from "@/components/ui/defautl-header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
-import { deleteTeacher, getTeachers } from "@/services/Teacher";
-import { TeacherData } from "@/types/TeacherType";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { deleteAcademicYear, getAcademicYears } from "@/services/AcademicYear";
+import { AcademicYearData } from "@/types/AcademicYearType";
 
-const columnHelper = createColumnHelper<TeacherData>();
+const columnHelper = createColumnHelper<AcademicYearData>();
 
-const TeacherPage = () => {
-    const [teacherMap, setTeacherMap] = useState<Map<number, TeacherData>>(new Map());
+const AcademicYearPage = () => {
+    const [academic_yearMap, setAcademicYearMap] = useState<Map<number, AcademicYearData>>(new Map());
     const [loading, setLoading] = useState(true);
 
     const [showConfirm, setShowConfirm] = useState(false);
-    const [selectedTeacher, setSelectedTeacher] = useState<TeacherData | null>(null);
-    const [editingTeacher, setEditingTeacher] = useState<TeacherData | null>(null);
+    const [selectedAcademicYear, setSelectedAcademicYear] = useState<AcademicYearData | null>(null);
+    const [editingAcademicYear, setEditingAcademicYear] = useState<AcademicYearData | null>(null);
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
 
     useEffect(() => {
-        const fetchTeachers = async () => {
+        const fetchAcademicYears = async () => {
             try {
                 setLoading(true);
-                const res = await getTeachers();
+                const res = await getAcademicYears();
                 console.log(res);
                 if (res) {
-                    const newMap = new Map<number, TeacherData>();
-                    res.data.forEach((teacher: TeacherData) => newMap.set(teacher.user_id, teacher));
-                    setTeacherMap(newMap);
+                    const newMap = new Map<number, AcademicYearData>();
+                    res.data.forEach((academic_year: AcademicYearData) => newMap.set(academic_year.id, academic_year));
+                    setAcademicYearMap(newMap);
                 }
             } catch (err) {
                 const axiosErr = err as AxiosError<any>;
                 let message;
-                console.error("Chi tiết lỗi khi lấy danh sách teacher:", axiosErr.response?.data);
+                console.error("Chi tiết lỗi khi lấy danh sách academic_year:", axiosErr.response?.data);
 
                 if (axiosErr.response?.data?.message) {
                     message = (axiosErr.response.data.message);
@@ -54,10 +54,10 @@ const TeacherPage = () => {
                 else if (axiosErr.message === "Network Error") {
                     message = ("Không thể kết nối đến server.");
                 } else {
-                    message = ("Đã có lỗi xảy ra khi lấy danh sách teacher.");
+                    message = ("Đã có lỗi xảy ra khi lấy danh sách academic_year.");
                 }
 
-                console.error("Lỗi khi lấy danh sách teacher:", err);
+                console.error("Lỗi khi lấy danh sách academic_year:", err);
                 toast.error(message, {
                     description: "Vui lòng kiểm tra lại",
                 });
@@ -66,24 +66,24 @@ const TeacherPage = () => {
             }
         };
 
-        fetchTeachers();
+        fetchAcademicYears();
     }, []);
 
-    const handleAddSuccess = (teacher: TeacherData) => {
-        setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
+    const handleAddSuccess = (academic_year: AcademicYearData) => {
+        setAcademicYearMap(prev => new Map(prev).set(academic_year.id, academic_year));
     };
 
-    const handleUpdateSuccess = (teacher: TeacherData) => {
-        setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
+    const handleUpdateSuccess = (academic_year: AcademicYearData) => {
+        setAcademicYearMap(prev => new Map(prev).set(academic_year.id, academic_year));
     };
 
     const handleDelete = async () => {
-        if (!selectedTeacher) return;
+        if (!selectedAcademicYear) return;
         try {
-            await deleteTeacher(selectedTeacher.code);
-            setTeacherMap(prev => {
+            await deleteAcademicYear(selectedAcademicYear.id);
+            setAcademicYearMap(prev => {
                 const newMap = new Map(prev);
-                newMap.delete(selectedTeacher.user_id);
+                newMap.delete(selectedAcademicYear.id);
                 return newMap;
             });
             toast.success("Xóa thành công")
@@ -98,11 +98,12 @@ const TeacherPage = () => {
             });
         } finally {
             setShowConfirm(false);
-            setSelectedTeacher(null);
+            setSelectedAcademicYear(null);
         }
     };
 
     const columns = [
+        // checkbox chọn hàng
         columnHelper.display({
             id: "select",
             header: ({ table }) => (
@@ -112,117 +113,59 @@ const TeacherPage = () => {
                         (table.getIsSomePageRowsSelected() && "indeterminate")
                     }
                     onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-                    aria-label="Select all"
+                    aria-label="Chọn tất cả"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
                     onCheckedChange={(v) => row.toggleSelected(!!v)}
-                    aria-label="Select row"
+                    aria-label="Chọn dòng"
                 />
             ),
-            meta: {
-                displayName: "▢",
-            },
+            meta: { displayName: "▢" },
             size: 30,
         }),
-        columnHelper.accessor((r) => `${r.code}`, {
-            id: "code",
-            header: (info) => <DefaultHeader info={info} name="Mã giảng viên" />,
+
+        // tên / mã niên khóa
+        columnHelper.accessor((r) => r.name, {
+            id: "name",
+            header: (info) => <DefaultHeader info={info} name="Niên khóa" />,
+            enableGlobalFilter: true,
+            size: 160,
+            meta: { displayName: "Niên khóa" },
+        }),
+
+        // năm bắt đầu
+        columnHelper.accessor((r) => r.start_year, {
+            id: "start_year",
+            header: (info) => <DefaultHeader info={info} name="Năm bắt đầu" />,
             enableGlobalFilter: true,
             size: 120,
-            meta: {
-                displayName: "Mã giảng viên",
-            },
+            meta: { displayName: "Năm bắt đầu" },
         }),
-        columnHelper.accessor((r) => `${r.user.last_name} ${r.user.first_name}`, {
-            id: "full_name",
-            header: (info) => <DefaultHeader info={info} name="Họ & Tên" />,
-            enableGlobalFilter: true,
-            size: 180,
-            meta: {
-                displayName: "Họ & Tên",
-            },
-        }),
-        columnHelper.accessor((r) => r.user.username, {
-            id: "username",
-            header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
-            enableGlobalFilter: true,
-            size: 150,
-            meta: {
-                displayName: "Tên đăng nhập",
-                hidden: true,
-            },
-        }),
-        columnHelper.accessor((r) => r.user.email, {
-            id: "email",
-            header: (info) => <DefaultHeader info={info} name="Email" />,
-            enableGlobalFilter: true,
-            size: 250,
-            meta: {
-                displayName: "Email",
-            },
-        }),
-        columnHelper.accessor(
-            (r) => format(new Date(r.user.date_of_birth), "dd/MM/yyyy", { locale: vi }),
-            {
-                id: "date_of_birth",
-                header: (info) => <DefaultHeader info={info} name="Ngày sinh" />,
-                enableGlobalFilter: true,
-                size: 110,
-                meta: {
-                    displayName: "Ngày sinh",
-                },
-            }
-        ),
-        columnHelper.accessor((r) => r.user.address, {
-            id: "address",
-            header: (info) => <DefaultHeader info={info} name="Địa chỉ" />,
-            enableGlobalFilter: true,
-            size: 250,
-            meta: {
-                displayName: "Địa chỉ",
-            },
-        }),
-        columnHelper.accessor((r) => r.user.phone, {
-            id: "phone",
-            header: (info) => <DefaultHeader info={info} name="Số điện thoại" />,
+
+        // năm kết thúc
+        columnHelper.accessor((r) => r.end_year, {
+            id: "end_year",
+            header: (info) => <DefaultHeader info={info} name="Năm kết thúc" />,
             enableGlobalFilter: true,
             size: 120,
-            meta: {
-                displayName: "Số điện thoại",
-            },
+            meta: { displayName: "Năm kết thúc" },
         }),
-        columnHelper.accessor((r) => r.user.is_active, {
-            id: "is_active",
-            header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
-            cell: ({ getValue }) => {
-                const active = getValue();
-                return (
-                    <span className={`px-2 py-1 rounded text-white text-sm font-medium w-fit ${active ? "bg-green-500" : "bg-red-500"}`}>
-                        {active ? "Hoạt động" : "Đã khóa"}
-                    </span>
-                );
-            },
-            enableGlobalFilter: false,
-            size: 100,
-            meta: {
-                displayName: "Trạng thái",
-                hidden: true,
-            },
-        }),
+
+        // cột thao tác
         columnHelper.display({
             id: "actions",
-            header: () => "Tùy chọn",
+            header: () => "Tùy chọn",
             cell: ({ row }) => {
-                const teacher = row.original;
+                const academic_year = row.original;
                 return (
                     <div className="flex text-lg gap-4">
                         <button
                             className="text-orange-500"
                             onClick={() => {
-                                setEditingTeacher(teacher);
+                                setEditingAcademicYear(academic_year);
                                 setShowUpdateForm(true);
                                 setShowAddForm(false);
                             }}
@@ -232,7 +175,7 @@ const TeacherPage = () => {
                         <button
                             className="text-red-500"
                             onClick={() => {
-                                setSelectedTeacher(teacher);
+                                setSelectedAcademicYear(academic_year);
                                 setShowConfirm(true);
                             }}
                         >
@@ -243,47 +186,46 @@ const TeacherPage = () => {
             },
             enableGlobalFilter: false,
             size: 90,
-            meta: {
-                displayName: "Tùy chọn",
-            },
+            meta: { displayName: "Tùy chọn" },
         }),
     ];
+
 
     return (
         <div className="w-full bg-white shadow-lg shadow-gray-500 p-4">
             {loading ? (
                 <div className="text-center py-10 text-gray-500">
-                    Đang tải danh sách teacher...
+                    Đang tải danh sách academic_year...
                 </div>
             ) : (
                 <>
-                    <DataTable<TeacherData, any>
+                    <DataTable<AcademicYearData, any>
                         columns={columns}
-                        data={Array.from(teacherMap.values())}
+                        data={Array.from(academic_yearMap.values())}
                         onAddClick={() => {
                             setShowAddForm(true);
                             setShowUpdateForm(false);
-                            setEditingTeacher(null);
+                            setEditingAcademicYear(null);
                         }}
                     />
 
                     {showAddForm && (
                         <FormModal
-                            table="teacher"
+                            table="academic_year"
                             type="create"
                             onClose={() => setShowAddForm(false)}
                             onSubmitSuccess={handleAddSuccess}
                         />
                     )}
 
-                    {showUpdateForm && editingTeacher && (
+                    {showUpdateForm && editingAcademicYear && (
                         <FormModal
-                            table="teacher"
+                            table="academic_year"
                             type="update"
-                            data={editingTeacher}
+                            data={editingAcademicYear}
                             onClose={() => {
                                 setShowUpdateForm(false);
-                                setEditingTeacher(null);
+                                setEditingAcademicYear(null);
                             }}
                             onSubmitSuccess={handleUpdateSuccess}
                         />
@@ -292,12 +234,12 @@ const TeacherPage = () => {
                     <ConfirmDialog
                         open={showConfirm}
                         title="Xác nhận xóa"
-                        message={`Bạn có chắc chắn muốn xóa teacher “${selectedTeacher?.user.first_name}” không?`}
+                        message={`Bạn có chắc chắn muốn xóa niên khóa “${selectedAcademicYear?.name}” không?`}
                         confirmText="Xóa"
                         cancelText="Hủy"
                         onCancel={() => {
                             setShowConfirm(false);
-                            setSelectedTeacher(null);
+                            setSelectedAcademicYear(null);
                         }}
                         onConfirm={handleDelete}
                     />
@@ -307,4 +249,4 @@ const TeacherPage = () => {
     );
 };
 
-export default TeacherPage;
+export default AcademicYearPage;

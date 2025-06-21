@@ -4,14 +4,16 @@ import { AdminForm } from "./AdminForm";
 import { AdminData } from "@/types/AdminType";
 import { TeacherForm } from "./TeacherForm";
 import { TeacherData } from "@/types/TeacherType";
+import { AcademicYearData } from "@/types/AcademicYearType";
+import { AcademicYearForm } from "./AcademicYearForm";
 
 export type ModalType = "create" | "update";
-type TableType = "admin" | "teacher";
+type TableType = "admin" | "teacher" | "academic_year";
 
 interface FormModalProps {
   table: TableType;
   type: ModalType;
-  data?: AdminData | TeacherData;
+  data?: AdminData | TeacherData | AcademicYearData;
   onClose?: () => void;
   onSubmitSuccess?: (item: any) => void;
 }
@@ -40,6 +42,15 @@ const FormModal = ({
           <TeacherForm
             type={type}
             data={data as TeacherData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
+
+      case "academic_year":
+        return (
+          <AcademicYearForm
+            type={type}
+            data={data as AcademicYearData}
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );
