@@ -3,7 +3,7 @@ import { FieldError, UseFormRegisterReturn } from "react-hook-form";
 
 interface OptionItem {
     label: string;
-    value: string | number;
+    value: string | number | boolean;
 }
 
 interface SelectFieldProps {
@@ -13,6 +13,7 @@ interface SelectFieldProps {
     register: UseFormRegisterReturn;
     error?: FieldError;
     className?: string;
+    placeholder?: string;
 }
 
 export default function SelectField({
@@ -22,6 +23,7 @@ export default function SelectField({
     register,
     error,
     className = "",
+    placeholder = "-- Chọn --",
 }: SelectFieldProps) {
     return (
         <div className={`grid gap-2 ${className}`}>
@@ -29,16 +31,19 @@ export default function SelectField({
             <select
                 id={id}
                 {...register}
-                className="border px-3 py-2 rounded-md"
+                className={`border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${error ? "border-red-500" : "border-gray-300"}`}
+                aria-invalid={!!error}
+                aria-describedby={error ? `${id}-error` : undefined}
             >
+                <option value="">{placeholder}</option>
                 {options.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
+                    <option key={opt.value.toString()} value={opt.value.toString()}>
                         {opt.label}
                     </option>
                 ))}
             </select>
             <div className="min-h-[18px]">
-                {error && <p className="text-xs text-red-500">{error.message}</p>}
+                {error && <p id={`${id}-error`} className="text-xs text-red-500">{error.message}</p>}
             </div>
         </div>
     );

@@ -94,7 +94,7 @@ const menuItems = [
       {
         icon: <MdMeetingRoom className="w-4.5 h-4.5" />,
         label: "Phòng học",
-        href: "",
+        href: "/admin/lists/rooms",
         visible: ["admin", "teacher"],
       },
     ],
