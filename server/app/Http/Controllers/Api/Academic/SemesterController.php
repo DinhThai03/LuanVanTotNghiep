@@ -7,6 +7,7 @@ use App\Http\Requests\CreateSemesterRequest;
 use App\Http\Requests\UpdateSemesterRequest;
 use App\Models\Semester;
 use Illuminate\Http\JsonResponse;
+use PHPUnit\Event\TestSuite\Loaded;
 
 class SemesterController extends Controller
 {
@@ -19,6 +20,7 @@ class SemesterController extends Controller
     public function store(CreateSemesterRequest $request): JsonResponse
     {
         $semester = Semester::create($request->validated());
+        $semester->Load('academicYear');
         return response()->json([
             'message' => 'Tạo học kỳ thành công.',
             'data' => $semester,
@@ -42,7 +44,7 @@ class SemesterController extends Controller
         }
 
         $semester->update($request->validated());
-
+        $semester->load('academicYear');
         return response()->json([
             'message' => 'Cập nhật học kỳ thành công.',
             'data' => $semester,
