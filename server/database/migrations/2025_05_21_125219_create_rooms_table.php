@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('rooms', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
             $table->string('name', 100)->notNullable();
             $table->integer('size')->notNullable();
-        
+            $table->enum('room_type', ['LT', 'TH'])->default('LT');
+            $table->boolean('is_active')->default(1);
+
             $table->timestamps();
         });
-        
     }
 
     /**

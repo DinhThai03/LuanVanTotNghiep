@@ -14,7 +14,7 @@ class UpdateTeacherRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'code' => ['required', 'string', 'size:10'],
+            'code' => ['sometimes', 'string', 'size:10'],
         ];
 
         if ($this->isMethod('POST')) {
@@ -27,7 +27,6 @@ class UpdateTeacherRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'code.required' => 'Mã giáo viên là bắt buộc.',
             'code.size' => 'Mã giáo viên phải đúng 10 ký tự.',
             'code.unique' => 'Mã giáo viên đã tồn tại.',
         ];

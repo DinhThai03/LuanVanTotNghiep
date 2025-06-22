@@ -16,6 +16,8 @@ class UpdateRoomRequest extends FormRequest
         return [
             'name' => ['sometimes', 'string', 'max:100'],
             'size' => ['sometimes', 'integer', 'min:10'],
+            'room_type' => ['sometimes', 'string'],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -25,6 +27,8 @@ class UpdateRoomRequest extends FormRequest
             'name.max' => 'Tên phòng không được vượt quá 100 ký tự.',
             'size.integer' => 'Sức chứa phải là số nguyên.',
             'size.min' => 'Sức chứa tối thiểu là 10.',
+            'room_type.boolean' => 'Loại phòng phải là chuỗi.',
+            'is_active.required' => 'Trạng thái hoạt động phải là kiểu boolean',
         ];
     }
 
