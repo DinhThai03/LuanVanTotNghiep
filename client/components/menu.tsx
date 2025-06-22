@@ -59,13 +59,13 @@ const menuItems = [
       {
         icon: <BiSolidSchool className="w-4.5 h-4.5" />,
         label: "Niên khóa",
-        href: "",
+        href: "/admin/lists/academic-years",
         visible: ["admin"],
       },
       {
         icon: <FaBriefcase className="w-4.5 h-4.5" />,
         label: "Học kì",
-        href: "",
+        href: "/admin/lists/semesters",
         visible: ["admin"],
       },
       {
@@ -82,7 +82,7 @@ const menuItems = [
       {
         icon: <FaBriefcase className="w-4.5 h-4.5" />,
         label: "Khoa",
-        href: "",
+        href: "/admin/lists/facultys",
         visible: ["admin"],
       },
       {
@@ -94,7 +94,7 @@ const menuItems = [
       {
         icon: <MdMeetingRoom className="w-4.5 h-4.5" />,
         label: "Phòng học",
-        href: "",
+        href: "/admin/lists/rooms",
         visible: ["admin", "teacher"],
       },
     ],

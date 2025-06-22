@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaRegPenToSquare } from "react-icons/fa6";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -12,39 +10,43 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DefaultHeader } from "@/components/ui/defautl-header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
-import { deleteTeacher, getTeachers } from "@/services/Teacher";
-import { TeacherData } from "@/types/TeacherType";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { deleteRoom, getRooms } from "@/services/Room";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { RoomData } from "@/types/RoomType";
 
-const columnHelper = createColumnHelper<TeacherData>();
 
-const TeacherPage = () => {
-    const [teacherMap, setTeacherMap] = useState<Map<number, TeacherData>>(new Map());
+const columnHelper = createColumnHelper<RoomData>();
+
+const RoomPage = () => {
+    const [roomMap, setRoomMap] = useState<Map<number, RoomData>>(new Map());
+
     const [loading, setLoading] = useState(true);
 
     const [showConfirm, setShowConfirm] = useState(false);
-    const [selectedTeacher, setSelectedTeacher] = useState<TeacherData | null>(null);
-    const [editingTeacher, setEditingTeacher] = useState<TeacherData | null>(null);
+    const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
+    const [editingRoom, setEditingRoom] = useState<RoomData | null>(null);
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
 
     useEffect(() => {
-        const fetchTeachers = async () => {
+        const fetchRooms = async () => {
             try {
                 setLoading(true);
-                const res = await getTeachers();
+                const res = await getRooms();
                 console.log(res);
                 if (res) {
-                    const newMap = new Map<number, TeacherData>();
-                    res.data.forEach((teacher: TeacherData) => newMap.set(teacher.user_id, teacher));
-                    setTeacherMap(newMap);
+                    const newMap = new Map<number, RoomData>();
+                    res.data.forEach((room: RoomData) => newMap.set(room.id, room));
+                    setRoomMap(newMap);
                 }
             } catch (err) {
                 const axiosErr = err as AxiosError<any>;
                 let message;
-                console.error("Chi tiết lỗi khi lấy danh sách teacher:", axiosErr.response?.data);
+                console.error("Chi tiết lỗi khi lấy danh sách room:", axiosErr.response?.data);
 
                 if (axiosErr.response?.data?.message) {
                     message = (axiosErr.response.data.message);
@@ -54,10 +56,10 @@ const TeacherPage = () => {
                 else if (axiosErr.message === "Network Error") {
                     message = ("Không thể kết nối đến server.");
                 } else {
-                    message = ("Đã có lỗi xảy ra khi lấy danh sách teacher.");
+                    message = ("Đã có lỗi xảy ra khi lấy danh sách room.");
                 }
 
-                console.error("Lỗi khi lấy danh sách teacher:", err);
+                console.error("Lỗi khi lấy danh sách room:", err);
                 toast.error(message, {
                     description: "Vui lòng kiểm tra lại",
                 });
@@ -66,24 +68,24 @@ const TeacherPage = () => {
             }
         };
 
-        fetchTeachers();
+        fetchRooms();
     }, []);
 
-    const handleAddSuccess = (teacher: TeacherData) => {
-        setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
+    const handleAddSuccess = (room: RoomData) => {
+        setRoomMap(prev => new Map(prev).set(room.id, room));
     };
 
-    const handleUpdateSuccess = (teacher: TeacherData) => {
-        setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
+    const handleUpdateSuccess = (room: RoomData) => {
+        setRoomMap(prev => new Map(prev).set(room.id, room));
     };
 
     const handleDelete = async () => {
-        if (!selectedTeacher) return;
+        if (!selectedRoom) return;
         try {
-            await deleteTeacher(selectedTeacher.code);
-            setTeacherMap(prev => {
+            await deleteRoom(selectedRoom.id);
+            setRoomMap(prev => {
                 const newMap = new Map(prev);
-                newMap.delete(selectedTeacher.user_id);
+                newMap.delete(selectedRoom.id);
                 return newMap;
             });
             toast.success("Xóa thành công")
@@ -98,7 +100,7 @@ const TeacherPage = () => {
             });
         } finally {
             setShowConfirm(false);
-            setSelectedTeacher(null);
+            setSelectedRoom(null);
         }
     };
 
@@ -112,117 +114,65 @@ const TeacherPage = () => {
                         (table.getIsSomePageRowsSelected() && "indeterminate")
                     }
                     onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-                    aria-label="Select all"
+                    aria-label="Chọn tất cả"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
                     onCheckedChange={(v) => row.toggleSelected(!!v)}
-                    aria-label="Select row"
+                    aria-label="Chọn dòng"
                 />
             ),
-            meta: {
-                displayName: "▢",
-            },
-            size: 30,
+            meta: { displayName: "▢" },
+            size: 10,
         }),
-        columnHelper.accessor((r) => `${r.code}`, {
-            id: "code",
-            header: (info) => <DefaultHeader info={info} name="Mã giảng viên" />,
+
+        columnHelper.accessor("name", {
+            id: "name",
+            header: (info) => <DefaultHeader info={info} name="Tên phòng" />,
             enableGlobalFilter: true,
             size: 120,
-            meta: {
-                displayName: "Mã giảng viên",
-            },
+            meta: { displayName: "Tên phòng" },
         }),
-        columnHelper.accessor((r) => `${r.user.last_name} ${r.user.first_name}`, {
-            id: "full_name",
-            header: (info) => <DefaultHeader info={info} name="Họ & Tên" />,
+
+        columnHelper.accessor("size", {
+            id: "size",
+            header: (info) => <DefaultHeader info={info} name="Sức chứa" />,
             enableGlobalFilter: true,
-            size: 180,
-            meta: {
-                displayName: "Họ & Tên",
-            },
+            size: 50,
+            meta: { displayName: "Sức chứa" },
         }),
-        columnHelper.accessor((r) => r.user.username, {
-            id: "username",
-            header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
+
+        columnHelper.accessor("room_type", {
+            id: "room_type",
+            header: (info) => <DefaultHeader info={info} name="Loại phòng" />,
+            cell: ({ getValue }) => getValue() == "LT" ? "Lý thuyết" : "Thực hành",
             enableGlobalFilter: true,
-            size: 150,
-            meta: {
-                displayName: "Tên đăng nhập",
-                hidden: true,
-            },
+            size: 50,
+            meta: { displayName: "Loại phòng" },
         }),
-        columnHelper.accessor((r) => r.user.email, {
-            id: "email",
-            header: (info) => <DefaultHeader info={info} name="Email" />,
-            enableGlobalFilter: true,
-            size: 250,
-            meta: {
-                displayName: "Email",
-            },
-        }),
-        columnHelper.accessor(
-            (r) => format(new Date(r.user.date_of_birth), "dd/MM/yyyy", { locale: vi }),
-            {
-                id: "date_of_birth",
-                header: (info) => <DefaultHeader info={info} name="Ngày sinh" />,
-                enableGlobalFilter: true,
-                size: 110,
-                meta: {
-                    displayName: "Ngày sinh",
-                },
-            }
-        ),
-        columnHelper.accessor((r) => r.user.address, {
-            id: "address",
-            header: (info) => <DefaultHeader info={info} name="Địa chỉ" />,
-            enableGlobalFilter: true,
-            size: 250,
-            meta: {
-                displayName: "Địa chỉ",
-            },
-        }),
-        columnHelper.accessor((r) => r.user.phone, {
-            id: "phone",
-            header: (info) => <DefaultHeader info={info} name="Số điện thoại" />,
-            enableGlobalFilter: true,
-            size: 120,
-            meta: {
-                displayName: "Số điện thoại",
-            },
-        }),
-        columnHelper.accessor((r) => r.user.is_active, {
+
+        columnHelper.accessor("is_active", {
             id: "is_active",
             header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
-            cell: ({ getValue }) => {
-                const active = getValue();
-                return (
-                    <span className={`px-2 py-1 rounded text-white text-sm font-medium w-fit ${active ? "bg-green-500" : "bg-red-500"}`}>
-                        {active ? "Hoạt động" : "Đã khóa"}
-                    </span>
-                );
-            },
-            enableGlobalFilter: false,
+            cell: ({ getValue }) => getValue() ? "Hoạt động" : "Không hoạt động",
+            enableGlobalFilter: true,
             size: 100,
-            meta: {
-                displayName: "Trạng thái",
-                hidden: true,
-            },
+            meta: { displayName: "Trạng thái" },
         }),
+
         columnHelper.display({
             id: "actions",
             header: () => "Tùy chọn",
             cell: ({ row }) => {
-                const teacher = row.original;
+                const room = row.original;
                 return (
                     <div className="flex text-lg gap-4">
                         <button
                             className="text-orange-500"
                             onClick={() => {
-                                setEditingTeacher(teacher);
+                                setEditingRoom(room);
                                 setShowUpdateForm(true);
                                 setShowAddForm(false);
                             }}
@@ -232,7 +182,7 @@ const TeacherPage = () => {
                         <button
                             className="text-red-500"
                             onClick={() => {
-                                setSelectedTeacher(teacher);
+                                setSelectedRoom(room);
                                 setShowConfirm(true);
                             }}
                         >
@@ -242,10 +192,8 @@ const TeacherPage = () => {
                 );
             },
             enableGlobalFilter: false,
-            size: 90,
-            meta: {
-                displayName: "Tùy chọn",
-            },
+            size: 20,
+            meta: { displayName: "Tùy chọn" },
         }),
     ];
 
@@ -253,37 +201,37 @@ const TeacherPage = () => {
         <div className="w-full bg-white shadow-lg shadow-gray-500 p-4">
             {loading ? (
                 <div className="text-center py-10 text-gray-500">
-                    Đang tải danh sách teacher...
+                    Đang tải danh sách room...
                 </div>
             ) : (
                 <>
-                    <DataTable<TeacherData, any>
+                    <DataTable<RoomData, any>
                         columns={columns}
-                        data={Array.from(teacherMap.values())}
+                        data={Array.from(roomMap.values())}
                         onAddClick={() => {
                             setShowAddForm(true);
                             setShowUpdateForm(false);
-                            setEditingTeacher(null);
+                            setEditingRoom(null);
                         }}
                     />
 
                     {showAddForm && (
                         <FormModal
-                            table="teacher"
+                            table="room"
                             type="create"
                             onClose={() => setShowAddForm(false)}
                             onSubmitSuccess={handleAddSuccess}
                         />
                     )}
 
-                    {showUpdateForm && editingTeacher && (
+                    {showUpdateForm && editingRoom && (
                         <FormModal
-                            table="teacher"
+                            table="room"
                             type="update"
-                            data={editingTeacher}
+                            data={editingRoom}
                             onClose={() => {
                                 setShowUpdateForm(false);
-                                setEditingTeacher(null);
+                                setEditingRoom(null);
                             }}
                             onSubmitSuccess={handleUpdateSuccess}
                         />
@@ -292,12 +240,12 @@ const TeacherPage = () => {
                     <ConfirmDialog
                         open={showConfirm}
                         title="Xác nhận xóa"
-                        message={`Bạn có chắc chắn muốn xóa teacher “${selectedTeacher?.user.first_name}” không?`}
+                        message={`Bạn có chắc chắn muốn xóa phòng “${selectedRoom?.name}” không?`}
                         confirmText="Xóa"
                         cancelText="Hủy"
                         onCancel={() => {
                             setShowConfirm(false);
-                            setSelectedTeacher(null);
+                            setSelectedRoom(null);
                         }}
                         onConfirm={handleDelete}
                     />
@@ -307,4 +255,4 @@ const TeacherPage = () => {
     );
 };
 
-export default TeacherPage;
+export default RoomPage;

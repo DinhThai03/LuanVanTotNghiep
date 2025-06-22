@@ -16,6 +16,8 @@ class CreateRoomRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:100'],
             'size' => ['required', 'integer', 'min:10'],
+            'room_type' => ['sometimes', 'string'],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -27,6 +29,8 @@ class CreateRoomRequest extends FormRequest
             'size.required' => 'Sức chứa là bắt buộc.',
             'size.integer' => 'Sức chứa phải là số nguyên.',
             'size.min' => 'Sức chứa tối thiểu là 10.',
+            'room_type.boolean' => 'Loại phòng phải là chuỗi.',
+            'is_active.required' => 'Trạng thái hoạt động phải là kiểu boolean',
         ];
     }
 

@@ -12,7 +12,7 @@ import SelectField from "../select-field";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { TeacherData } from "@/types/TeacherType";
-import { addTeacher, updateTeacher } from "@/services/teacher";
+import { addTeacher, updateTeacher } from "@/services/Teacher";
 
 const binaryEnum = z.union([z.literal(0), z.literal(1)]);
 

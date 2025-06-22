@@ -9,9 +9,11 @@ class Room extends Model
     protected $fillable = [
         'name',
         'size',
+        'room_type',
+        'is_active',
     ];
 
-    
+
 
     public function lessonRooms()
     {
