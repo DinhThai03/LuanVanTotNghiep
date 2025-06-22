@@ -82,7 +82,7 @@ const menuItems = [
       {
         icon: <FaBriefcase className="w-4.5 h-4.5" />,
         label: "Khoa",
-        href: "",
+        href: "/admin/lists/facultys",
         visible: ["admin"],
       },
       {
