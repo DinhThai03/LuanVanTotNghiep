@@ -65,7 +65,7 @@ const menuItems = [
       {
         icon: <FaBriefcase className="w-4.5 h-4.5" />,
         label: "Học kì",
-        href: "",
+        href: "/admin/lists/semesters",
         visible: ["admin"],
       },
       {
