@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
-import { FacultysData } from "@/types/FacultyType";
+import { FacultyData } from "@/types/FacultyType";
 import { addFaculty, updateFaculty } from "@/services/Faculty";
 
 // Zod schema
@@ -29,8 +29,8 @@ const buildFormData = (fd: FormData) => {
 
 interface FacultyFormProps {
     type: ModalType;
-    data?: FacultysData;
-    onSubmitSuccess?: (faculty: FacultysData) => void;
+    data?: FacultyData;
+    onSubmitSuccess?: (faculty: FacultyData) => void;
 }
 
 export const FacultyForm = ({

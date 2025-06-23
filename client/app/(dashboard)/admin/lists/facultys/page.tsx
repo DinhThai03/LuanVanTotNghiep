@@ -15,19 +15,19 @@ import { AxiosError } from "axios";
 import { deleteFaculty, getFacultys } from "@/services/Faculty";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { FacultysData } from "@/types/FacultyType";
+import { FacultyData } from "@/types/FacultyType";
 
 
-const columnHelper = createColumnHelper<FacultysData>();
+const columnHelper = createColumnHelper<FacultyData>();
 
 const FacultyPage = () => {
-    const [facultyMap, setFacultyMap] = useState<Map<number, FacultysData>>(new Map());
+    const [facultyMap, setFacultyMap] = useState<Map<number, FacultyData>>(new Map());
 
     const [loading, setLoading] = useState(true);
 
     const [showConfirm, setShowConfirm] = useState(false);
-    const [selectedFaculty, setSelectedFaculty] = useState<FacultysData | null>(null);
-    const [editingFaculty, setEditingFaculty] = useState<FacultysData | null>(null);
+    const [selectedFaculty, setSelectedFaculty] = useState<FacultyData | null>(null);
+    const [editingFaculty, setEditingFaculty] = useState<FacultyData | null>(null);
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
@@ -39,8 +39,8 @@ const FacultyPage = () => {
                 const res = await getFacultys();
                 console.log(res);
                 if (res) {
-                    const newMap = new Map<number, FacultysData>();
-                    res.data.forEach((faculty: FacultysData) => newMap.set(faculty.id, faculty));
+                    const newMap = new Map<number, FacultyData>();
+                    res.data.forEach((faculty: FacultyData) => newMap.set(faculty.id, faculty));
                     setFacultyMap(newMap);
                 }
             } catch (err) {
@@ -71,11 +71,11 @@ const FacultyPage = () => {
         fetchFacultys();
     }, []);
 
-    const handleAddSuccess = (faculty: FacultysData) => {
+    const handleAddSuccess = (faculty: FacultyData) => {
         setFacultyMap(prev => new Map(prev).set(faculty.id, faculty));
     };
 
-    const handleUpdateSuccess = (faculty: FacultysData) => {
+    const handleUpdateSuccess = (faculty: FacultyData) => {
         setFacultyMap(prev => new Map(prev).set(faculty.id, faculty));
     };
 
@@ -179,7 +179,7 @@ const FacultyPage = () => {
                 </div>
             ) : (
                 <>
-                    <DataTable<FacultysData, any>
+                    <DataTable<FacultyData, any>
                         columns={columns}
                         data={Array.from(facultyMap.values())}
                         onAddClick={() => {

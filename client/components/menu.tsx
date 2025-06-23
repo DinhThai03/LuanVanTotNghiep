@@ -88,7 +88,7 @@ const menuItems = [
       {
         icon: <SiGoogleclassroom className="w-4.5 h-4.5" />,
         label: "Lớp học",
-        href: "",
+        href: "/admin/lists/classed",
         visible: ["admin"],
       },
       {

@@ -8,18 +8,20 @@ import { AcademicYearData } from "@/types/AcademicYearType";
 import { AcademicYearForm } from "./AcademicYearForm";
 import { SemesterData } from "@/types/SemesterType";
 import { SemesterForm } from "./SemesterForm";
-import { FacultysData } from "@/types/FacultyType";
+import { FacultyData } from "@/types/FacultyType";
 import { FacultyForm } from "./FacultyForm";
 import { RoomData } from "@/types/RoomType";
 import { RoomForm } from "./RoomForm";
+import { ClassedData } from "@/types/ClassedType";
+import { ClassedForm } from "./ClassForm";
 
 export type ModalType = "create" | "update";
-type TableType = "admin" | "teacher" | "academic_year" | "semester" | "faculty" | "room";
+type TableType = "admin" | "teacher" | "academic_year" | "semester" | "faculty" | "room" | "classed";
 
 interface FormModalProps {
   table: TableType;
   type: ModalType;
-  data?: AdminData | TeacherData | AcademicYearData | SemesterData | FacultysData | RoomData;
+  data?: AdminData | TeacherData | AcademicYearData | SemesterData | FacultyData | RoomData | ClassedData;
   onClose?: () => void;
   onSubmitSuccess?: (item: any) => void;
 }
@@ -84,7 +86,16 @@ const FormModal = ({
         return (
           <FacultyForm
             type={type}
-            data={data as FacultysData}
+            data={data as FacultyData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
+
+      case "classed":
+        return (
+          <ClassedForm
+            type={type}
+            data={data as ClassedData}
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );

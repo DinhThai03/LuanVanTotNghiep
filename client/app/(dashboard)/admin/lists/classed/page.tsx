@@ -12,41 +12,41 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
-import { deleteRoom, getRooms } from "@/services/Room";
+import { deleteClassed, getClasseds } from "@/services/Classed";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { RoomData } from "@/types/RoomType";
+import { ClassedData } from "@/types/ClassedType";
 
 
-const columnHelper = createColumnHelper<RoomData>();
+const columnHelper = createColumnHelper<ClassedData>();
 
-const RoomPage = () => {
-    const [roomMap, setRoomMap] = useState<Map<number, RoomData>>(new Map());
+const ClassedPage = () => {
+    const [classedMap, setClassedMap] = useState<Map<number, ClassedData>>(new Map());
 
     const [loading, setLoading] = useState(true);
 
     const [showConfirm, setShowConfirm] = useState(false);
-    const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
-    const [editingRoom, setEditingRoom] = useState<RoomData | null>(null);
+    const [selectedClassed, setSelectedClassed] = useState<ClassedData | null>(null);
+    const [editingClassed, setEditingClassed] = useState<ClassedData | null>(null);
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
 
     useEffect(() => {
-        const fetchRooms = async () => {
+        const fetchClasseds = async () => {
             try {
                 setLoading(true);
-                const res = await getRooms();
+                const res = await getClasseds();
                 console.log(res);
                 if (res) {
-                    const newMap = new Map<number, RoomData>();
-                    res.data.forEach((room: RoomData) => newMap.set(room.id, room));
-                    setRoomMap(newMap);
+                    const newMap = new Map<number, ClassedData>();
+                    res.data.forEach((classed: ClassedData) => newMap.set(classed.id, classed));
+                    setClassedMap(newMap);
                 }
             } catch (err) {
                 const axiosErr = err as AxiosError<any>;
                 let message;
-                console.error("Chi tiết lỗi khi lấy danh sách room:", axiosErr.response?.data);
+                console.error("Chi tiết lỗi khi lấy danh sách classed:", axiosErr.response?.data);
 
                 if (axiosErr.response?.data?.message) {
                     message = (axiosErr.response.data.message);
@@ -56,10 +56,10 @@ const RoomPage = () => {
                 else if (axiosErr.message === "Network Error") {
                     message = ("Không thể kết nối đến server.");
                 } else {
-                    message = ("Đã có lỗi xảy ra khi lấy danh sách room.");
+                    message = ("Đã có lỗi xảy ra khi lấy danh sách classed.");
                 }
 
-                console.error("Lỗi khi lấy danh sách room:", err);
+                console.error("Lỗi khi lấy danh sách classed:", err);
                 toast.error(message, {
                     description: "Vui lòng kiểm tra lại",
                 });
@@ -68,24 +68,24 @@ const RoomPage = () => {
             }
         };
 
-        fetchRooms();
+        fetchClasseds();
     }, []);
 
-    const handleAddSuccess = (room: RoomData) => {
-        setRoomMap(prev => new Map(prev).set(room.id, room));
+    const handleAddSuccess = (classed: ClassedData) => {
+        setClassedMap(prev => new Map(prev).set(classed.id, classed));
     };
 
-    const handleUpdateSuccess = (room: RoomData) => {
-        setRoomMap(prev => new Map(prev).set(room.id, room));
+    const handleUpdateSuccess = (classed: ClassedData) => {
+        setClassedMap(prev => new Map(prev).set(classed.id, classed));
     };
 
     const handleDelete = async () => {
-        if (!selectedRoom) return;
+        if (!selectedClassed) return;
         try {
-            await deleteRoom(selectedRoom.id);
-            setRoomMap(prev => {
+            await deleteClassed(selectedClassed.id);
+            setClassedMap(prev => {
                 const newMap = new Map(prev);
-                newMap.delete(selectedRoom.id);
+                newMap.delete(selectedClassed.id);
                 return newMap;
             });
             toast.success("Xóa thành công")
@@ -100,7 +100,7 @@ const RoomPage = () => {
             });
         } finally {
             setShowConfirm(false);
-            setSelectedRoom(null);
+            setSelectedClassed(null);
         }
     };
 
@@ -130,49 +130,39 @@ const RoomPage = () => {
 
         columnHelper.accessor("name", {
             id: "name",
-            header: (info) => <DefaultHeader info={info} name="Tên phòng" />,
+            header: (info) => <DefaultHeader info={info} name="Tên lớp" />,
             enableGlobalFilter: true,
-            size: 500,
-            meta: { displayName: "Tên phòng" },
+            size: 250,
+            meta: { displayName: "Tên lớp" },
         }),
 
-        columnHelper.accessor("size", {
-            id: "size",
-            header: (info) => <DefaultHeader info={info} name="Sức chứa" />,
-            enableGlobalFilter: true,
-            size: 150,
-            meta: { displayName: "Sức chứa" },
-        }),
-
-        columnHelper.accessor("room_type", {
-            id: "room_type",
-            header: (info) => <DefaultHeader info={info} name="Loại phòng" />,
-            cell: ({ getValue }) => getValue() == "LT" ? "Lý thuyết" : "Thực hành",
-            enableGlobalFilter: true,
-            size: 150,
-            meta: { displayName: "Loại phòng" },
-        }),
-
-        columnHelper.accessor("is_active", {
-            id: "is_active",
-            header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
-            cell: ({ getValue }) => getValue() ? "Hoạt động" : "Không hoạt động",
+        columnHelper.accessor("student_count", {
+            id: "student_count",
+            header: (info) => <DefaultHeader info={info} name="Sĩ số" />,
             enableGlobalFilter: true,
             size: 100,
-            meta: { displayName: "Trạng thái" },
+            meta: { displayName: "Sĩ số" },
+        }),
+
+        columnHelper.accessor("faculty.name", {
+            id: "faculty_name",
+            header: (info) => <DefaultHeader info={info} name="Khoa" />,
+            enableGlobalFilter: true,
+            size: 200,
+            meta: { displayName: "Khoa" },
         }),
 
         columnHelper.display({
             id: "actions",
             header: () => "Tùy chọn",
             cell: ({ row }) => {
-                const room = row.original;
+                const classed = row.original;
                 return (
                     <div className="flex text-lg gap-4">
                         <button
                             className="text-orange-500"
                             onClick={() => {
-                                setEditingRoom(room);
+                                setEditingClassed(classed);
                                 setShowUpdateForm(true);
                                 setShowAddForm(false);
                             }}
@@ -182,7 +172,7 @@ const RoomPage = () => {
                         <button
                             className="text-red-500"
                             onClick={() => {
-                                setSelectedRoom(room);
+                                setSelectedClassed(classed);
                                 setShowConfirm(true);
                             }}
                         >
@@ -192,46 +182,47 @@ const RoomPage = () => {
                 );
             },
             enableGlobalFilter: false,
-            size: 100,
+            size: 40,
             meta: { displayName: "Tùy chọn" },
         }),
     ];
+
 
     return (
         <div className="w-full bg-white shadow-lg shadow-gray-500 p-4">
             {loading ? (
                 <div className="text-center py-10 text-gray-500">
-                    Đang tải danh sách room...
+                    Đang tải danh sách classed...
                 </div>
             ) : (
                 <>
-                    <DataTable<RoomData, any>
+                    <DataTable<ClassedData, any>
                         columns={columns}
-                        data={Array.from(roomMap.values())}
+                        data={Array.from(classedMap.values())}
                         onAddClick={() => {
                             setShowAddForm(true);
                             setShowUpdateForm(false);
-                            setEditingRoom(null);
+                            setEditingClassed(null);
                         }}
                     />
 
                     {showAddForm && (
                         <FormModal
-                            table="room"
+                            table="classed"
                             type="create"
                             onClose={() => setShowAddForm(false)}
                             onSubmitSuccess={handleAddSuccess}
                         />
                     )}
 
-                    {showUpdateForm && editingRoom && (
+                    {showUpdateForm && editingClassed && (
                         <FormModal
-                            table="room"
+                            table="classed"
                             type="update"
-                            data={editingRoom}
+                            data={editingClassed}
                             onClose={() => {
                                 setShowUpdateForm(false);
-                                setEditingRoom(null);
+                                setEditingClassed(null);
                             }}
                             onSubmitSuccess={handleUpdateSuccess}
                         />
@@ -240,12 +231,12 @@ const RoomPage = () => {
                     <ConfirmDialog
                         open={showConfirm}
                         title="Xác nhận xóa"
-                        message={`Bạn có chắc chắn muốn xóa phòng “${selectedRoom?.name}” không?`}
+                        message={`Bạn có chắc chắn muốn xóa phòng “${selectedClassed?.name}” không?`}
                         confirmText="Xóa"
                         cancelText="Hủy"
                         onCancel={() => {
                             setShowConfirm(false);
-                            setSelectedRoom(null);
+                            setSelectedClassed(null);
                         }}
                         onConfirm={handleDelete}
                     />
@@ -255,4 +246,4 @@ const RoomPage = () => {
     );
 };
 
-export default RoomPage;
+export default ClassedPage;

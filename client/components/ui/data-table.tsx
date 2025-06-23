@@ -44,12 +44,14 @@ import { FaPlus } from "react-icons/fa"
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    className?: string
     onAddClick?: () => void
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    className = "h-full",
     onAddClick
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
@@ -129,7 +131,7 @@ export function DataTable<TData, TValue>({
     };
 
     return (
-        <div className='w-full h-full flex flex-col gap-4'>
+        <div className={`w-full max-h-full flex flex-col gap-4 ${className}`}>
             <div className="w-full flex items-center justify-between gap-2">
                 <Input
                     placeholder="Tìm kiếm..."
@@ -166,10 +168,12 @@ export function DataTable<TData, TValue>({
                                 })}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button variant="outline" onClick={onAddClick}>
-                        <FaPlus className=" h-4 w-4" />
-                        <p className="hidden md:inline ml-2">Thêm mới</p>
-                    </Button>
+                    {onAddClick &&
+                        <Button variant="outline" onClick={onAddClick}>
+                            <FaPlus className=" h-4 w-4" />
+                            <p className="hidden md:inline ml-2">Thêm mới</p>
+                        </Button>
+                    }
                 </div>
             </div>
 
