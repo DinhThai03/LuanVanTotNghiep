@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->unique()->notNullable();
             $table->string('place_of_birth', 150);
 
-            $table->foreign('class_id')->references('id')->on('school_classes')->onDelete('cascade');
+            $table->foreign('class_id')->references('id')->on('school_classes');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->timestamps();

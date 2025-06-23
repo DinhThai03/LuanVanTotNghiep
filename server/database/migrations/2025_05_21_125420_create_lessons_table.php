@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('is_active')->notNullable();
             $table->unsignedBigInteger('teacher_subject_id')->notNullable();
         
-            $table->foreign('teacher_subject_id')->references('id')->on('teacher_subjects')->onDelete('cascade');
+            $table->foreign('teacher_subject_id')->references('id')->on('teacher_subjects');
         
             $table->timestamps();
         });

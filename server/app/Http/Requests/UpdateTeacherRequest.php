@@ -15,11 +15,8 @@ class UpdateTeacherRequest extends FormRequest
     {
         $rules = [
             'code' => ['sometimes', 'string', 'size:10'],
+            'status' => ['sometimes', 'string'],
         ];
-
-        if ($this->isMethod('POST')) {
-            $rules['code'][] = 'unique:teachers,code';
-        }
 
         return $rules;
     }

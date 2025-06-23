@@ -13,19 +13,18 @@ return new class extends Migration
     {
         Schema::create('exam_schedules', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
             $table->date('exam_date')->notNullable();
             $table->time('exam_time')->notNullable();
             $table->integer('duration')->notNullable();
             $table->boolean('is_active')->notNullable();
             $table->unsignedBigInteger('semester_subject_id')->notNullable();
-        
-            $table->foreign('semester_subject_id')->references('id')->on('semester_subjects')->onDelete('cascade');
-        
+
+            $table->foreign('semester_subject_id')->references('id')->on('semester_subjects');
+
             $table->timestamps();
         });
-        
     }
 
     /**

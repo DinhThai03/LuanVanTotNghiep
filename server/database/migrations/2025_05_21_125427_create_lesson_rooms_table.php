@@ -20,8 +20,8 @@ return new class extends Migration
             $table->time('start_time')->notNullable();
             $table->time('end_time')->notNullable();
 
-            $table->foreign('lesson_id')->references('id')->on('lessons')->onDelete('cascade');
-            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+            $table->foreign('lesson_id')->references('id')->on('lessons');
+            $table->foreign('room_id')->references('id')->on('rooms');
 
             $table->timestamps();
         });

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('midterm_score', 5, 2)->nullable();
             $table->decimal('final_score', 5, 2)->nullable();
 
-            $table->foreign('registration_id')->references('id')->on('registrations')->onDelete('cascade');
+            $table->foreign('registration_id')->references('id')->on('registrations');
 
             $table->timestamps();
         });

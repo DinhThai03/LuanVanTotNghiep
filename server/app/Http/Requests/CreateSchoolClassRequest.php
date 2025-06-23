@@ -14,7 +14,7 @@ class CreateSchoolClassRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100', "unique:school_classes,name"],
             'student_count' => ['required', 'integer', 'min:0'],
             'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
         ];
@@ -24,6 +24,7 @@ class CreateSchoolClassRequest extends FormRequest
     {
         return [
             'name.required' => 'Tên lớp là bắt buộc.',
+            'name.unique' => 'Tên lớp đã tồn tại.',
             'name.max' => 'Tên lớp không được vượt quá 100 ký tự.',
             'student_count.required' => 'Sĩ số là bắt buộc.',
             'student_count.integer' => 'Sĩ số phải là số nguyên.',

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('student_count')->notNullable();
             $table->unsignedBigInteger('faculty_id')->notNullable();
         
-            $table->foreign('faculty_id')->references('id')->on('faculties')->onDelete('cascade');
+            $table->foreign('faculty_id')->references('id')->on('faculties');
         
             $table->timestamps();
         });

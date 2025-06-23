@@ -16,9 +16,10 @@ return new class extends Migration
 
             $table->char('code', 10)->primary(); // mã giáo viên, là khóa chính
             $table->unsignedBigInteger('user_id')->unique(); // khóa ngoại tới bảng users
+            $table->enum('status', ['Probation', 'Official', 'Resigned'])->default('Probation');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users'); // ràng buộc khóa ngoại
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); // ràng buộc khóa ngoại
         });
     }
 

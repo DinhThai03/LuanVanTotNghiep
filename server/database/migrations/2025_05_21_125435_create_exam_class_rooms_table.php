@@ -13,21 +13,20 @@ return new class extends Migration
     {
         Schema::create('exam_class_rooms', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
             $table->unsignedBigInteger('exam_schedule_id')->notNullable();
             $table->unsignedBigInteger('room_id')->notNullable();
             $table->unsignedBigInteger('class_id')->notNullable();
             $table->integer('start_seat')->notNullable();
             $table->integer('end_seat')->notNullable();
-        
-            $table->foreign('exam_schedule_id')->references('id')->on('exam_schedules')->onDelete('cascade');
-            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
-            $table->foreign('class_id')->references('id')->on('school_classes')->onDelete('cascade');
-        
+
+            $table->foreign('exam_schedule_id')->references('id')->on('exam_schedules');
+            $table->foreign('room_id')->references('id')->on('rooms');
+            $table->foreign('class_id')->references('id')->on('school_classes');
+
             $table->timestamps();
         });
-        
     }
 
     /**

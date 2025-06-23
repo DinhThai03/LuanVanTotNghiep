@@ -14,9 +14,10 @@ class Subject extends Model
         'process_percent',
         'final_percent',
         'subject_type',
+        'is_active',
     ];
 
-    
+
 
     public function teacherSubjects()
     {

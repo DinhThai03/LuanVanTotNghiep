@@ -13,17 +13,16 @@ return new class extends Migration
     {
         Schema::create('teacher_subjects', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
             $table->char('teacher_code', 10)->notNullable();
             $table->unsignedBigInteger('subject_id')->notNullable();
-        
-            $table->foreign('teacher_code')->references('code')->on('teachers')->onDelete('cascade');
-            $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
-        
+
+            $table->foreign('teacher_code')->references('code')->on('teachers');
+            $table->foreign('subject_id')->references('id')->on('subjects');
+
             $table->timestamps();
         });
-        
     }
 
     /**

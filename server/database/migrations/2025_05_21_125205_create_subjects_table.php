@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('subjects', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
             $table->string('name', 100)->notNullable();
             $table->integer('credit')->notNullable();
@@ -22,10 +22,9 @@ return new class extends Migration
             $table->decimal('process_percent', 5, 2)->notNullable();
             $table->decimal('final_percent', 5, 2)->notNullable();
             $table->enum('subject_type', ['LT', 'TH']);
-        
+            $table->boolean('is_active')->default(1);
             $table->timestamps();
         });
-        
     }
 
     /**

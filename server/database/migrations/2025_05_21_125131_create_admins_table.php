@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->unsignedBigInteger('user_id')->primary(); // khóa chính và khóa ngoại tới users
             $table->integer('admin_level')->notNullable();
             $table->timestamps();
-        
-            $table->foreign('user_id')->references('id')->on('users');
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
-        
     }
 
     /**

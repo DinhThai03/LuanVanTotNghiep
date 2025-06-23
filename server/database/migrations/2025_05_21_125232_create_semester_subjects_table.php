@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('subject_id')->notNullable();
             $table->unsignedBigInteger('semester_id')->notNullable();
         
-            $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
-            $table->foreign('semester_id')->references('id')->on('semesters')->onDelete('cascade');
+            $table->foreign('subject_id')->references('id')->on('subjects');
+            $table->foreign('semester_id')->references('id')->on('semesters');
         
             $table->timestamps();
         });

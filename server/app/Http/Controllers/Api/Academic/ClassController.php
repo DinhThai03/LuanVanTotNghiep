@@ -11,15 +11,28 @@ use Illuminate\Http\Request;
 
 class ClassController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $classes = SchoolClass::with('faculty')->get();
+        $query = SchoolClass::with('faculty');
+
+        if ($request->filled('faculty')) {
+            $faculty = $request->input('faculty');
+            $query->whereHas('faculty', function ($q) use ($faculty) {
+                $q->where('id', $faculty);
+            });
+        }
+
+        $classes = $query->get();
+
         return response()->json(['data' => $classes]);
     }
+
+
 
     public function store(CreateSchoolClassRequest $request): JsonResponse
     {
         $class = SchoolClass::create($request->validated());
+        $class->load('faculty');
         return response()->json([
             'message' => 'Tạo lớp học thành công.',
             'data' => $class,
@@ -43,6 +56,8 @@ class ClassController extends Controller
         }
 
         $class->update($request->validated());
+
+        $class->load('faculty');
 
         return response()->json([
             'message' => 'Cập nhật lớp học thành công.',

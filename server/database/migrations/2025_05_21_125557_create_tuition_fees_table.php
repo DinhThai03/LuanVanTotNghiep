@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tuition_fees', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
             $table->unsignedBigInteger('registration_id')->notNullable();
             $table->decimal('amount', 10, 2)->notNullable();
@@ -21,12 +21,11 @@ return new class extends Migration
             $table->string('payment_method', 50)->nullable();
             $table->string('payment_status', 20)->nullable(); // pending, success, failed
             $table->string('transaction_id', 100)->nullable();
-        
-            $table->foreign('registration_id')->references('id')->on('registrations')->onDelete('cascade');
-        
+
+            $table->foreign('registration_id')->references('id')->on('registrations');
+
             $table->timestamps();
         });
-        
     }
 
     /**

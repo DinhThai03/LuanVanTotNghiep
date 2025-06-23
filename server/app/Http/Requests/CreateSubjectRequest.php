@@ -21,6 +21,7 @@ class CreateSubjectRequest extends FormRequest
             'process_percent' => ['required', 'numeric', 'min:0', 'max:100'],
             'final_percent' => ['required', 'numeric', 'min:0', 'max:100'],
             'subject_type' => ['required', 'in:LT,TH'],
+            'is_active' => ['sometimes'],
         ];
     }
 

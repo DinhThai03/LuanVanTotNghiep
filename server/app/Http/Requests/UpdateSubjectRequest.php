@@ -21,6 +21,7 @@ class UpdateSubjectRequest extends FormRequest
             'process_percent' => ['sometimes', 'numeric', 'min:0', 'max:100'],
             'final_percent' => ['sometimes', 'numeric', 'min:0', 'max:100'],
             'subject_type' => ['sometimes', 'in:LT,TH'],
+            'is_active' => ['sometimes'],
         ];
     }
 
