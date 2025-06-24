@@ -20,8 +20,10 @@ class CreateSubjectRequest extends FormRequest
             'midterm_percent' => ['required', 'numeric', 'min:0', 'max:100'],
             'process_percent' => ['required', 'numeric', 'min:0', 'max:100'],
             'final_percent' => ['required', 'numeric', 'min:0', 'max:100'],
+            'year' => ['required', 'integer', 'min:1', 'max:4'],
             'subject_type' => ['required', 'in:LT,TH'],
             'is_active' => ['sometimes'],
+            'faculty_ids' => ['sometimes', 'array'],
         ];
     }
 
@@ -34,6 +36,10 @@ class CreateSubjectRequest extends FormRequest
             'midterm_percent.required' => 'Tỷ lệ điểm giữa kỳ là bắt buộc.',
             'process_percent.required' => 'Tỷ lệ điểm quá trình là bắt buộc.',
             'final_percent.required' => 'Tỷ lệ điểm cuối kỳ là bắt buộc.',
+            'year.required' => 'Năm là bắt buộc.',
+            'year.integer' => 'Năm phải là số nguyên.',
+            'year.min' => 'Năm phải lơn hơn hoặc bằng 1.',
+            'year.max' => 'Năm không phải nhỏ hơn hoặc bằng 4.',
             'subject_type.required' => 'Loại môn học là bắt buộc.',
             'subject_type.in' => 'Loại môn học phải là LT hoặc TH.',
         ];

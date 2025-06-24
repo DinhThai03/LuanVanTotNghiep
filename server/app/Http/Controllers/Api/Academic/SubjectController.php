@@ -12,23 +12,30 @@ class SubjectController extends Controller
 {
     public function index(): JsonResponse
     {
-        $subjects = Subject::all();
+        $subjects = Subject::with('facultySubjects', 'facultySubjects.faculty')->get();
         return response()->json(['data' => $subjects]);
     }
 
     public function store(CreateSubjectRequest $request): JsonResponse
     {
-        $subject = Subject::create($request->validated());
+        $validated = $request->validated();
+
+        $subject = Subject::create(collect($validated)->except('faculty_ids')->toArray());
+
+        $subject->faculties()->sync($validated['faculty_ids'] ?? []);
+        $subject->load('facultySubjects', 'facultySubjects.faculty');
 
         return response()->json([
             'message' => 'Tạo môn học thành công.',
-            'data' => $subject,
+            'data' => $subject->load('faculties'),
         ], 201);
     }
+
 
     public function show($id): JsonResponse
     {
         $subject = Subject::find($id);
+        $subject->load('facultySubjects', 'facultySubjects.faculty');
         if (!$subject) {
             return response()->json(['message' => 'Không tìm thấy môn học.'], 404);
         }
@@ -38,18 +45,18 @@ class SubjectController extends Controller
 
     public function update(UpdateSubjectRequest $request, $id): JsonResponse
     {
-        $subject = Subject::find($id);
-        if (!$subject) {
-            return response()->json(['message' => 'Không tìm thấy môn học.'], 404);
-        }
+        $subject = Subject::findOrFail($id);
 
-        $subject->update($request->validated());
-
+        $validated = $request->validated();
+        $subject->update(collect($validated)->except('faculty_ids')->toArray());
+        $subject->faculties()->sync($validated['faculty_ids'] ?? []);
+        $subject->load('facultySubjects', 'facultySubjects.faculty');
         return response()->json([
             'message' => 'Cập nhật môn học thành công.',
-            'data' => $subject,
+            'data' => $subject->load('faculties'),
         ]);
     }
+
 
     public function destroy($id): JsonResponse
     {

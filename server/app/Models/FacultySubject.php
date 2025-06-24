@@ -11,7 +11,6 @@ class FacultySubject extends Model
     
 
     protected $fillable = [
-        'year',
         'subject_id',
         'faculty_id',
     ];

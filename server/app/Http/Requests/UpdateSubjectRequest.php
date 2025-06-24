@@ -20,8 +20,10 @@ class UpdateSubjectRequest extends FormRequest
             'midterm_percent' => ['sometimes', 'numeric', 'min:0', 'max:100'],
             'process_percent' => ['sometimes', 'numeric', 'min:0', 'max:100'],
             'final_percent' => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'year' => ['sometimes', 'integer', 'min:1', 'max:4'],
             'subject_type' => ['sometimes', 'in:LT,TH'],
             'is_active' => ['sometimes'],
+            'faculty_ids' => ['sometimes', 'array'],
         ];
     }
 
@@ -29,6 +31,9 @@ class UpdateSubjectRequest extends FormRequest
     {
         return [
             'subject_type.in' => 'Loại môn học phải là LT hoặc TH.',
+            'year.integer' => 'Năm phải là số nguyên.',
+            'year.min' => 'Năm không hợp lệ.',
+            'year.max' => 'Năm không hợp lệ.',
         ];
     }
 

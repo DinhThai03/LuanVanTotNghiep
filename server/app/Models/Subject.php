@@ -13,6 +13,7 @@ class Subject extends Model
         'midterm_percent',
         'process_percent',
         'final_percent',
+        'year',
         'subject_type',
         'is_active',
     ];
@@ -32,5 +33,10 @@ class Subject extends Model
     public function facultySubjects()
     {
         return $this->hasMany(FacultySubject::class, 'subject_id');
+    }
+
+    public function faculties()
+    {
+        return $this->belongsToMany(Faculty::class, 'faculty_subjects', 'subject_id', 'faculty_id');
     }
 }

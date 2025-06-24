@@ -14,7 +14,6 @@ class CreateFacultySubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'year' => ['required', 'integer', 'min:1', 'max:4'],
             'subject_id' => ['required', 'integer', 'exists:subjects,id'],
             'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
         ];
@@ -23,10 +22,6 @@ class CreateFacultySubjectRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'year.required' => 'Năm là bắt buộc.',
-            'year.integer' => 'Năm phải là số nguyên.',
-            'year.min' => 'Năm không hợp lệ.',
-            'year.max' => 'Năm không hợp lệ.',
             'subject_id.required' => 'Môn học là bắt buộc.',
             'subject_id.exists' => 'Môn học không tồn tại.',
             'faculty_id.required' => 'Khoa là bắt buộc.',

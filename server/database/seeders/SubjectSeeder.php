@@ -20,6 +20,7 @@ class SubjectSeeder extends Seeder
                 'midterm_percent' => 30.00,
                 'process_percent' => 30.00,
                 'final_percent' => 40.00,
+                'year' => 2,
                 'subject_type' => 'LT',
             ],
             [
@@ -29,6 +30,7 @@ class SubjectSeeder extends Seeder
                 'midterm_percent' => 25.00,
                 'process_percent' => 25.00,
                 'final_percent' => 50.00,
+                'year' => 1,
                 'subject_type' => 'TH',
             ],
             [
@@ -38,6 +40,7 @@ class SubjectSeeder extends Seeder
                 'midterm_percent' => 30.00,
                 'process_percent' => 20.00,
                 'final_percent' => 50.00,
+                'year' => 1,
                 'subject_type' => 'LT',
             ],
             [
@@ -47,6 +50,7 @@ class SubjectSeeder extends Seeder
                 'midterm_percent' => 30.00,
                 'process_percent' => 30.00,
                 'final_percent' => 40.00,
+                'year' => 1,
                 'subject_type' => 'TH',
             ],
             [
@@ -56,6 +60,7 @@ class SubjectSeeder extends Seeder
                 'midterm_percent' => 30.00,
                 'process_percent' => 30.00,
                 'final_percent' => 40.00,
+                'year' => 2,
                 'subject_type' => 'LT',
             ],
         ]);
