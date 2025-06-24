@@ -24,6 +24,11 @@ return new class extends Migration
             $table->boolean('sex')->default(1);
             $table->string('address', 150);
             $table->string('phone', 15);
+            $table->string('identity_number', 20)->nullable();
+            $table->date('issued_date')->nullable();
+            $table->string('issued_place', 100)->nullable();
+            $table->string('ethnicity', 50)->nullable();
+            $table->string('religion', 50)->nullable();
             $table->boolean('is_active')->default(1);
             $table->rememberToken()->nullable();
             $table->timestamps();

@@ -17,12 +17,14 @@ class TeacherSeeder extends Seeder
             [
                 'code' => 'GV00000001',
                 'user_id' => 2,
+                'faculty_id' => 1,
             ],
             [
                 'code' => 'GV00000002',
                 'user_id' => 3,
+                'faculty_id' => 3,
             ],
-            
+
         ]);
     }
 }

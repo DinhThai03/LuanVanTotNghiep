@@ -19,4 +19,9 @@ class Faculty extends Model
     {
         return $this->belongsToMany(Subject::class, 'faculty_subjects', 'faculty_id', 'subject_id');
     }
+
+    public function teachers()
+    {
+        return $this->hasMany(Teacher::class, 'faculty_id');
+    }
 }

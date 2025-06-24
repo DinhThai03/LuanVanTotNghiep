@@ -22,6 +22,11 @@ class User extends Authenticatable implements JWTSubject
         'sex',
         'address',
         'phone',
+        'identity_number',
+        'issued_date',
+        'issued_place',
+        'ethnicity',
+        'religion',
         'is_active',
     ];
 
@@ -32,6 +37,7 @@ class User extends Authenticatable implements JWTSubject
 
     protected $casts = [
         'date_of_birth' => 'date',
+        'issued_date' => 'date',
         'sex' => 'boolean',
         'is_active' => 'boolean',
     ];
@@ -71,7 +77,6 @@ class User extends Authenticatable implements JWTSubject
     }
 
     // === Notifications ===
-
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token));

@@ -6,18 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
-    protected $primaryKey = 'code';  // Khóa chính là code kiểu CHAR(10)
-    public $incrementing = false;    // Không tự tăng
-    protected $keyType = 'string';   // Kiểu khóa chính là string
+    protected $primaryKey = 'code';     // Khóa chính là code kiểu CHAR(10)
+    public $incrementing = false;       // Không tự tăng
+    protected $keyType = 'string';      // Kiểu khóa chính là string
 
     protected $fillable = [
         'code',
         'class_id',
         'user_id',
         'place_of_birth',
+        'status', // Thêm vào fillable
     ];
 
+    protected $casts = [
+        'status' => 'string',
+    ];
 
+    // === Relationships ===
 
     public function user()
     {
@@ -37,5 +42,17 @@ class Student extends Model
     public function registrations()
     {
         return $this->hasMany(Registration::class, 'student_code', 'code');
+    }
+
+    // === Accessor: hiển thị trạng thái bằng tiếng Việt ===
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            'studying' => 'Đang học',
+            'paused' => 'Nghỉ học',
+            'graduated' => 'Tốt nghiệp',
+            default => 'Không xác định',
+        };
     }
 }

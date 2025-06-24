@@ -14,8 +14,8 @@ class UpdateTeacherRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'code' => ['sometimes', 'string', 'size:10'],
-            'status' => ['sometimes', 'string'],
+            'status' => ['sometimes', 'string', 'in:Probation,Official,Resigned'],
+            'faculty_id' => ['sometimes', 'integer', 'exists:faculties,id'],
         ];
 
         return $rules;
@@ -24,10 +24,11 @@ class UpdateTeacherRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'code.size' => 'Mã giáo viên phải đúng 10 ký tự.',
-            'code.unique' => 'Mã giáo viên đã tồn tại.',
+            'status.in' => 'Trạng thái không hợp lệ.',
+            'faculty_id.exists' => 'Khoa không tồn tại.',
         ];
     }
+
 
     public function attributes(): array
     {

@@ -15,9 +15,12 @@ return new class extends Migration
             $table->engine = 'InnoDB';
 
             $table->char('code', 10)->primary();
+            $table->string('place_of_birth', 150);
+
+            $table->enum('status', ['studying', 'paused', 'graduated'])->default('studying');
+
             $table->unsignedBigInteger('class_id')->notNullable();
             $table->unsignedBigInteger('user_id')->unique()->notNullable();
-            $table->string('place_of_birth', 150);
 
             $table->foreign('class_id')->references('id')->on('school_classes');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
