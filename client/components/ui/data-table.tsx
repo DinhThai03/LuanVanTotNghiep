@@ -341,7 +341,12 @@ function fuzzyFilter<TData>(
 
     return visibleCells.some(cell => {
         const value = cell.getValue()
-        if (typeof value !== 'string') return false
-        return normalizeString(value).includes(normalizeString(filterValue))
+        if (typeof value === 'number') {
+            return value.toString().includes(filterValue)
+        }
+        if (typeof value === 'string') {
+            return normalizeString(value).includes(normalizeString(filterValue))
+        }
+        return false
     })
 }

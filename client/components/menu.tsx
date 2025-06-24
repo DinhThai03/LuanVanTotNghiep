@@ -71,7 +71,7 @@ const menuItems = [
       {
         icon: <FaBook className="w-4.5 h-4.5" />,
         label: "Môn học",
-        href: "",
+        href: "/admin/lists/subjects",
         visible: ["admin"],
       },
     ],

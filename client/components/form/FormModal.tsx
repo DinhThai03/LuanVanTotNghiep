@@ -14,14 +14,15 @@ import { RoomData } from "@/types/RoomType";
 import { RoomForm } from "./RoomForm";
 import { ClassedData } from "@/types/ClassedType";
 import { ClassedForm } from "./ClassForm";
+import { SubjectForm } from "./SubjectForm";
+import { SubjectData } from "@/types/SubjectType";
 
 export type ModalType = "create" | "update";
-type TableType = "admin" | "teacher" | "academic_year" | "semester" | "faculty" | "room" | "classed";
 
 interface FormModalProps {
-  table: TableType;
+  table: string;
   type: ModalType;
-  data?: AdminData | TeacherData | AcademicYearData | SemesterData | FacultyData | RoomData | ClassedData;
+  data?: unknown;
   onClose?: () => void;
   onSubmitSuccess?: (item: any) => void;
 }
@@ -99,14 +100,23 @@ const FormModal = ({
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );
+
+      case "subject":
+        return (
+          <SubjectForm
+            type={type}
+            data={data as SubjectData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
       default:
         return <div>Form không tồn tại!</div>;
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-end md:items-center justify-center z-30">
-      <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative max-h-[calc(100vh-50px)] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/30 top-[60px] md:top-0 flex items-center justify-center z-30">
+      <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative max-h-[calc(100vh-60px)] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-3xl cursor-pointer hover:text-gray-900 hover:rotate-90 duration-150 ease-in-out"

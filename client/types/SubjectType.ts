@@ -1,4 +1,13 @@
-export interface Subject {
+import { FacultyData } from "./FacultyType";
+
+export interface FacultySubjectData {
+    id: number;
+    subject_id: number;
+    faculty_id: number;
+    faculty: FacultyData;
+}
+
+export interface SubjectData {
     id: number;
     name: string;
     credit: number;
@@ -6,6 +15,8 @@ export interface Subject {
     midterm_percent: number;
     process_percent: number;
     final_percent: number;
-    subject_type: 'LT' | 'TH' | string;
-    is_active: boolean;
+    year: number;
+    subject_type: 'LT' | 'TH' | 'DA' | 'KL';
+    is_active: number;
+    faculty_subjects: FacultySubjectData[];
 }
