@@ -121,66 +121,89 @@ const AdminsPage = () => {
                     aria-label="Select row"
                 />
             ),
-            meta: {
-                displayName: "▢",
-            },
+            meta: { displayName: "Chọn" },
             size: 30,
         }),
-        columnHelper.accessor(
-            (r) => `${r.user.last_name} ${r.user.first_name}`,
-            {
-                id: "full_name",
-                header: (info) => <DefaultHeader info={info} name="Họ & Tên" />,
-                meta: {
-                    displayName: "Họ & Tên",
-                },
-                enableGlobalFilter: true,
-                size: 200,
-            }
-        ),
+
+        columnHelper.accessor((r) => `${r.user.last_name} ${r.user.first_name}`, {
+            id: "full_name",
+            header: (info) => <DefaultHeader info={info} name="Họ & Tên" />,
+            meta: { displayName: "Họ & Tên" },
+            enableGlobalFilter: true,
+            size: 180,
+        }),
+
         columnHelper.accessor((r) => r.user.username, {
             id: "username",
             header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
-            meta: {
-                displayName: "Tên đăng nhập",
-            },
-            enableGlobalFilter: true,
-            size: 150,
+            meta: { displayName: "Tên đăng nhập" },
+            size: 140,
         }),
+
         columnHelper.accessor((r) => r.user.email, {
             id: "email",
             header: (info) => <DefaultHeader info={info} name="Email" />,
-            enableGlobalFilter: true,
-            size: 250,
+            meta: { displayName: "Email" },
+            size: 240,
         }),
+
         columnHelper.accessor(
             (r) => format(new Date(r.user.date_of_birth), "dd/MM/yyyy", { locale: vi }),
             {
                 id: "date_of_birth",
                 header: (info) => <DefaultHeader info={info} name="Ngày sinh" />,
-                meta: {
-                    displayName: "Ngày sinh",
-                },
-                enableGlobalFilter: true,
+                meta: { displayName: "Ngày sinh" },
                 size: 110,
             }
         ),
+
+        columnHelper.accessor((r) => r.user.phone, {
+            id: "phone",
+            header: (info) => <DefaultHeader info={info} name="SĐT" />,
+            meta: { displayName: "Số điện thoại" },
+            size: 120,
+        }),
+
         columnHelper.accessor((r) => r.user.address, {
             id: "address",
             header: (info) => <DefaultHeader info={info} name="Địa chỉ" />,
-            enableGlobalFilter: true, meta: {
+            meta: {
                 displayName: "Địa chỉ",
+                hidden: true,
             },
-            size: 250,
+            size: 200,
         }),
-        columnHelper.accessor((r) => r.user.phone, {
-            id: "phone",
-            header: (info) => <DefaultHeader info={info} name="Số điện thoại" />,
-            enableGlobalFilter: true, meta: {
-                displayName: "Số điện thoại",
+
+        columnHelper.accessor((r) => r.user.identity_number, {
+            id: "identity_number",
+            header: (info) => <DefaultHeader info={info} name="CCCD" />,
+            meta: {
+                displayName: "CCCD",
+                hidden: true,
             },
-            size: 120,
+            size: 140,
         }),
+
+        columnHelper.accessor((r) => r.user.ethnicity, {
+            id: "ethnicity",
+            header: (info) => <DefaultHeader info={info} name="Dân tộc" />,
+            meta: {
+                displayName: "Dân tộc",
+                hidden: true,
+            },
+            size: 100,
+        }),
+
+        columnHelper.accessor((r) => r.user.religion, {
+            id: "religion",
+            header: (info) => <DefaultHeader info={info} name="Tôn giáo" />,
+            meta: {
+                displayName: "Tôn giáo",
+                hidden: true,
+            },
+            size: 100,
+        }),
+
         columnHelper.accessor((r) => r.user.is_active, {
             id: "is_active",
             header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
@@ -192,23 +215,22 @@ const AdminsPage = () => {
                     </span>
                 );
             },
-            enableGlobalFilter: false, meta: {
-                displayName: "Trạng thái",
-            },
+            meta: { displayName: "Trạng thái" },
             size: 100,
         }),
+
         columnHelper.accessor((r) => r.admin_level, {
             id: "admin_level",
             header: (info) => <DefaultHeader info={info} name="Cấp" />,
-            cell: ({ getValue }) =>
+            cell: ({ getValue }) => (
                 <span className="text-sm font-medium">
                     {getValue() == 1 ? "Super Admin" : getValue() == 2 ? "Admin" : "Khác"}
-                </span>,
-            enableGlobalFilter: false, meta: {
-                displayName: "Cấp",
-            },
+                </span>
+            ),
+            meta: { displayName: "Cấp" },
             size: 90,
         }),
+
         columnHelper.display({
             id: "actions",
             header: () => "Tùy chọn",
@@ -216,31 +238,23 @@ const AdminsPage = () => {
                 const admin = row.original;
                 return (
                     <div className="flex text-lg gap-4">
-                        <button
-                            className="text-orange-500"
-                            onClick={() => {
-                                setEditingAdmin(admin);
-                                setShowUpdateForm(true);
-                                setShowAddForm(false);
-                            }}
-                        >
+                        <button className="text-orange-500" onClick={() => {
+                            setEditingAdmin(admin);
+                            setShowUpdateForm(true);
+                            setShowAddForm(false);
+                        }}>
                             <FaRegPenToSquare />
                         </button>
-                        <button
-                            className="text-red-500"
-                            onClick={() => {
-                                setSelectedAdmin(admin);
-                                setShowConfirm(true);
-                            }}
-                        >
+                        <button className="text-red-500" onClick={() => {
+                            setSelectedAdmin(admin);
+                            setShowConfirm(true);
+                        }}>
                             <FaRegTrashAlt />
                         </button>
                     </div>
                 );
             },
-            enableGlobalFilter: false, meta: {
-                displayName: "Tùy chọn",
-            },
+            meta: { displayName: "Tùy chọn" },
             size: 90,
         }),
     ];

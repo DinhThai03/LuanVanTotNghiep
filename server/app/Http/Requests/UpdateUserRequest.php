@@ -13,18 +13,17 @@ class UpdateUserRequest extends FormRequest
 
     public function rules(): array
     {
+        $userId = request()->route('user') ?? request()->get('user_id');
         return [
-            'username'        => 'sometimes|string|max:50|unique:users,username,' . $this->route('user'),
-            'password'        => 'sometimes|string|min:6|max:100',
             'role'            => 'sometimes|in:admin,teacher,student,parent',
-            'email'           => 'sometimes|email|max:100|unique:users,email,' . $this->route('user'),
+            'email'           => 'sometimes|email|max:100|unique:users,email,' . $userId,
             'date_of_birth'   => 'sometimes|date',
             'first_name'      => 'sometimes|string|max:100',
             'last_name'       => 'sometimes|string|max:100',
             'sex'             => 'sometimes|boolean',
             'address'         => 'sometimes|string|max:150',
             'phone'           => 'sometimes|string|max:15',
-            'identity_number' => 'sometimes|string|max:20|unique:users,identity_number,' . $this->route('user'),
+            'identity_number' => 'sometimes|string|max:20|unique:users,identity_number,' . $userId,
             'issued_date'     => 'sometimes|date|nullable',
             'issued_place'    => 'sometimes|string|max:100|nullable',
             'ethnicity'       => 'sometimes|string|max:50|nullable',

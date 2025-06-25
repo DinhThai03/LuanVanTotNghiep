@@ -23,6 +23,7 @@ class CreateTeacherRequest extends FormRequest
             'code' => ['required', 'string', 'size:10', 'unique:teachers,code'],
             'status' => ['required', 'string'],
             'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
+            'subject_ids' => ['sometimes', 'array'],
         ];
     }
 
@@ -43,6 +44,7 @@ class CreateTeacherRequest extends FormRequest
             'faculty_id.required' => 'Vui lòng chọn khoa.',
             'faculty_id.integer' => 'ID khoa không hợp lệ.',
             'faculty_id.exists' => 'Khoa không tồn tại.',
+            'subject_ids.array' => 'mã môn học phải là 1 mảng'
         ];
     }
 

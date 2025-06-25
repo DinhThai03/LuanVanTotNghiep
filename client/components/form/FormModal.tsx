@@ -16,6 +16,7 @@ import { ClassedData } from "@/types/ClassedType";
 import { ClassedForm } from "./ClassForm";
 import { SubjectForm } from "./SubjectForm";
 import { SubjectData } from "@/types/SubjectType";
+import { ScrollArea } from "../ui/scroll-area";
 
 export type ModalType = "create" | "update";
 
@@ -116,15 +117,17 @@ const FormModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/30 top-[60px] md:top-0 flex items-center justify-center z-30">
-      <div className="bg-white rounded-lg w-full max-w-4xl p-6 relative max-h-[calc(100vh-60px)] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-3xl cursor-pointer hover:text-gray-900 hover:rotate-90 duration-150 ease-in-out"
-        >
-          &times;
-        </button>
-        {renderForm()}
-      </div>
+      <ScrollArea className="bg-white rounded-lg w-full max-w-4xl ">
+        <div className="p-6 relative max-h-[calc(100vh-60px)] md:max-h-[calc(100vh-200px)]">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-3xl cursor-pointer hover:text-gray-900 hover:rotate-90 duration-150 ease-in-out"
+          >
+            &times;
+          </button>
+          {renderForm()}
+        </div>
+      </ScrollArea>
     </div>
   );
 };

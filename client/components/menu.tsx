@@ -10,7 +10,7 @@ import Cookies from "js-cookie";
 import { profile } from "@/features/auth/api";
 import { IoMdNotifications } from "react-icons/io";
 import { TbCircleDashedLetterA } from "react-icons/tb";
-import { GiArchiveRegister, GiTeacher } from "react-icons/gi";
+import { GiArchiveRegister, GiSpellBook, GiTeacher } from "react-icons/gi";
 import { SiGoogleclassroom } from "react-icons/si";
 
 const menuItems = [
@@ -102,6 +102,12 @@ const menuItems = [
   {
     title: "Quản lý giảng dạy",
     items: [
+      {
+        icon: < GiSpellBook className="w-4.5 h-4.5" />,
+        label: "Tổ chức môn",
+        href: "",
+        visible: ["admin"],
+      },
       {
         icon: <GiTeacher className="w-4.5 h-4.5" />,
         label: "Bài giảng",

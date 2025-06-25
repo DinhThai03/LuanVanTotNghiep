@@ -40,6 +40,22 @@ const baseSchema = z.object({
         .min(10, "Số điện thoại phải tối thiểu 10 số")
         .max(11, "Số điện thoại tối đa 11 số")
         .regex(/^\d+$/, "Số điện thoại chỉ gồm chữ số"),
+
+    identity_number: z
+        .string()
+        .nonempty("Số CCCD/CMND không được để trống")
+        .regex(/^[0-9]{9}$|^[0-9]{12}$/, "Số CCCD/CMND phải gồm 9 hoặc 12 chữ số"),
+
+
+    issued_date: z
+        .string()
+        .min(1, "ngày cấp không hợp lệ"),
+
+    issued_place: z.string().min(1, "Nơi cấp không được để trống"),
+
+    ethnicity: z.string().min(1, "Dân tộc không được để trống"),
+
+    religion: z.string().min(1, "Tôn giáo không được để trống"),
     is_active: binaryEnum,
     admin_level: z
         .coerce.number({ invalid_type_error: "Cấp quản trị là số" })
@@ -74,11 +90,19 @@ const buildFormData = (fd: FormData, type: ModalType) => {
     form.append("phone", fd.phone);
     form.append("is_active", fd.is_active.toString());
     form.append("admin_level", fd.admin_level.toString());
+    form.append("identity_number", fd.identity_number || "");
+    form.append("issued_date", fd.issued_date || "");
+    form.append("issued_place", fd.issued_place || "");
+    form.append("ethnicity", fd.ethnicity || "");
+    form.append("religion", fd.religion || "");
 
     if (type === "create") {
         const cfd = fd as CreateFormData;
         form.append("username", cfd.username);
         form.append("password", cfd.password);
+    }
+    if (type === "update") {
+        form.append("user_id", fd.id?.toString()!);
     }
     return form;
 };
@@ -111,16 +135,21 @@ export const AdminForm = ({
             last_name: data?.user.last_name ?? "",
             first_name: data?.user.first_name ?? "",
             email: data?.user.email ?? "",
-            date_of_birth: data
-                ? new Date(data.user.date_of_birth).toISOString().split("T")[0]
-                : "",
+            date_of_birth: data ? new Date(data.user.date_of_birth).toISOString().split("T")[0] : "",
             address: data?.user.address ?? "",
             phone: data?.user.phone ?? "",
             sex: data ? (data.user.sex ? 1 : 0) : 1,
             is_active: data ? (data.user.is_active ? 1 : 0) : 1,
             admin_level: data?.admin_level ?? 1,
             password: type === "create" ? "" : undefined,
-        },
+
+            identity_number: data?.user.identity_number ?? "",
+            issued_date: data?.user.issued_date ? new Date(data.user.issued_date).toISOString().split("T")[0] : "",
+            issued_place: data?.user.issued_place ?? "",
+            ethnicity: data?.user.ethnicity ?? "",
+            religion: data?.user.religion ?? "",
+        }
+
     });
 
     watch(["sex", "is_active", "admin_level"]);
@@ -259,6 +288,47 @@ export const AdminForm = ({
                         register={register("phone")}
                         error={errors.phone}
                     />
+
+                    <InputField
+                        id="identity_number"
+                        label="Số CMND/CCCD"
+                        type="text"
+                        register={register("identity_number")}
+                        error={errors.identity_number}
+                    />
+
+                    <InputField
+                        id="issued_date"
+                        label="Ngày cấp"
+                        type="date"
+                        register={register("issued_date")}
+                        error={errors.issued_date}
+                    />
+
+                    <InputField
+                        id="issued_place"
+                        label="Nơi cấp"
+                        type="text"
+                        register={register("issued_place")}
+                        error={errors.issued_place}
+                    />
+
+                    <InputField
+                        id="ethnicity"
+                        label="Dân tộc"
+                        type="text"
+                        register={register("ethnicity")}
+                        error={errors.ethnicity}
+                    />
+
+                    <InputField
+                        id="religion"
+                        label="Tôn giáo"
+                        type="text"
+                        register={register("religion")}
+                        error={errors.religion}
+                    />
+
 
                     <SelectField
                         id="is_active"

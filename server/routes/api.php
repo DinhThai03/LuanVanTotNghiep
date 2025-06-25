@@ -127,6 +127,7 @@ Route::middleware(['auth'])->group(function () {
 
     //============== FACULTY_SUBJECT ==============
     Route::get('faculty_subjects', [FacultySubjectController::class, 'index']);
+    Route::get('/faculties/{facultyId}/all-subjects', [FacultySubjectController::class, 'getAllSubjectsWithFaculty']);
     Route::get('faculty_subject/{id}', [FacultySubjectController::class, 'show']);
     Route::post('faculty_subject', [FacultySubjectController::class, 'store']);
     Route::post('faculty_subject/{id}', [FacultySubjectController::class, 'update']);

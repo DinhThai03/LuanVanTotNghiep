@@ -16,6 +16,7 @@ class UpdateTeacherRequest extends FormRequest
         $rules = [
             'status' => ['sometimes', 'string', 'in:Probation,Official,Resigned'],
             'faculty_id' => ['sometimes', 'integer', 'exists:faculties,id'],
+            'subject_ids' => ['sometimes', 'array'],
         ];
 
         return $rules;

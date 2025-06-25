@@ -9,6 +9,11 @@ export interface User {
     sex: boolean;
     address: string;
     phone: string;
+    identity_number: string | null;
+    issued_date: string | null;
+    issued_place: string | null;
+    ethnicity: string | null;
+    religion: string | null;
     is_active: number;
     remember_token: string | null;
 }

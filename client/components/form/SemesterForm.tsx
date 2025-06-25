@@ -78,7 +78,7 @@ export const SemesterForm = ({
             name: data?.name ?? "Học kỳ 1",
             start_date: data?.start_date ?? "",
             end_date: data?.end_date ?? "",
-            academic_year_id: data?.academic_year_id ?? undefined,
+            academic_year_id: data?.academic_year.id ?? undefined,
         },
     });
 

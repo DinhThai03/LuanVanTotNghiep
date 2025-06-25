@@ -14,6 +14,19 @@ export const getSubjects = async () => {
     return res.data;
 }
 
+export const getSubjectsByFaculty = async (faculty_id: number) => {
+    const accessToken = String(Cookies.get('access_token'));
+    const res = await axios.get(`/api/faculties/${faculty_id}/all-subjects`,
+        {
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+        }
+    )
+    return res.data;
+}
+
 
 export const addSubject = async (subject: FormData) => {
     const accessToken = String(Cookies.get('access_token'));

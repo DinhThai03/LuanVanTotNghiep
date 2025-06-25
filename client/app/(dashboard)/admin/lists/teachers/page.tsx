@@ -16,6 +16,7 @@ import { deleteTeacher, getTeachers } from "@/services/Teacher";
 import { TeacherData } from "@/types/TeacherType";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { TeacherSubjectData } from "@/types/TeacherSubjectType";
 
 const columnHelper = createColumnHelper<TeacherData>();
 
@@ -122,78 +123,141 @@ const TeacherPage = () => {
                     aria-label="Select row"
                 />
             ),
-            meta: {
-                displayName: "▢",
-            },
             size: 30,
+            meta: { displayName: "Chọn" },
         }),
-        columnHelper.accessor((r) => `${r.code}`, {
+
+        columnHelper.accessor((r) => r.code, {
             id: "code",
-            header: (info) => <DefaultHeader info={info} name="Mã giảng viên" />,
+            header: (info) => <DefaultHeader info={info} name="Mã GV" />,
             enableGlobalFilter: true,
             size: 120,
-            meta: {
-                displayName: "Mã giảng viên",
-            },
+            meta: { displayName: "Mã giảng viên" },
         }),
+
         columnHelper.accessor((r) => `${r.user.last_name} ${r.user.first_name}`, {
             id: "full_name",
             header: (info) => <DefaultHeader info={info} name="Họ & Tên" />,
             enableGlobalFilter: true,
             size: 180,
-            meta: {
-                displayName: "Họ & Tên",
-            },
+            meta: { displayName: "Họ và tên" },
         }),
-        columnHelper.accessor((r) => r.user.username, {
-            id: "username",
-            header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
-            enableGlobalFilter: true,
-            size: 150,
-            meta: {
-                displayName: "Tên đăng nhập",
-                hidden: true,
-            },
-        }),
+
         columnHelper.accessor((r) => r.user.email, {
             id: "email",
             header: (info) => <DefaultHeader info={info} name="Email" />,
             enableGlobalFilter: true,
             size: 250,
-            meta: {
-                displayName: "Email",
-            },
+            meta: { displayName: "Email" },
         }),
-        columnHelper.accessor(
-            (r) => format(new Date(r.user.date_of_birth), "dd/MM/yyyy", { locale: vi }),
-            {
-                id: "date_of_birth",
-                header: (info) => <DefaultHeader info={info} name="Ngày sinh" />,
-                enableGlobalFilter: true,
-                size: 110,
-                meta: {
-                    displayName: "Ngày sinh",
-                },
-            }
-        ),
+
+        columnHelper.accessor((r) => format(new Date(r.user.date_of_birth), "dd/MM/yyyy", { locale: vi }), {
+            id: "date_of_birth",
+            header: (info) => <DefaultHeader info={info} name="Ngày sinh" />,
+            enableGlobalFilter: true,
+            size: 110,
+            meta: { displayName: "Ngày sinh" },
+        }),
+
+        columnHelper.accessor((r) => (r.user.sex ? "Nam" : "Nữ"), {
+            id: "sex",
+            header: (info) => <DefaultHeader info={info} name="Giới tính" />,
+            enableGlobalFilter: true,
+            size: 80,
+            meta: { displayName: "Giới tính" },
+        }),
+
+        columnHelper.accessor((r) => r.user.phone, {
+            id: "phone",
+            header: (info) => <DefaultHeader info={info} name="SĐT" />,
+            enableGlobalFilter: true,
+            size: 120,
+            meta: { displayName: "Số điện thoại" },
+        }),
+
         columnHelper.accessor((r) => r.user.address, {
             id: "address",
             header: (info) => <DefaultHeader info={info} name="Địa chỉ" />,
             enableGlobalFilter: true,
             size: 250,
-            meta: {
-                displayName: "Địa chỉ",
-            },
+            meta: { displayName: "Địa chỉ" },
         }),
-        columnHelper.accessor((r) => r.user.phone, {
-            id: "phone",
-            header: (info) => <DefaultHeader info={info} name="Số điện thoại" />,
+
+        columnHelper.accessor(
+            (row) =>
+                row.teacher_subjects?.map((ts: TeacherSubjectData) => ts.subject?.name).join(", ") ?? "",
+            {
+                id: "teacher_subjects",
+                header: (info) => <DefaultHeader info={info} name="Môn dạy" />,
+                cell: ({ row }) => {
+                    const subjectNames = row.original.teacher_subjects
+                        ?.map((ts: TeacherSubjectData) => ts.subject?.name)
+                        .filter(Boolean);
+                    return (
+                        <ul className="list-inside space-y-1">
+                            {subjectNames.map((name: string, idx: number) => (
+                                <li key={idx}>{name}</li>
+                            ))}
+                        </ul>
+                    );
+                },
+                enableGlobalFilter: true,
+                size: 180,
+                meta: {
+                    displayName: "Môn dạy",
+                    hidden: true,
+                },
+            }
+        ),
+
+        columnHelper.accessor((r) => r.user.identity_number, {
+            id: "identity_number",
+            header: (info) => <DefaultHeader info={info} name="CCCD" />,
             enableGlobalFilter: true,
             size: 120,
-            meta: {
-                displayName: "Số điện thoại",
-            },
+            meta: { displayName: "CCCD", hidden: true, },
         }),
+
+        columnHelper.accessor((r) => format(new Date(r.user.issued_date!), "dd/MM/yyyy", { locale: vi }), {
+            id: "issued_date",
+            header: (info) => <DefaultHeader info={info} name="Ngày cấp" />,
+            enableGlobalFilter: true,
+            size: 110,
+            meta: { displayName: "Ngày cấp", hidden: true },
+        }),
+
+        columnHelper.accessor((r) => r.user.issued_place, {
+            id: "issued_place",
+            header: (info) => <DefaultHeader info={info} name="Nơi cấp" />,
+            enableGlobalFilter: true,
+            size: 150,
+            meta: { displayName: "Nơi cấp", hidden: true },
+        }),
+
+        columnHelper.accessor((r) => r.user.ethnicity, {
+            id: "ethnicity",
+            header: (info) => <DefaultHeader info={info} name="Dân tộc" />,
+            enableGlobalFilter: true,
+            size: 100,
+            meta: { displayName: "Dân tộc", hidden: true },
+        }),
+
+        columnHelper.accessor((r) => r.user.religion, {
+            id: "religion",
+            header: (info) => <DefaultHeader info={info} name="Tôn giáo" />,
+            enableGlobalFilter: true,
+            size: 100,
+            meta: { displayName: "Tôn giáo", hidden: true },
+        }),
+
+        columnHelper.accessor((r) => r.user.username, {
+            id: "username",
+            header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
+            enableGlobalFilter: true,
+            size: 150,
+            meta: { displayName: "Tên đăng nhập", hidden: true },
+        }),
+
         columnHelper.accessor((r) => r.user.is_active, {
             id: "is_active",
             header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
@@ -205,13 +269,11 @@ const TeacherPage = () => {
                     </span>
                 );
             },
-            enableGlobalFilter: false,
+            enableGlobalFilter: true,
             size: 100,
-            meta: {
-                displayName: "Trạng thái",
-                hidden: true,
-            },
+            meta: { displayName: "Trạng thái" },
         }),
+
         columnHelper.display({
             id: "actions",
             header: () => "Tùy chọn",
@@ -243,11 +305,10 @@ const TeacherPage = () => {
             },
             enableGlobalFilter: false,
             size: 90,
-            meta: {
-                displayName: "Tùy chọn",
-            },
+            meta: { displayName: "Tùy chọn" },
         }),
     ];
+
 
     return (
         <div className="w-full bg-white shadow-lg shadow-gray-500 p-4">

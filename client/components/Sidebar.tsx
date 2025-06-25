@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useEffect } from "react";
 import Menu from "./menu";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface SidebarProps {
     isOpen: boolean;
@@ -66,9 +67,9 @@ const Sidebar = ({ isOpen, role, onClose }: SidebarProps) => {
                         &times;
                     </button>
                 </div>
-                <div className="h-[calc(100vh-70px)] overflow-y-auto">
+                <ScrollArea className="h-[calc(100vh-70px)]">
                     <Menu />
-                </div>
+                </ScrollArea>
             </div>
         </>
     );

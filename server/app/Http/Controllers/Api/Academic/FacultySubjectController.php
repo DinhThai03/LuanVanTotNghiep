@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateFacultySubjectRequest;
 use App\Http\Requests\UpdateFacultySubjectRequest;
 use App\Models\FacultySubject;
+use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 
 class FacultySubjectController extends Controller
@@ -13,6 +14,20 @@ class FacultySubjectController extends Controller
     public function index(): JsonResponse
     {
         return response()->json(['data' => FacultySubject::with(['subject', 'faculty'])->get()]);
+    }
+
+    public function getAllSubjectsWithFaculty($facultyId)
+    {
+        $subjects = Subject::with(['faculties' => function ($query) {
+            $query->select('faculties.id', 'name');
+        }])
+            ->whereHas('faculties', function ($query) use ($facultyId) {
+                $query->where('faculties.id', $facultyId);
+            })
+            ->orWhereDoesntHave('faculties')
+            ->get();
+
+        return response()->json($subjects);
     }
 
     public function store(CreateFacultySubjectRequest $request): JsonResponse

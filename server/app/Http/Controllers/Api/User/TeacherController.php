@@ -20,7 +20,7 @@ class TeacherController extends Controller
 {
     public function index(): JsonResponse
     {
-        $teachers = Teacher::with('user')->get();
+        $teachers = Teacher::with('user', 'teacherSubjects', 'teacherSubjects.subject')->get();
         return response()->json(['data' => $teachers]);
     }
 
@@ -59,7 +59,9 @@ class TeacherController extends Controller
             $teacherData['user_id'] = $user->id;
 
             $teacher = Teacher::create($teacherData);
-            $teacher->load('user');
+            $teacher->subjects()->sync($teacherData['subject_ids'] ?? []);
+
+            $teacher->load('user', 'teacherSubjects', 'teacherSubjects.subject');
 
             DB::commit();
 
@@ -75,6 +77,7 @@ class TeacherController extends Controller
             ], 500);
         }
     }
+
 
     public function show(string $code): JsonResponse
     {
@@ -124,11 +127,13 @@ class TeacherController extends Controller
             } else {
                 unset($userData['password']);
             }
+            $teacherData = $teacherValidator->validated();
 
             $teacher->user->update($userData);
-            $teacher->update($teacherValidator->validated());
+            $teacher->update($teacherData);
+            $teacher->subjects()->sync($teacherData['subject_ids'] ?? []);
 
-            $teacher->load('user');
+            $teacher->load('user', 'teacherSubjects', 'teacherSubjects.subject');
 
             DB::commit();
 

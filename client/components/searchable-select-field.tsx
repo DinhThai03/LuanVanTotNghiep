@@ -11,9 +11,7 @@ interface OptionItem {
 }
 
 interface SearchableSelectFieldProps {
-    /** Tên trường trong react-hook-form */
     name: string;
-    /** Đối tượng control từ useForm() */
     control: Control<any>;
     id: string;
     label: string;
@@ -46,7 +44,6 @@ export default function SearchableSelectField({
                         ref={field.ref}
                         options={options}
                         placeholder={placeholder}
-                        /** React-Select yêu cầu giá trị là chính option đã chọn */
                         value={options.find((opt) => opt.value === field.value) || null}
                         onChange={(selected: SingleValue<OptionItem>) =>
                             field.onChange(selected ? selected.value : null)
@@ -57,7 +54,6 @@ export default function SearchableSelectField({
                             typeof window !== "undefined" ? document.body : null
                         }
                         styles={{
-                            // bảo đảm dropdown cao hơn modal/dialog
                             menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                         }}
                     />
