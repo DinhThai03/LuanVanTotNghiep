@@ -106,6 +106,8 @@ Route::middleware(['auth'])->group(function () {
 
     //============== SEMESTER_SUBJECT ==============
     Route::get('semester_subjects', [SemesterSubjectController::class, 'index']);
+    Route::get('semester/{id}/subjects', [SemesterSubjectController::class, 'getSubjectIdBySemester']);
+    Route::post('/semester-subjects/update', [SemesterSubjectController::class, 'storeOrUpdateBySemester']);
     Route::get('semester_subject/{id}', [SemesterSubjectController::class, 'show']);
     Route::post('semester_subject', [SemesterSubjectController::class, 'store']);
     Route::post('semester_subject/{id}', [SemesterSubjectController::class, 'update']);

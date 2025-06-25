@@ -43,4 +43,9 @@ class Subject extends Model
     {
         return $this->belongsToMany(Teacher::class, 'teacher_subjects', 'subject_id', 'teacher_code');
     }
+
+    public function semesters()
+    {
+        return $this->belongsToMany(Semester::class, 'semester_subjects', 'subject_id', 'semester_id');
+    }
 }

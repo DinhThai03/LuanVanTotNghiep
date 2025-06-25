@@ -8,7 +8,7 @@ class FacultySubject extends Model
 {
     protected $table = 'faculty_subjects';
 
-    
+
 
     protected $fillable = [
         'subject_id',

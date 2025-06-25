@@ -13,7 +13,7 @@ class SemesterController extends Controller
 {
     public function index(): JsonResponse
     {
-        $semesters = Semester::with('academicYear')->get();
+        $semesters = Semester::with('academicYear')->orderBy('id', 'desc')->get();
         return response()->json(['data' => $semesters]);
     }
 

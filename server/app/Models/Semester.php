@@ -28,6 +28,11 @@ class Semester extends Model
         return $this->hasMany(SemesterSubject::class, 'semester_id');
     }
 
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'semester_subjects',  'semester_id', 'subject_id',);
+    }
+
     public function examSchedules()
     {
         return $this->hasManyThrough(

@@ -6,14 +6,85 @@ use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\SemesterSubjectRequest;
 use App\Models\SemesterSubject;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SemesterSubjectController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $data = SemesterSubject::with(['subject', 'semester'])->get();
+        $query = SemesterSubject::with([
+            'subject.facultySubjects.faculty',
+            'semester.academicYear'
+        ]);
+
+        if ($request->has('faculty_id')) {
+            $facultyId = $request->input('faculty_id');
+            $query->whereHas('subject.facultySubjects.faculty', function ($q) use ($facultyId) {
+                $q->where('faculties.id', $facultyId);
+            });
+        }
+
+        if ($request->has('semester_id')) {
+            $semesterId = $request->input('semester_id');
+            $query->where('semester_id', $semesterId);
+        }
+
+        $data = $query->get();
+
         return response()->json(['data' => $data]);
     }
+
+    public function getSubjectIdBySemester(int $id): JsonResponse
+    {
+        $subjectIds = SemesterSubject::where('semester_id', $id)
+            ->pluck('subject_id');
+
+        return response()->json(['data' => $subjectIds]);
+    }
+
+    public function storeOrUpdateBySemester(Request $request): JsonResponse
+    {
+        $request->validate([
+            'semester_id' => 'required|exists:semesters,id',
+            'subject_ids' => 'required|array',
+            'subject_ids.*' => 'integer|exists:subjects,id',
+        ]);
+
+        $semesterId = $request->input('semester_id');
+        $newSubjectIds = $request->input('subject_ids');
+
+        DB::beginTransaction();
+        try {
+            $existingSubjectIds = SemesterSubject::where('semester_id', $semesterId)
+                ->pluck('subject_id')
+                ->toArray();
+
+            $subjectIdsToDelete = array_diff($existingSubjectIds, $newSubjectIds);
+
+            $subjectIdsToAdd = array_diff($newSubjectIds, $existingSubjectIds);
+
+            if (!empty($subjectIdsToDelete)) {
+                SemesterSubject::where('semester_id', $semesterId)
+                    ->whereIn('subject_id', $subjectIdsToDelete)
+                    ->delete();
+            }
+
+            foreach ($subjectIdsToAdd as $subjectId) {
+                SemesterSubject::create([
+                    'semester_id' => $semesterId,
+                    'subject_id' => $subjectId,
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Cập nhật thành công'], 200);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Đã xảy ra lỗi', 'error' => $e->getMessage()], 500);
+        }
+    }
+
 
     public function store(SemesterSubjectRequest $request): JsonResponse
     {
