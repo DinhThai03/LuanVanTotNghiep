@@ -17,6 +17,7 @@ import { ClassedForm } from "./ClassForm";
 import { SubjectForm } from "./SubjectForm";
 import { SubjectData } from "@/types/SubjectType";
 import { ScrollArea } from "../ui/scroll-area";
+import SemesterSubjectForm from "./SemesterSubjectsForm";
 
 export type ModalType = "create" | "update";
 
@@ -52,7 +53,7 @@ const FormModal = ({
           <TeacherForm
             type={type}
             data={data as TeacherData}
-            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+            onSubmitSuccess={(teacher) => { onSubmitSuccess?.(teacher); onClose?.() }}
           />
         );
 
@@ -110,6 +111,7 @@ const FormModal = ({
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );
+
       default:
         return <div>Form không tồn tại!</div>;
     }
