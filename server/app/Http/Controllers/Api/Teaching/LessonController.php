@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Teaching;
 
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateLessonRequest;
-use App\Http\Requests\LessonRequest;
 use App\Http\Requests\UpdateLessonRequest;
 use App\Models\Lesson;
 use Illuminate\Http\JsonResponse;
@@ -13,12 +12,13 @@ class LessonController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(['data' => Lesson::with('teacherSubject')->get()]);
+        return response()->json(['data' => Lesson::with('teacherSubject.teacher.user', 'teacherSubject.subject', 'room')->get()]);
     }
 
     public function store(CreateLessonRequest $request): JsonResponse
     {
         $lesson = Lesson::create($request->validated());
+        $lesson->load('teacherSubject.teacher.user', 'teacherSubject.subject', 'room');
 
         return response()->json([
             'message' => 'Tạo lịch học thành công.',
@@ -28,7 +28,7 @@ class LessonController extends Controller
 
     public function show($id): JsonResponse
     {
-        $lesson = Lesson::with(['teacherSubject', 'lessonRooms'])->find($id);
+        $lesson = Lesson::with(['teacherSubject'])->find($id);
         if (!$lesson) {
             return response()->json(['message' => 'Không tìm thấy lịch học.'], 404);
         }
@@ -44,7 +44,7 @@ class LessonController extends Controller
         }
 
         $lesson->update($request->validated());
-
+        $lesson->load('teacherSubject.teacher.user', 'teacherSubject.subject', 'room');
         return response()->json([
             'message' => 'Cập nhật lịch học thành công.',
             'data' => $lesson,

@@ -15,8 +15,8 @@ class RegistrationSeeder extends Seeder
         DB::table('registrations')->insert([
             [
                 'status' => 'pending',
-                'student_code' => 'DH52100123',   // Mã sinh viên phải tồn tại trong bảng students
-                'lesson_id' => 1,            // ID của lịch học phải tồn tại trong bảng lessons
+                'student_code' => 'DH52100123',
+                'lesson_id' => 1,
             ],
             [
                 'status' => 'approved',

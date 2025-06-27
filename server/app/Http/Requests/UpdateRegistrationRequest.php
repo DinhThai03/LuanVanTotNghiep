@@ -16,7 +16,7 @@ class UpdateRegistrationRequest extends FormRequest
         return [
             'status' => 'sometimes|in:pending,approved,canceled,completed',
             'student_code' => 'sometimes|exists:students,code|size:10',
-            'lesson_id' => 'sometimes|exists:lessons,id',
+            'lesson_id' => 'sometimes|exists:lesson_rooms,id',
         ];
     }
 

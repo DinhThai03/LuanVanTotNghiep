@@ -13,13 +13,6 @@ class Room extends Model
         'is_active',
     ];
 
-
-
-    public function lessonRooms()
-    {
-        return $this->hasMany(LessonRoom::class, 'room_id');
-    }
-
     public function examClassRooms()
     {
         return $this->hasMany(ExamClassRoom::class, 'room_id');

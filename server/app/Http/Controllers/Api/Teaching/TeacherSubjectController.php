@@ -13,9 +13,27 @@ class TeacherSubjectController extends Controller
 {
     public function index(): JsonResponse
     {
-        $data = TeacherSubject::with(['teacher', 'subject'])->get();
+        $data = TeacherSubject::with(['teacher.user', 'subject'])->get();
         return response()->json(['data' => $data]);
     }
+
+    public function getSubjectForLesson($semesterId): JsonResponse
+    {
+        $data = TeacherSubject::with([
+            'subject.semesterSubjects.semester',
+            'teacher.user',
+        ])
+            ->whereHas('subject', function ($query) use ($semesterId) {
+                $query->where('is_active', true)
+                    ->whereHas('semesterSubjects', function ($q) use ($semesterId) {
+                        $q->where('semester_id', $semesterId);
+                    });
+            })
+            ->get();
+
+        return response()->json(['data' => $data]);
+    }
+
 
     public function store(CreateTeacherSubjectRequest $request): JsonResponse
     {
@@ -36,6 +54,7 @@ class TeacherSubjectController extends Controller
 
         return response()->json(['data' => $record]);
     }
+
 
     public function update(UpdateTeacherSubjectRequest $request, $id): JsonResponse
     {

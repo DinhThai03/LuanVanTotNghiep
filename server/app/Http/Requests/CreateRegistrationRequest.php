@@ -16,7 +16,7 @@ class CreateRegistrationRequest extends FormRequest
         return [
             'status' => 'required|in:pending,approved,canceled,completed',
             'student_code' => 'required|exists:students,code|size:10',
-            'lesson_id' => 'required|exists:lessons,id',
+            'lesson_id' => 'required|exists:lesson_rooms,id',
         ];
     }
 

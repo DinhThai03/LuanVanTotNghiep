@@ -12,7 +12,7 @@ class Registration extends Model
         'lesson_id',
     ];
 
-    
+
 
     public function student()
     {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Academic;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\SemesterSubjectRequest;
 use App\Models\SemesterSubject;
+use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

@@ -13,19 +13,21 @@ return new class extends Migration
     {
         Schema::create('lessons', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
             $table->date('start_date')->notNullable();
             $table->date('end_date')->notNullable();
             $table->integer('day_of_week')->notNullable();
+            $table->unsignedBigInteger('room_id');
+            $table->time('start_time')->notNullable();
+            $table->time('end_time')->notNullable();
             $table->boolean('is_active')->notNullable();
             $table->unsignedBigInteger('teacher_subject_id')->notNullable();
-        
+
             $table->foreign('teacher_subject_id')->references('id')->on('teacher_subjects');
-        
+
             $table->timestamps();
         });
-        
     }
 
     /**

@@ -24,4 +24,8 @@ class Faculty extends Model
     {
         return $this->hasMany(Teacher::class, 'faculty_id');
     }
+    public function registrationPeriods()
+    {
+        return $this->hasMany(RegistrationPeriod::class);
+    }
 }

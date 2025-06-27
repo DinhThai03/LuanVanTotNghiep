@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Finance\TuitionFeeController;
 use App\Http\Controllers\Api\Profile\PasswordController;
 use App\Http\Controllers\Api\Teaching\LessonController;
 use App\Http\Controllers\Api\Teaching\LessonRoomController;
+use App\Http\Controllers\Api\Teaching\RegistrationPeriodController;
 use App\Http\Controllers\Api\Teaching\RoomController;
 use App\Http\Controllers\Api\Teaching\TeacherSubjectController;
 use App\Http\Controllers\Api\User\StudentController;
@@ -149,15 +150,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('room/{id}', [RoomController::class, 'update']);
     Route::delete('room/{id}', [RoomController::class, 'destroy']);
 
-    //============== LESSON_ROOM ==============
-    Route::get('lesson_rooms', [LessonRoomController::class, 'index']);
-    Route::get('lesson_room/{id}', [LessonRoomController::class, 'show']);
-    Route::post('lesson_room', [LessonRoomController::class, 'store']);
-    Route::post('lesson_room/{id}', [LessonRoomController::class, 'update']);
-    Route::delete('lesson_room/{id}', [LessonRoomController::class, 'destroy']);
-
     //============== TEACHER_SUBJECT ==============
     Route::get('teacher_subjects', [TeacherSubjectController::class, 'index']);
+    Route::get('semester/{id}/subjects-forlesson', [TeacherSubjectController::class, 'getSubjectForLesson']);
     Route::get('teacher_subject/{id}', [TeacherSubjectController::class, 'show']);
     Route::post('teacher_subject', [TeacherSubjectController::class, 'store']);
     Route::post('teacher_subject/{id}', [TeacherSubjectController::class, 'update']);
@@ -216,4 +211,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tuition_fee', [TuitionFeeController::class, 'store']);
     Route::post('tuition_fee/{id}', [TuitionFeeController::class, 'update']);
     Route::delete('tuition_fee/{id}', [TuitionFeeController::class, 'destroy']);
+
+    //============== Registration Period ==============
+    Route::get('registration_periods', [RegistrationPeriodController::class, 'index']);
+    Route::post('registration_periods', [RegistrationPeriodController::class, 'store']);
+    Route::put('registration_periods/{id}', [RegistrationPeriodController::class, 'update']);
+    Route::delete('registration_periods/{id}', [RegistrationPeriodController::class, 'destroy']);
 });

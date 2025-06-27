@@ -44,4 +44,9 @@ class Semester extends Model
             'id' // Local key on SemesterSubject table...
         );
     }
+
+    public function registrationPeriods()
+    {
+        return $this->hasMany(RegistrationPeriod::class);
+    }
 }
