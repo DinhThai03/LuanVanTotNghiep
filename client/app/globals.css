@@ -9,6 +9,7 @@ body {
   color: black !important;
 }
 
+input[type="time"]::-webkit-calendar-picker-indicator,
 input[type="date"]::-webkit-calendar-picker-indicator {
   position: absolute;
   right: 0;

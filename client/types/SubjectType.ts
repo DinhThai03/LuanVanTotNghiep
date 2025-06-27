@@ -1,4 +1,5 @@
 import { FacultyData } from "./FacultyType";
+import { TeacherSubjectData } from "./TeacherSubjectType";
 
 export interface FacultySubjectData {
     id: number;
@@ -19,4 +20,5 @@ export interface SubjectData {
     subject_type: 'LT' | 'TH' | 'DA' | 'KL';
     is_active: number;
     faculty_subjects: FacultySubjectData[];
+    teacher_subjects?: TeacherSubjectData;
 }

@@ -1,57 +1,26 @@
-import axios from "./Axios";
-import Cookies from "js-cookie";
+// services/faculty-subject.ts
+import axios from "@/lib/Axios"; // Đã có interceptor tự động gắn Authorization và Accept
 
+// Lấy danh sách môn theo khoa
 export const getFacultySubjects = async () => {
-    const accessToken = String(Cookies.get('access_token'));
-    const res = await axios.get(`/api/faculty_subjects`,
-        {
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-        }
-    )
+    const res = await axios.get("/api/faculty_subjects");
     return res.data;
-}
+};
 
-
+// Thêm môn học cho khoa
 export const addFacultySubject = async (faculty_subject: FormData) => {
-    const accessToken = String(Cookies.get('access_token'));
-
-    const res = await axios.post(`/api/faculty_subject`, faculty_subject, {
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-        },
-    });
-
+    const res = await axios.post("/api/faculty_subject", faculty_subject);
     return res;
-}
+};
 
+// Cập nhật môn học theo khoa
 export const updateFacultySubject = async (id: number, faculty_subject: FormData) => {
-    const accessToken = String(Cookies.get('access_token'));
-
-    const res = await axios.post(`/api/faculty_subject/${id}`, faculty_subject, {
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-        },
-    });
-
+    const res = await axios.post(`/api/faculty_subject/${id}`, faculty_subject);
     return res;
-}
+};
 
-
+// Xoá môn học theo khoa
 export const deleteFacultySubject = async (id: number) => {
-    const accessToken = String(Cookies.get('access_token'));
-    const res = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/faculty_subject/${id}`,
-        {
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-        }
-    )
+    const res = await axios.delete(`/api/faculty_subject/${id}`);
     return res.data;
-}
+};

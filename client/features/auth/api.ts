@@ -1,29 +1,17 @@
-import axios from "axios"
+import axios from "@/lib/Axios";
 import Cookies from "js-cookie";
 
 export const login = async (username: string, password: string) => {
-    const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-        { username, password },
-        {
-            headers: {
-                'Accept': 'application/json',
-            },
-        }
-    );
-    return res;
-}
+    const res = await axios.post("/api/auth/login", { username, password });
+    const { access_token, refresh_token } = res.data;
+    Cookies.set("access_token", access_token);
+    Cookies.set("refresh_token", refresh_token);
+    console.log("a", refresh_token);
+
+    return res.data;
+};
 
 export const profile = async () => {
-    const accessToken = String(Cookies.get('access_token'));
-    const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,  
-        {
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-        }
-    )
+    const res = await axios.get("/api/auth/profile");
     return res.data;
-}
+};

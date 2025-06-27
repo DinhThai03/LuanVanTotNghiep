@@ -105,13 +105,13 @@ const menuItems = [
       {
         icon: < GiSpellBook className="w-4.5 h-4.5" />,
         label: "Tổ chức môn",
-        href: "",
+        href: "/admin/lists/semester-subjects",
         visible: ["admin"],
       },
       {
         icon: <GiTeacher className="w-4.5 h-4.5" />,
         label: "Bài giảng",
-        href: "",
+        href: "/admin/lists/lessons",
         visible: ["admin"],
       },
       {

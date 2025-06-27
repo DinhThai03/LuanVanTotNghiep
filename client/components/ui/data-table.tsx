@@ -40,6 +40,9 @@ import {
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Columns } from "lucide-react"
 import { useEffect, useState } from "react"
 import { FaPlus } from "react-icons/fa"
+import * as XLSX from 'xlsx'
+import { BiTable } from "react-icons/bi"
+
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -130,6 +133,33 @@ export function DataTable<TData, TValue>({
         return pageNumbers;
     };
 
+    const handleExport = () => {
+        const rows = table.getFilteredSelectedRowModel().rows.length > 0
+            ? table.getFilteredSelectedRowModel().rows
+            : table.getFilteredRowModel().rows
+
+        if (!rows.length) {
+            alert("Không có dữ liệu để xuất.");
+            return;
+        }
+
+        const exportData = rows.map((row) => {
+            const rowData: Record<string, any> = {};
+            row.getVisibleCells().forEach((cell) => {
+                const columnId = cell.column.id;
+                const columnHeader = (cell.column.columnDef.meta as any)?.displayName || columnId;
+                rowData[columnHeader] = cell.getValue();
+            });
+            return rowData;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+        XLSX.writeFile(workbook, "data.xlsx");
+    };
+
     return (
         <div className={`w-full max-h-full flex flex-col gap-4 ${className}`}>
             <div className="w-full flex items-center justify-between gap-2">
@@ -169,6 +199,12 @@ export function DataTable<TData, TValue>({
                                 })}
                         </DropdownMenuContent>
                     </DropdownMenu>
+
+                    <Button variant="outline" onClick={handleExport}>
+                        <BiTable className=" h-4 w-4" />
+                        <p className="hidden md:inline ml-2">Xuất excel</p>
+                    </Button>
+
                     {onAddClick &&
                         <Button variant="outline" onClick={onAddClick}>
                             <FaPlus className=" h-4 w-4" />
@@ -319,7 +355,10 @@ export function DataTable<TData, TValue>({
 
         </div>
     )
+
 }
+
+
 
 function normalizeString(str: string): string {
     return str
@@ -351,3 +390,4 @@ function fuzzyFilter<TData>(
         return false
     })
 }
+

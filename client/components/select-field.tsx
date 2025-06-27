@@ -10,7 +10,7 @@ interface SelectFieldProps {
     id: string;
     label: string;
     options: OptionItem[];
-    register: UseFormRegisterReturn;
+    register?: UseFormRegisterReturn;
     error?: FieldError;
     className?: string;
     placeholder?: string;
@@ -30,7 +30,7 @@ export default function SelectField({
             <Label htmlFor={id}>{label}</Label>
             <select
                 id={id}
-                {...register}
+                {...register ?? {}}
                 className={`border px-3 py-2 rounded-md focus:outline-none focus:ring-3 focus:ring-gray-300 `}
                 aria-invalid={!!error}
                 aria-describedby={error ? `${id}-error` : undefined}
@@ -38,11 +38,14 @@ export default function SelectField({
                 {placeholder &&
                     <option value="">{placeholder}</option>
                 }
-                {options.map((opt) => (
-                    <option key={opt.value.toString()} value={opt.value}>
-                        {opt.label}
-                    </option>
-                ))}
+                {options.map((opt) => {
+                    if (opt.value === undefined || opt.value === null) return null;
+                    return (
+                        <option key={opt.value.toString()} value={opt.value}>
+                            {opt.label}
+                        </option>
+                    );
+                })}
             </select>
             <div className="min-h-[18px]">
                 {error && <p id={`${id}-error`} className="text-xs text-red-500">{error.message}</p>}

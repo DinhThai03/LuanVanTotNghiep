@@ -46,10 +46,6 @@ export function LoginForm({
     setLoginError("");
     try {
       const res = await login(data.user_name, data.password);
-      const res_login = res.data;
-      Cookies.set("access_token", res_login.access_token, { expires: 1 });
-      Cookies.set("refresh_token", res_login.refresh_token, { expires: 7 });
-
       const res_profile = await profile();
       const role = res_profile.role;
       switch (role) {

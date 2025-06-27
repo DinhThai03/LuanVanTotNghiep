@@ -1,57 +1,26 @@
-import axios from "./Axios";
-import Cookies from "js-cookie";
+// services/faculty.ts
+import axios from "@/lib/Axios";
 
+// Lấy danh sách khoa
 export const getFacultys = async () => {
-    const accessToken = String(Cookies.get('access_token'));
-    const res = await axios.get(`/api/facultys`,
-        {
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-        }
-    )
+    const res = await axios.get("/api/facultys");
     return res.data;
-}
+};
 
-
+// Thêm khoa mới
 export const addFaculty = async (faculty: FormData) => {
-    const accessToken = String(Cookies.get('access_token'));
-
-    const res = await axios.post(`/api/faculty`, faculty, {
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-        },
-    });
-
+    const res = await axios.post("/api/faculty", faculty);
     return res;
-}
+};
 
+// Cập nhật khoa
 export const updateFaculty = async (id: number, faculty: FormData) => {
-    const accessToken = String(Cookies.get('access_token'));
-
-    const res = await axios.post(`/api/faculty/${id}`, faculty, {
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-        },
-    });
-
+    const res = await axios.post(`/api/faculty/${id}`, faculty);
     return res;
-}
+};
 
-
+// Xoá khoa
 export const deleteFaculty = async (id: number) => {
-    const accessToken = String(Cookies.get('access_token'));
-    const res = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/faculty/${id}`,
-        {
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-        }
-    )
+    const res = await axios.delete(`/api/faculty/${id}`);
     return res.data;
-}
+};
