@@ -20,6 +20,8 @@ import { ScrollArea } from "../ui/scroll-area";
 import SemesterSubjectForm from "./SemesterSubjectsForm";
 import { LessonForm } from "./LessonForm";
 import { LessonData } from "@/types/LessonType";
+import { RegistrationForm } from "./RegistrationForm";
+import { RegistrationData } from "@/types/RegistrationType";
 
 export type ModalType = "create" | "update";
 
@@ -119,6 +121,15 @@ const FormModal = ({
           <LessonForm
             type={type}
             data={data as LessonData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
+
+      case "registration":
+        return (
+          <RegistrationForm
+            type={type}
+            data={data as RegistrationData}
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );

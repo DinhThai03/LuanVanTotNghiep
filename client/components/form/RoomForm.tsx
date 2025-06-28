@@ -155,8 +155,8 @@ export const RoomForm = ({ type, data, onSubmitSuccess }: RoomFormProps) => {
                     id="is_active"
                     label="Trạng thái"
                     options={[
-                        { label: "Hoạt động", value: true },
-                        { label: "Ngưng hoạt động", value: false },
+                        { label: "Hoạt động", value: 1 },
+                        { label: "Ngưng hoạt động", value: 0 },
                     ]}
                     register={register("is_active")}
                     error={errors.is_active}
