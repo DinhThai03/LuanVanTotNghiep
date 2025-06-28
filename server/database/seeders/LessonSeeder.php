@@ -20,9 +20,10 @@ class LessonSeeder extends Seeder
                 'day_of_week' => 2, // Thứ 2
                 'start_time' => '08:00',
                 'end_time' => '10:00',
-                'room_id' => 1, // cần đảm bảo room_id này tồn tại
+                'room_id' => 1,
                 'is_active' => true,
                 'teacher_subject_id' => 1,
+                'semester_id' => 3,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -35,6 +36,7 @@ class LessonSeeder extends Seeder
                 'room_id' => 2,
                 'is_active' => true,
                 'teacher_subject_id' => 2,
+                'semester_id' => 3,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -47,6 +49,7 @@ class LessonSeeder extends Seeder
                 'room_id' => 1,
                 'is_active' => true,
                 'teacher_subject_id' => 1,
+                'semester_id' => 3,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],

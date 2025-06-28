@@ -11,6 +11,7 @@ class Lesson extends Model
     use HasFactory;
 
     protected $fillable = [
+        'semester_id', // thêm dòng này
         'start_date',
         'end_date',
         'day_of_week',
@@ -22,12 +23,12 @@ class Lesson extends Model
     ];
 
     protected $casts = [
+        'semester_id' => 'integer', // thêm dòng này
         'day_of_week' => 'integer',
         'room_id' => 'integer',
         'teacher_subject_id' => 'integer',
         'is_active' => 'boolean',
     ];
-
 
     public function getStartTimeAttribute($value)
     {
@@ -47,6 +48,11 @@ class Lesson extends Model
     public function room()
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class);
     }
 
     public function registrations()

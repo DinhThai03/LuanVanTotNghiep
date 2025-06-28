@@ -17,6 +17,7 @@ class UpdateLessonRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'semester_id' => ['sometimes', 'exists:semesters,id'],
             'start_date' => ['sometimes', 'date'],
             'end_date' => ['sometimes', 'date', 'after_or_equal:start_date'],
             'day_of_week' => ['sometimes', 'integer', 'between:1,7'],
@@ -31,6 +32,7 @@ class UpdateLessonRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'semester_id.exists' => 'Học kỳ không tồn tại.',
             'end_date.after_or_equal' => 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.',
             'day_of_week.between' => 'Thứ phải nằm trong khoảng từ 1 đến 7.',
             'start_time.date_format' => 'Giờ bắt đầu không đúng định dạng (H:i).',
@@ -44,6 +46,7 @@ class UpdateLessonRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'semester_id' => 'học kỳ',
             'start_date' => 'ngày bắt đầu',
             'end_date' => 'ngày kết thúc',
             'day_of_week' => 'thứ trong tuần',
@@ -66,7 +69,6 @@ class UpdateLessonRequest extends FormRequest
             }
         });
     }
-
 
     protected function hasOverlap(): bool
     {

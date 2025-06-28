@@ -7,13 +7,39 @@ use App\Http\Requests\CreateLessonRequest;
 use App\Http\Requests\UpdateLessonRequest;
 use App\Models\Lesson;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class LessonController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request)
     {
-        return response()->json(['data' => Lesson::with('teacherSubject.teacher.user', 'teacherSubject.subject', 'room')->get()]);
+        $query = Lesson::with([
+            'teacherSubject.teacher.user',
+            'teacherSubject.subject',
+            'room',
+        ]);
+
+        if ($request->has('semester_id')) {
+            $query->where('semester_id', $request->semester_id);
+        }
+
+        if ($request->has('faculty_id')) {
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('teacherSubject.subject', function ($sub) use ($request) {
+                    $sub->whereHas('facultySubjects', function ($inner) use ($request) {
+                        $inner->where('faculty_id', $request->faculty_id);
+                    });
+                })->orWhereHas('teacherSubject.subject', function ($sub) {
+                    $sub->doesntHave('facultySubjects');
+                });
+            });
+        }
+
+        return response()->json([
+            'data' => $query->get()
+        ]);
     }
+
 
     public function store(CreateLessonRequest $request): JsonResponse
     {

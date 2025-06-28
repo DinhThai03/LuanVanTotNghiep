@@ -23,8 +23,10 @@ return new class extends Migration
             $table->time('end_time')->notNullable();
             $table->boolean('is_active')->notNullable();
             $table->unsignedBigInteger('teacher_subject_id')->notNullable();
+            $table->unsignedBigInteger('semester_id')->notNullable();
 
             $table->foreign('teacher_subject_id')->references('id')->on('teacher_subjects');
+            $table->foreign('semester_id')->references('id')->on('semesters');
 
             $table->timestamps();
         });

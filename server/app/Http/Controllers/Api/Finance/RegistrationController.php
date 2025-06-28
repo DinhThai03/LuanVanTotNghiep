@@ -6,13 +6,44 @@ use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateRegistrationRequest;
 use App\Http\Requests\UpdateRegistrationRequest;
 use App\Models\Registration;
+use Illuminate\Http\Request;
 
 class RegistrationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Registration::all());
+        $query = Registration::with([
+            'student.user',
+            'lesson.room',
+            'lesson.teacherSubject.teacher.user',
+            'lesson.teacherSubject.subject'
+        ]);
+
+        if ($request->has('semester_id')) {
+            $query->whereHas('lesson', function ($q) use ($request) {
+                $q->where('semester_id', $request->semester_id);
+            });
+        }
+
+        if ($request->has('class_id')) {
+            $query->whereHas('student.schoolClass', function ($q) use ($request) {
+                $q->where('class_id', $request->class_id);
+            });
+        }
+
+        if ($request->has('faculty_id')) {
+            $query->whereHas('lesson.teacherSubject.subject', function ($q) use ($request) {
+                $q->whereHas('facultySubjects', function ($subQ) use ($request) {
+                    $subQ->where('faculty_id', $request->faculty_id);
+                })->orWhereDoesntHave('facultySubjects');
+            });
+        }
+
+        $registrations = $query->get();
+
+        return response()->json($registrations);
     }
+
 
     public function store(CreateRegistrationRequest $request)
     {

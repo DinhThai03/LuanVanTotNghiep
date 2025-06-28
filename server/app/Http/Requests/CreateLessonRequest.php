@@ -17,6 +17,7 @@ class CreateLessonRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'semester_id' => ['required', 'exists:semesters,id'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'day_of_week' => ['required', 'integer', 'between:1,7'],
@@ -31,6 +32,8 @@ class CreateLessonRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'semester_id.required' => 'Học kỳ là bắt buộc.',
+            'semester_id.exists' => 'Học kỳ không tồn tại.',
             'start_date.required' => 'Ngày bắt đầu là bắt buộc.',
             'end_date.required' => 'Ngày kết thúc là bắt buộc.',
             'end_date.after_or_equal' => 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.',
@@ -53,6 +56,7 @@ class CreateLessonRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'semester_id' => 'học kỳ',
             'start_date' => 'ngày bắt đầu',
             'end_date' => 'ngày kết thúc',
             'day_of_week' => 'thứ trong tuần',
@@ -83,7 +87,7 @@ class CreateLessonRequest extends FormRequest
         $roomId = $this->input('room_id');
 
         $dates = collect(CarbonPeriod::create($startDate, $endDate))
-            ->filter(fn($date) => $date->dayOfWeekIso == $dayOfWeek); // giữ nguyên Carbon
+            ->filter(fn($date) => $date->dayOfWeekIso == $dayOfWeek);
 
         foreach ($dates as $date) {
             $lessons = Lesson::where('room_id', $roomId)
