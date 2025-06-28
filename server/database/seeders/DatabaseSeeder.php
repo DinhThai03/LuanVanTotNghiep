@@ -77,8 +77,8 @@ class DatabaseSeeder extends Seeder
             LessonSeeder::class,
         ]);
 
-        // 16. Seed bảng lesson_rooms (phòng cho lịch học)
-        
+
+
         // 17. Seed bảng semester_subjects (liên kết môn học - học kỳ)
         $this->call([
             SemesterSubjectSeeder::class,

@@ -49,6 +49,13 @@ class RegistrationController extends Controller
     {
         $registration = Registration::create($request->validated());
 
+        $registration->load(
+            'student.user',
+            'lesson.room',
+            'lesson.teacherSubject.teacher.user',
+            'lesson.teacherSubject.subject'
+        );
+
         return response()->json([
             'message' => 'Tạo đăng ký thành công.',
             'data' => $registration,
@@ -58,6 +65,12 @@ class RegistrationController extends Controller
     public function show($id)
     {
         $registration = Registration::find($id);
+        $registration->load(
+            'student.user',
+            'lesson.room',
+            'lesson.teacherSubject.teacher.user',
+            'lesson.teacherSubject.subject'
+        );
 
         if (!$registration) {
             return response()->json(['message' => 'Không tìm thấy đăng ký.'], 404);
@@ -74,8 +87,14 @@ class RegistrationController extends Controller
             return response()->json(['message' => 'Không tìm thấy đăng ký.'], 404);
         }
 
-
         $registration->update($request->validated());
+
+        $registration->load(
+            'student.user',
+            'lesson.room',
+            'lesson.teacherSubject.teacher.user',
+            'lesson.teacherSubject.subject'
+        );
 
         return response()->json([
             'message' => 'Cập nhật đăng ký thành công.',
