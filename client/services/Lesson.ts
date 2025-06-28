@@ -2,10 +2,16 @@
 import axios from "@/lib/Axios";
 
 // Lấy danh sách buổi học
-export const getLessons = async () => {
-    const res = await axios.get("/api/lessons");
+export const getLessons = async (faculty_id?: number, semester_id?: number) => {
+    const res = await axios.get("/api/lessons", {
+        params: {
+            ...(faculty_id && { faculty_id }),
+            ...(semester_id && { semester_id }),
+        },
+    });
     return res.data;
 };
+
 
 // Thêm buổi học
 export const addLesson = async (lesson: FormData) => {

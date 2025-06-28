@@ -12,7 +12,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
-import { deleteClassed, getClasseds } from "@/services/Classed";
+import { deleteClassed, getclasses } from "@/services/Classed";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { ClassedData } from "@/types/ClassedType";
@@ -33,10 +33,10 @@ const ClassedPage = () => {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
 
     useEffect(() => {
-        const fetchClasseds = async () => {
+        const fetchclasses = async () => {
             try {
                 setLoading(true);
-                const res = await getClasseds();
+                const res = await getclasses();
                 console.log(res);
                 if (res) {
                     const newMap = new Map<number, ClassedData>();
@@ -68,7 +68,7 @@ const ClassedPage = () => {
             }
         };
 
-        fetchClasseds();
+        fetchclasses();
     }, []);
 
     const handleAddSuccess = (classed: ClassedData) => {

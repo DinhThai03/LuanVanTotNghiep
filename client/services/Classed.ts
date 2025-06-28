@@ -2,7 +2,7 @@
 import axios from "@/lib/Axios";
 
 // Lấy danh sách lớp (lọc theo khoa nếu có)
-export const getClasseds = async (faculty_id?: number) => {
+export const getclasses = async (faculty_id?: number) => {
     const res = await axios.get("/api/classed", {
         params: {
             faculty: faculty_id,

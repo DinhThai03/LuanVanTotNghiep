@@ -117,7 +117,7 @@ const menuItems = [
       {
         icon: <GiArchiveRegister className="w-4.5 h-4.5" />,
         label: "Đăng ký môn",
-        href: "",
+        href: "/admin/lists/registrations",
         visible: ["admin"],
       },
       {

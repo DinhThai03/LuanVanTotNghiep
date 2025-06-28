@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { ModalType } from "./FormModal";
@@ -14,10 +14,10 @@ import { AxiosError } from "axios";
 import { addLesson, updateLesson } from "@/services/Lesson";
 import { getSubjectsForLesson } from "@/services/SemesterSubjects";
 import { getSemesters } from "@/services/Semesters";
+import { getRooms } from "@/services/Room";
 import { TeacherSubjectData } from "@/types/TeacherSubjectType";
 import { LessonData } from "@/types/LessonType";
 import { SemesterData } from "@/types/SemesterType";
-import { getRooms } from "@/services/Room";
 
 const lessonSchema = z.object({
     semester_id: z.coerce.number().min(1, "Chọn học kỳ"),
@@ -38,6 +38,7 @@ type FormData = z.infer<typeof lessonSchema>;
 
 const buildFormData = (fd: FormData) => {
     const form = new FormData();
+    form.append("semester_id", fd.semester_id.toString());
     form.append("start_date", fd.start_date);
     form.append("end_date", fd.end_date);
     form.append("day_of_week", String(fd.day_of_week));
@@ -61,7 +62,6 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
     const [semesters, setSemesters] = useState<SemesterData[]>([]);
     const [rooms, setRooms] = useState<{ id: number; name: string }[]>([]);
     const [teacherSubjectsLoaded, setTeacherSubjectsLoaded] = useState(false);
-    console.log(data);
 
     const {
         register,
@@ -74,6 +74,7 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
     } = useForm<FormData>({
         resolver: zodResolver(lessonSchema),
         defaultValues: {
+            semester_id: data?.semester_id ?? undefined,
             start_date: data?.start_date ?? "",
             end_date: data?.end_date ?? "",
             day_of_week: data?.day_of_week ?? 2,
@@ -92,7 +93,7 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
             try {
                 const res = await getSemesters();
                 setSemesters(res.data);
-                if (res.data.length > 0) {
+                if (type === "create" && res.data.length > 0) {
                     setValue("semester_id", res.data[0].id);
                 }
             } catch {
@@ -129,8 +130,9 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
     }, []);
 
     useEffect(() => {
-        if (data) {
+        if (data && teacherSubjectsLoaded) {
             reset({
+                semester_id: data.semester_id,
                 start_date: data.start_date,
                 end_date: data.end_date,
                 day_of_week: data.day_of_week,
@@ -141,7 +143,7 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
                 teacher_subject_id: data.teacher_subject_id,
             });
         }
-    }, [data, reset]);
+    }, [data, reset, teacherSubjectsLoaded]);
 
     const onSubmit: SubmitHandler<FormData> = async (formData) => {
         setLoading(true);

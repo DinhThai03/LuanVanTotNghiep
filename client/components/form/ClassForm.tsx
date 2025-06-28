@@ -10,20 +10,20 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { ClassedData } from "@/types/ClassedType";
-import { addClassed, getClasseds, updateClassed } from "@/services/Classed";
+import { addClassed, getclasses, updateClassed } from "@/services/Classed";
 import SelectField from "../select-field";
 import SearchableSelectField from "../searchable-select-field";
 import { FacultyData } from "@/types/FacultyType";
 import { getFacultys } from "@/services/Faculty";
 
-const classedSchema = z.object({
+const classeschema = z.object({
     id: z.number().optional(),
     name: z.string().min(1, "Tên lớp không được để trống"),
     student_count: z.coerce.number().min(1, "Sĩ số phải lớn hơn 0"),
     faculty_id: z.coerce.number().min(1, "Vui lòng chọn khoa"),
 });
 
-type FormData = z.infer<typeof classedSchema>;
+type FormData = z.infer<typeof classeschema>;
 
 const buildFormData = (fd: FormData) => {
     const form = new FormData();
@@ -55,7 +55,7 @@ export const ClassedForm = ({
         control,
         reset,
     } = useForm<FormData>({
-        resolver: zodResolver(classedSchema),
+        resolver: zodResolver(classeschema),
         defaultValues: {
             id: data?.id,
             name: data?.name ?? "",

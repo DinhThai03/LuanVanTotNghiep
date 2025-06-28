@@ -11,6 +11,7 @@ export interface LessonData {
     end_time: string;
     is_active: string;
     teacher_subject_id: number;
+    semester_id: number;
     teacher_subject: TeacherSubjectData;
     room: RoomData;
 }
