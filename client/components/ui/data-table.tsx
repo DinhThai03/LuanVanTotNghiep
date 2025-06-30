@@ -40,7 +40,8 @@ import {
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Columns } from "lucide-react"
 import { useEffect, useState } from "react"
 import { FaPlus } from "react-icons/fa"
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
 import { BiTable } from "react-icons/bi"
 
 
@@ -133,7 +134,7 @@ export function DataTable<TData, TValue>({
         return pageNumbers;
     };
 
-    const handleExport = () => {
+    const handleExport = async () => {
         const rows = table.getFilteredSelectedRowModel().rows.length > 0
             ? table.getFilteredSelectedRowModel().rows
             : table.getFilteredRowModel().rows
@@ -143,22 +144,29 @@ export function DataTable<TData, TValue>({
             return;
         }
 
-        const exportData = rows.map((row) => {
-            const rowData: Record<string, any> = {};
-            row.getVisibleCells().forEach((cell) => {
-                const columnId = cell.column.id;
-                const columnHeader = (cell.column.columnDef.meta as any)?.displayName || columnId;
-                rowData[columnHeader] = cell.getValue();
-            });
-            return rowData;
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet1");
+
+        // Lấy tiêu đề
+        const headers = rows[0].getVisibleCells().map((cell) => {
+            const columnId = cell.column.id;
+            const columnHeader = (cell.column.columnDef.meta as any)?.displayName || columnId;
+            return columnHeader;
+        });
+        worksheet.addRow(headers);
+
+        // Thêm dữ liệu
+        rows.forEach((row) => {
+            const rowData = row.getVisibleCells().map((cell) => cell.getValue());
+            worksheet.addRow(rowData);
         });
 
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-
-        XLSX.writeFile(workbook, "data.xlsx");
+        // Tạo file và lưu
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        saveAs(blob, "data.xlsx");
     };
+
 
     return (
         <div className={`w-full max-h-full flex flex-col gap-4 ${className}`}>

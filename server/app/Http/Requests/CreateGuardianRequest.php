@@ -8,19 +8,27 @@ class CreateGuardianRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // hoặc bạn thêm logic phân quyền nếu cần
+        return true;
     }
 
     public function rules(): array
     {
         $rules = [
-            'user_id' => ['required', 'integer', 'exists:users,id'],
-            'student_code' => ['required', 'string', 'size:10', 'exists:students,code'],
-        ];
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'sex' => ['required', 'in:0,1'],
+            'date_of_birth' => ['required', 'date'],
+            'address' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'regex:/^[0-9]{10,11}$/'],
+            'identity_number' => ['required', 'regex:/^[0-9]{9}$|^[0-9]{12}$/'],
+            'issued_date' => ['required', 'date'],
+            'issued_place' => ['required', 'string', 'max:255'],
+            'ethnicity' => ['required', 'string', 'max:100'],
+            'religion' => ['required', 'string', 'max:100'],
 
-        if ($this->isMethod('POST')) {
-            $rules['user_id'][] = 'unique:parents,user_id';
-        }
+            'student.user_id' => ['required', 'integer', 'exists:users,id', 'unique:parents,user_id'],
+        ];
 
         return $rules;
     }
@@ -28,21 +36,42 @@ class CreateGuardianRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.required' => 'ID người dùng là bắt buộc.',
-            'user_id.integer' => 'ID người dùng không hợp lệ.',
-            'user_id.exists' => 'Người dùng không tồn tại.',
-            'user_id.unique' => 'Người dùng này đã tồn tại trong bảng phụ huynh.',
-            'student_code.required' => 'Mã sinh viên là bắt buộc.',
-            'student_code.size' => 'Mã sinh viên phải đúng 10 ký tự.',
-            'student_code.exists' => 'Sinh viên không tồn tại.',
+            'email.required' => 'Email là bắt buộc.',
+            'email.email' => 'Email không hợp lệ.',
+            'email.unique' => 'Email đã tồn tại.',
+
+            'last_name.required' => 'Họ là bắt buộc.',
+            'first_name.required' => 'Tên là bắt buộc.',
+            'sex.in' => 'Giới tính không hợp lệ.',
+            'date_of_birth.date' => 'Ngày sinh không hợp lệ.',
+            'phone.regex' => 'Số điện thoại không hợp lệ.',
+            'identity_number.regex' => 'CCCD phải gồm 9 hoặc 12 số.',
+            'issued_date.date' => 'Ngày cấp không hợp lệ.',
+            // ...
+
+            'student.user_id.required' => 'Người dùng là bắt buộc.',
+            'student.user_id.exists' => 'Người dùng không tồn tại.',
+            'student.user_id.unique' => 'Người dùng này đã là phụ huynh.',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'user_id' => 'người dùng',
-            'student_code' => 'mã sinh viên',
+            'email' => 'email',
+            'last_name' => 'họ',
+            'first_name' => 'tên',
+            'sex' => 'giới tính',
+            'date_of_birth' => 'ngày sinh',
+            'address' => 'địa chỉ',
+            'phone' => 'số điện thoại',
+            'identity_number' => 'CCCD',
+            'issued_date' => 'ngày cấp',
+            'issued_place' => 'nơi cấp',
+            'ethnicity' => 'dân tộc',
+            'religion' => 'tôn giáo',
+
+            'student.user_id' => 'người dùng sinh viên',
         ];
     }
 }

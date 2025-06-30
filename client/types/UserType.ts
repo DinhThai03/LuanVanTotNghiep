@@ -9,11 +9,11 @@ export interface User {
     sex: boolean;
     address: string;
     phone: string;
-    identity_number: string | null;
-    issued_date: string | null;
-    issued_place: string | null;
-    ethnicity: string | null;
-    religion: string | null;
+    identity_number: string;
+    issued_date: string;
+    issued_place: string;
+    ethnicity: string;
+    religion: string;
     is_active: number;
-    remember_token: string | null;
+    remember_token: string;
 }

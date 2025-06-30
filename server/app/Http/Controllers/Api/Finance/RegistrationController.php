@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateRegistrationRequest;
 use App\Http\Requests\UpdateRegistrationRequest;
 use App\Models\Registration;
+use App\Models\Semester;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class RegistrationController extends Controller
@@ -43,6 +45,75 @@ class RegistrationController extends Controller
 
         return response()->json($registrations);
     }
+
+    public function getApprovedRegistrationsByStudent(Request $request)
+    {
+        $code = $request->input('code');
+        $now = Carbon::now();
+
+        // 1. Tìm học kỳ hiện tại
+        $currentSemester = Semester::where('start_date', '<=', $now)
+            ->where('end_date', '>=', $now)
+            ->first();
+
+        // 2. Nếu không có học kỳ hiện tại, tìm học kỳ kế tiếp gần nhất
+        if (!$currentSemester) {
+            $currentSemester = Semester::where('start_date', '>', $now)
+                ->orderBy('start_date', 'asc')
+                ->first();
+        }
+
+        // 3. Nếu vẫn không có học kỳ
+        if (!$currentSemester) {
+            return response()->json(['message' => 'Không tìm thấy học kỳ hiện tại hoặc sắp tới'], 404);
+        }
+
+        // 4. Lấy danh sách đăng ký đã được duyệt
+        $registrations = Registration::with([
+            'lesson.room',
+            'lesson.teacherSubject.teacher.user',
+            'lesson.teacherSubject.subject',
+            'student.user',
+        ])
+            ->where('status', 'approved')
+            ->whereHas('student', function ($query) use ($code) {
+                $query->where('code', $code);
+            })
+            ->whereHas('lesson', function ($query) use ($currentSemester) {
+                $query->where('semester_id', $currentSemester->id);
+            })
+            ->get();
+
+        // 5. Map lại dữ liệu trả về
+
+
+        $mappedData = $registrations->map(function ($item) {
+            $lesson = $item->lesson;
+            $subjectTeacher = $lesson->teacherSubject;
+            $teacher = $subjectTeacher->teacher;
+            $subject = $subjectTeacher->subject;
+            $room = $lesson->room;
+
+            return [
+                'id' => $item->id,
+                'title' => $subject->name ?? '',
+                'subject' => $subject,
+                'teacher' => $teacher,
+                'allDay' => false,
+                'startDate' => Carbon::parse($lesson->start_date)->format('Y-m-d'),
+                'endDate' => Carbon::parse($lesson->end_date)->format('Y-m-d'),
+                'startTime' => Carbon::parse($lesson->start_time)->format('H:i:s'),
+                'endTime' => Carbon::parse($lesson->end_time)->format('H:i:s'),
+                'room' => $room->name,
+                'repeat' => 'weekly',
+                'dayOfWeek' => $lesson->day_of_week,
+            ];
+        });
+
+        return response()->json($mappedData);
+    }
+
+
 
 
     public function store(CreateRegistrationRequest $request)

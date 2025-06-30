@@ -79,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
 
     //============== PARENT ==============
     Route::get('guardians', [GuardianController::class, 'index']);
+    Route::get('/student/{student_code}/guardian', [GuardianController::class, 'getParentByStudentCode']);
     Route::get('guardian/{id}', [GuardianController::class, 'show']);
     Route::post('guardian', [GuardianController::class, 'store']);
     Route::post('guardian/{id}', [GuardianController::class, 'update']);
@@ -200,6 +201,7 @@ Route::middleware(['auth'])->group(function () {
 
     //============== Registration ==============
     Route::get('registrations', [RegistrationController::class, 'index']);
+    Route::get('/student-registrations/approved', [RegistrationController::class, 'getApprovedRegistrationsByStudent']);
     Route::get('registration/{id}', [RegistrationController::class, 'show']);
     Route::post('registration', [RegistrationController::class, 'store']);
     Route::post('registration/{id}', [RegistrationController::class, 'update']);

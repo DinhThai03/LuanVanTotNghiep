@@ -143,12 +143,20 @@ const TeacherPage = () => {
             meta: { displayName: "Họ và tên" },
         }),
 
-        columnHelper.accessor((r) => r.user.email, {
-            id: "email",
-            header: (info) => <DefaultHeader info={info} name="Email" />,
+        columnHelper.accessor((r) => r.status, {
+            id: "status",
+            header: (info) => <DefaultHeader info={info} name="Tình trạng" />,
             enableGlobalFilter: true,
-            size: 250,
-            meta: { displayName: "Email" },
+            size: 120,
+            meta: { displayName: "Tình trạng công tác" },
+        }),
+
+        columnHelper.accessor((r) => r.user.sex ? "Nam" : "Nữ", {
+            id: "sex",
+            header: (info) => <DefaultHeader info={info} name="Giới tính" />,
+            enableGlobalFilter: true,
+            size: 80,
+            meta: { displayName: "Giới tính", hidden: true },
         }),
 
         columnHelper.accessor((r) => format(new Date(r.user.date_of_birth), "dd/MM/yyyy", { locale: vi }), {
@@ -159,12 +167,12 @@ const TeacherPage = () => {
             meta: { displayName: "Ngày sinh" },
         }),
 
-        columnHelper.accessor((r) => (r.user.sex ? "Nam" : "Nữ"), {
-            id: "sex",
-            header: (info) => <DefaultHeader info={info} name="Giới tính" />,
+        columnHelper.accessor((r) => r.user.email, {
+            id: "email",
+            header: (info) => <DefaultHeader info={info} name="Email" />,
             enableGlobalFilter: true,
-            size: 80,
-            meta: { displayName: "Giới tính" },
+            size: 250,
+            meta: { displayName: "Email" },
         }),
 
         columnHelper.accessor((r) => r.user.phone, {
@@ -180,42 +188,23 @@ const TeacherPage = () => {
             header: (info) => <DefaultHeader info={info} name="Địa chỉ" />,
             enableGlobalFilter: true,
             size: 250,
-            meta: { displayName: "Địa chỉ" },
+            meta: { displayName: "Địa chỉ", hidden: true },
         }),
 
-        columnHelper.accessor(
-            (row) =>
-                row.teacher_subjects?.map((ts: TeacherSubjectData) => ts.subject?.name).join(", ") ?? "",
-            {
-                id: "teacher_subjects",
-                header: (info) => <DefaultHeader info={info} name="Môn dạy" />,
-                cell: ({ row }) => {
-                    const subjectNames = row.original.teacher_subjects
-                        ?.map((ts: TeacherSubjectData) => ts.subject?.name)
-                        .filter(Boolean);
-                    return (
-                        <ul className="list-inside space-y-1">
-                            {subjectNames.map((name: string, idx: number) => (
-                                <li key={idx}>{name}</li>
-                            ))}
-                        </ul>
-                    );
-                },
-                enableGlobalFilter: true,
-                size: 180,
-                meta: {
-                    displayName: "Môn dạy",
-                    hidden: true,
-                },
-            }
-        ),
+        columnHelper.accessor((r) => r.user.username, {
+            id: "username",
+            header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
+            enableGlobalFilter: true,
+            size: 150,
+            meta: { displayName: "Tên đăng nhập", hidden: true },
+        }),
 
         columnHelper.accessor((r) => r.user.identity_number, {
             id: "identity_number",
             header: (info) => <DefaultHeader info={info} name="CCCD" />,
             enableGlobalFilter: true,
-            size: 120,
-            meta: { displayName: "CCCD", hidden: true, },
+            size: 140,
+            meta: { displayName: "CMND/CCCD", hidden: true },
         }),
 
         columnHelper.accessor((r) => format(new Date(r.user.issued_date!), "dd/MM/yyyy", { locale: vi }), {
@@ -250,13 +239,32 @@ const TeacherPage = () => {
             meta: { displayName: "Tôn giáo", hidden: true },
         }),
 
-        columnHelper.accessor((r) => r.user.username, {
-            id: "username",
-            header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
-            enableGlobalFilter: true,
-            size: 150,
-            meta: { displayName: "Tên đăng nhập", hidden: true },
-        }),
+        columnHelper.accessor(
+            (row) =>
+                row.teacher_subjects?.map((ts: TeacherSubjectData) => ts.subject?.name).join(", ") ?? "",
+            {
+                id: "teacher_subjects",
+                header: (info) => <DefaultHeader info={info} name="Môn dạy" />,
+                cell: ({ row }) => {
+                    const subjectNames = row.original.teacher_subjects
+                        ?.map((ts: TeacherSubjectData) => ts.subject?.name)
+                        .filter(Boolean);
+                    return (
+                        <ul className="list-inside space-y-1">
+                            {subjectNames.map((name: string, idx: number) => (
+                                <li key={idx}>{name}</li>
+                            ))}
+                        </ul>
+                    );
+                },
+                enableGlobalFilter: true,
+                size: 200,
+                meta: {
+                    displayName: "Môn giảng dạy",
+                    hidden: true,
+                },
+            }
+        ),
 
         columnHelper.accessor((r) => r.user.is_active, {
             id: "is_active",
@@ -271,7 +279,7 @@ const TeacherPage = () => {
             },
             enableGlobalFilter: true,
             size: 100,
-            meta: { displayName: "Trạng thái" },
+            meta: { displayName: "Trạng thái tài khoản" },
         }),
 
         columnHelper.display({

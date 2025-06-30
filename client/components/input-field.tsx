@@ -10,6 +10,8 @@ interface InputFieldProps {
     type?: string;
     placeholder?: string;
     className?: string;
+    readOnly?: boolean;
+
 }
 
 export default function InputField({
@@ -20,6 +22,7 @@ export default function InputField({
     type = "text",
     placeholder,
     className = "",
+    readOnly,
 }: InputFieldProps) {
     return (
         <div className={`grid gap-3 ${className}`}>
@@ -29,7 +32,8 @@ export default function InputField({
                 type={type}
                 placeholder={placeholder}
                 {...register}
-                className={` relative ${type === "date" ? "w-full  pr-8" : ""}`}
+                className={` relative ${type === "date" ? "w-full  pr-8" : ""} ${readOnly && "opacity-50"}`}
+                readOnly={readOnly}
             />
             <div className="min-h-[18px] transition-all duration-200">
                 {error && (

@@ -48,7 +48,7 @@ const menuItems = [
       {
         icon: <FaUserFriends className="w-4.5 h-4.5" />,
         label: "Phụ Huynh",
-        href: "/admin/lists/students",
+        href: "/admin/lists/parents",
         visible: ["admin"],
       },
     ],
@@ -95,7 +95,7 @@ const menuItems = [
         icon: <MdMeetingRoom className="w-4.5 h-4.5" />,
         label: "Phòng học",
         href: "/admin/lists/rooms",
-        visible: ["admin", "teacher"],
+        visible: ["admin"],
       },
     ],
   },

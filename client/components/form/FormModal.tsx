@@ -22,6 +22,10 @@ import { LessonForm } from "./LessonForm";
 import { LessonData } from "@/types/LessonType";
 import { RegistrationForm } from "./RegistrationForm";
 import { RegistrationData } from "@/types/RegistrationType";
+import StudentParentForm from "./StudentParentForm";
+import { StudentData } from "@/types/StudentType";
+import { ParentForm } from "./ParentForm";
+import { ParentData } from "@/types/ParentType";
 
 export type ModalType = "create" | "update";
 
@@ -58,6 +62,24 @@ const FormModal = ({
             type={type}
             data={data as TeacherData}
             onSubmitSuccess={(teacher) => { onSubmitSuccess?.(teacher); onClose?.() }}
+          />
+        );
+
+      case "student":
+        return (
+          <StudentParentForm
+            type={type}
+            data={data as StudentData}
+            onSubmitSuccess={(student) => { onSubmitSuccess?.(student); onClose?.() }}
+          />
+        );
+
+      case "parent":
+        return (
+          <ParentForm
+            type={type}
+            data={data as ParentData}
+            onSubmitSuccess={(parent) => { onSubmitSuccess?.(parent); onClose?.() }}
           />
         );
 

@@ -13,7 +13,8 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { StudentData } from "@/types/StudentType";
-import { getStudents } from "@/services/Student";
+import { deleteStudent, getStudents } from "@/services/Student";
+import FormModal from "@/components/form/FormModal";
 
 const columnHelper = createColumnHelper<StudentData>();
 
@@ -68,7 +69,8 @@ const StudentPage = () => {
     }, []);
 
     const handleAddSuccess = (student: StudentData) => {
-        setStudentMap(prev => new Map(prev).set(student.user_id, student));
+        // console.log(student);
+        // setStudentMap(prev => new Map(prev).set(student.user_id, student));
     };
 
     const handleUpdateSuccess = (student: StudentData) => {
@@ -78,13 +80,13 @@ const StudentPage = () => {
     const handleDelete = async () => {
         if (!selectedStudent) return;
         try {
-            // await deleteStudent(selectedStudent.code);
-            // setStudentMap(prev => {
-            //     const newMap = new Map(prev);
-            //     newMap.delete(selectedStudent.user_id);
-            //     return newMap;
-            // });
-            // toast.success("Xóa thành công")
+            await deleteStudent(selectedStudent.code);
+            setStudentMap(prev => {
+                const newMap = new Map(prev);
+                newMap.delete(selectedStudent.user_id);
+                return newMap;
+            });
+            toast.success("Xóa thành công")
         } catch (err: any) {
             const message =
                 err?.response?.data?.message || // nếu từ axios hoặc fetch API
@@ -120,47 +122,50 @@ const StudentPage = () => {
                     aria-label="Select row"
                 />
             ),
-            meta: {
-                displayName: "▢",
-            },
+            meta: { displayName: "▢" },
             size: 30,
         }),
-        columnHelper.accessor((r) => `${r.code}`, {
+        columnHelper.accessor((r) => r.code, {
             id: "code",
             header: (info) => <DefaultHeader info={info} name="Mã sinh viên" />,
             enableGlobalFilter: true,
             size: 120,
-            meta: {
-                displayName: "Mã sinh viên",
-            },
+            meta: { displayName: "Mã sinh viên" },
         }),
         columnHelper.accessor((r) => `${r.user.last_name} ${r.user.first_name}`, {
             id: "full_name",
             header: (info) => <DefaultHeader info={info} name="Họ & Tên" />,
             enableGlobalFilter: true,
             size: 180,
-            meta: {
-                displayName: "Họ & Tên",
-            },
+            meta: { displayName: "Họ & Tên" },
+        }),
+        columnHelper.accessor((r) => r.user.sex ? "Nam" : "Nữ", {
+            id: "sex",
+            header: (info) => <DefaultHeader info={info} name="Giới tính" />,
+            enableGlobalFilter: false,
+            size: 80,
+            meta: { displayName: "Giới tính", hidden: true },
+        }),
+        columnHelper.accessor((r) => r.place_of_birth, {
+            id: "place_of_birth",
+            header: (info) => <DefaultHeader info={info} name="Nơi sinh" />,
+            enableGlobalFilter: true,
+            size: 150,
+            meta: { displayName: "Nơi sinh", hidden: true },
         }),
         columnHelper.accessor((r) => r.user.username, {
             id: "username",
             header: (info) => <DefaultHeader info={info} name="Tên đăng nhập" />,
             enableGlobalFilter: true,
             size: 150,
-            meta: {
-                displayName: "Tên đăng nhập",
-                hidden: true,
-            },
+            meta: { displayName: "Tên đăng nhập", hidden: true },
         }),
         columnHelper.accessor((r) => r.user.email, {
             id: "email",
             header: (info) => <DefaultHeader info={info} name="Email" />,
             enableGlobalFilter: true,
             size: 250,
-            meta: {
-                displayName: "Email",
-            },
+            meta: { displayName: "Email" },
         }),
         columnHelper.accessor(
             (r) => format(new Date(r.user.date_of_birth), "dd/MM/yyyy", { locale: vi }),
@@ -169,28 +174,64 @@ const StudentPage = () => {
                 header: (info) => <DefaultHeader info={info} name="Ngày sinh" />,
                 enableGlobalFilter: true,
                 size: 110,
-                meta: {
-                    displayName: "Ngày sinh",
-                },
+                meta: { displayName: "Ngày sinh" },
             }
         ),
+        columnHelper.accessor((r) => r.user.identity_number, {
+            id: "identity_number",
+            header: (info) => <DefaultHeader info={info} name="CMND/CCCD" />,
+            enableGlobalFilter: false,
+            size: 140,
+            meta: { displayName: "CMND/CCCD", hidden: true },
+        }),
+        columnHelper.accessor((r) => r.user.issued_place, {
+            id: "issued_place",
+            header: (info) => <DefaultHeader info={info} name="Nơi cấp" />,
+            enableGlobalFilter: false,
+            size: 130,
+            meta: { displayName: "Nơi cấp", hidden: true },
+        }),
+        columnHelper.accessor((r) => format(new Date(r.user.issued_date), "dd/MM/yyyy", { locale: vi }), {
+            id: "issued_date",
+            header: (info) => <DefaultHeader info={info} name="Ngày cấp" />,
+            enableGlobalFilter: false,
+            size: 110,
+            meta: { displayName: "Ngày cấp", hidden: true },
+        }),
+        columnHelper.accessor((r) => r.user.ethnicity, {
+            id: "ethnicity",
+            header: (info) => <DefaultHeader info={info} name="Dân tộc" />,
+            enableGlobalFilter: false,
+            size: 120,
+            meta: { displayName: "Dân tộc", hidden: true },
+        }),
+        columnHelper.accessor((r) => r.user.religion, {
+            id: "religion",
+            header: (info) => <DefaultHeader info={info} name="Tôn giáo" />,
+            enableGlobalFilter: false,
+            size: 120,
+            meta: { displayName: "Tôn giáo", hidden: true },
+        }),
         columnHelper.accessor((r) => r.user.address, {
             id: "address",
             header: (info) => <DefaultHeader info={info} name="Địa chỉ" />,
             enableGlobalFilter: true,
             size: 250,
-            meta: {
-                displayName: "Địa chỉ",
-            },
+            meta: { displayName: "Địa chỉ" },
         }),
         columnHelper.accessor((r) => r.user.phone, {
             id: "phone",
             header: (info) => <DefaultHeader info={info} name="Số điện thoại" />,
             enableGlobalFilter: true,
             size: 120,
-            meta: {
-                displayName: "Số điện thoại",
-            },
+            meta: { displayName: "Số điện thoại" },
+        }),
+        columnHelper.accessor((r) => r.school_class.name, {
+            id: "class_name",
+            header: (info) => <DefaultHeader info={info} name="Lớp" />,
+            enableGlobalFilter: true,
+            size: 120,
+            meta: { displayName: "Lớp" },
         }),
         columnHelper.accessor((r) => r.user.is_active, {
             id: "is_active",
@@ -205,10 +246,7 @@ const StudentPage = () => {
             },
             enableGlobalFilter: false,
             size: 100,
-            meta: {
-                displayName: "Trạng thái",
-                hidden: true,
-            },
+            meta: { displayName: "Trạng thái", hidden: true },
         }),
         columnHelper.display({
             id: "actions",
@@ -241,11 +279,10 @@ const StudentPage = () => {
             },
             enableGlobalFilter: false,
             size: 90,
-            meta: {
-                displayName: "Tùy chọn",
-            },
+            meta: { displayName: "Tùy chọn" },
         }),
     ];
+
 
     return (
         <div className="w-full bg-white shadow-lg shadow-gray-500 p-4">
@@ -265,7 +302,7 @@ const StudentPage = () => {
                         }}
                     />
 
-                    {/* {showAddForm && (
+                    {showAddForm && (
                         <FormModal
                             table="student"
                             type="create"
@@ -285,7 +322,7 @@ const StudentPage = () => {
                             }}
                             onSubmitSuccess={handleUpdateSuccess}
                         />
-                    )} */}
+                    )}
 
                     <ConfirmDialog
                         open={showConfirm}
