@@ -15,6 +15,7 @@ return new class extends Migration
             $table->engine = 'InnoDB';
 
             $table->id();
+            $table->char('code', 10)->notNullable();
             $table->string('name', 100)->notNullable();
             $table->integer('credit')->notNullable();
             $table->integer('tuition_credit')->notNullable();

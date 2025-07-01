@@ -10,6 +10,7 @@ export interface FacultySubjectData {
 
 export interface SubjectData {
     id: number;
+    code: string;
     name: string;
     credit: number;
     tuition_credit: number;

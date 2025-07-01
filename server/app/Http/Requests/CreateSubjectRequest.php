@@ -14,6 +14,7 @@ class CreateSubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => ['required', 'string', 'size:10', 'unique:subjects,code'],
             'name' => ['required', 'string', 'max:100'],
             'credit' => ['required', 'integer', 'min:1'],
             'tuition_credit' => ['required', 'integer', 'min:1'],
@@ -30,6 +31,10 @@ class CreateSubjectRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'code.required' => 'Vui lòng nhập mã môn học.',
+            'code.string' => 'Mã môn học phải là chuỗi.',
+            'code.size' => 'Mã môn học phải đúng 10 ký tự.',
+            'code.unique' => 'Mã môn học đã tồn tại.',
             'name.required' => 'Tên môn học là bắt buộc.',
             'credit.required' => 'Số tín chỉ là bắt buộc.',
             'tuition_credit.required' => 'Tín chỉ học phí là bắt buộc.',
@@ -48,6 +53,7 @@ class CreateSubjectRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            "code" => 'mã môn học',
             'name' => 'tên môn học',
             'credit' => 'tín chỉ',
             'tuition_credit' => 'tín chỉ học phí',

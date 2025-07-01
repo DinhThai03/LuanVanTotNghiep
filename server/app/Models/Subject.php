@@ -8,6 +8,7 @@ class Subject extends Model
 {
     public $timestamps = false;
     protected $fillable = [
+        'code',
         'name',
         'credit',
         'tuition_credit',

@@ -17,9 +17,11 @@ import { getFacultys } from "@/services/Faculty";
 import CheckboxGroupField from "../checkbox-group-field";
 
 const subjectSchema = z.object({
+    id: z.coerce.number().optional(),
+    code: z.string().length(10, "Mã học phần phải 10 kí tự"),
     name: z.string().min(1, "Tên học phần là bắt buộc"),
     credit: z.coerce.number().min(1, "Số tín chỉ phải lớn hơn 0"),
-    tuition_credit: z.coerce.number().min(1, "Số tín chỉ học phần phải lớn hơn 0"),
+    tuition_credit: z.coerce.number().min(1, "Số tín chỉ học phí phải lớn hơn 0"),
     process_percent: z.coerce.number().min(0).max(100, "Phần trăm quá trình phải từ 0-100"),
     midterm_percent: z.coerce.number().min(0).max(100, "Phần trăm giữa kì phải từ 0-100"),
     final_percent: z.coerce.number().min(0).max(100, "Phần trăm cuối kì phải từ 0-100"),
@@ -34,19 +36,6 @@ const subjectSchema = z.object({
 
 type FormData = z.infer<typeof subjectSchema>;
 
-const buildFormData = (fd: FormData) => {
-    const form = new FormData();
-    form.append("name", fd.name);
-    form.append("credit", String(fd.credit));
-    form.append("tuition_credit", String(fd.tuition_credit));
-    form.append("process_percent", String(fd.process_percent));
-    form.append("midterm_percent", String(fd.midterm_percent));
-    form.append("final_percent", String(fd.final_percent));
-    form.append("subject_type", String(fd.subject_type));
-    form.append("year", String(fd.year));
-    fd.faculty_ids?.forEach(id => form.append("faculty_ids[]", String(id)));
-    return form;
-};
 
 interface SubjectFormProps {
     type: ModalType;
@@ -62,6 +51,24 @@ export const SubjectForm = ({
     const [loading, setLoading] = useState(false);
     const [faculties, setFaculties] = useState<FacultyData[]>([]);
 
+    const buildFormData = (fd: FormData) => {
+        const form = new FormData();
+        if (type === "update")
+            form.append("id", fd.id?.toString()!);
+
+        form.append("code", fd.code);
+        form.append("name", fd.name);
+        form.append("credit", String(fd.credit));
+        form.append("tuition_credit", String(fd.tuition_credit));
+        form.append("process_percent", String(fd.process_percent));
+        form.append("midterm_percent", String(fd.midterm_percent));
+        form.append("final_percent", String(fd.final_percent));
+        form.append("subject_type", String(fd.subject_type));
+        form.append("year", String(fd.year));
+        fd.faculty_ids?.forEach(id => form.append("faculty_ids[]", String(id)));
+        return form;
+    };
+
     const {
         register,
         handleSubmit,
@@ -74,6 +81,8 @@ export const SubjectForm = ({
     } = useForm<FormData>({
         resolver: zodResolver(subjectSchema),
         defaultValues: {
+            id: data?.id ?? undefined,
+            code: data?.code ?? "",
             name: data?.name ?? "",
             credit: data?.credit ?? 1,
             tuition_credit: data?.tuition_credit ?? 1,
@@ -118,6 +127,8 @@ export const SubjectForm = ({
     useEffect(() => {
         if (data) {
             reset({
+                id: data.id,
+                code: data.code,
                 name: data.name,
                 credit: data.credit,
                 tuition_credit: data.tuition_credit,
@@ -191,6 +202,15 @@ export const SubjectForm = ({
             </h2>
 
             <form className="md:grid grid-cols-3 gap-4" onSubmit={handleSubmit(onSubmit)}>
+                {type === "create" && <InputField
+                    id="code"
+                    label="Mã học phần"
+                    type="text"
+                    register={register("code")}
+                    error={errors.code}
+                />
+                }
+
                 <InputField
                     id="name"
                     label="Tên học phần"
@@ -209,7 +229,7 @@ export const SubjectForm = ({
 
                 <InputField
                     id="tuition_credit"
-                    label="Số tín chỉ học phần"
+                    label="Số tín chỉ học phí"
                     type="number"
                     register={register("tuition_credit", { valueAsNumber: true })}
                     error={errors.tuition_credit}

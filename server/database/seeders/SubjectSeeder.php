@@ -14,6 +14,7 @@ class SubjectSeeder extends Seeder
     {
         DB::table('subjects')->insert([
             [
+                'code' => 'MH00000001',
                 'name' => 'Toán Cao Cấp',
                 'credit' => 3,
                 'tuition_credit' => 3,
@@ -24,6 +25,7 @@ class SubjectSeeder extends Seeder
                 'subject_type' => 'LT',
             ],
             [
+                'code' => 'MH00000002',
                 'name' => 'Lập trình Cơ Bản',
                 'credit' => 4,
                 'tuition_credit' => 4,
@@ -34,6 +36,7 @@ class SubjectSeeder extends Seeder
                 'subject_type' => 'TH',
             ],
             [
+                'code' => 'MH00000003',
                 'name' => 'Vật Lý Đại Cương',
                 'credit' => 3,
                 'tuition_credit' => 3,
@@ -44,6 +47,7 @@ class SubjectSeeder extends Seeder
                 'subject_type' => 'LT',
             ],
             [
+                'code' => 'MH00000004',
                 'name' => 'Cơ Sở Dữ Liệu',
                 'credit' => 3,
                 'tuition_credit' => 3,
@@ -54,6 +58,7 @@ class SubjectSeeder extends Seeder
                 'subject_type' => 'TH',
             ],
             [
+                'code' => 'MH00000005',
                 'name' => 'Mạng Máy Tính',
                 'credit' => 3,
                 'tuition_credit' => 3,
