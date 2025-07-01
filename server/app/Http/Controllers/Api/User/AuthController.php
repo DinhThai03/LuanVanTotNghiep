@@ -94,13 +94,17 @@ class AuthController extends BaseController
 
     protected function respondWithToken($token, $refreshToken)
     {
+        $user = Auth::user(); // Lấy thông tin user hiện tại
+
         return response()->json([
             'access_token' => $token,
             'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
-            'expires_in' => Auth::factory()->getTTL() * 60
+            'expires_in' => Auth::factory()->getTTL() * 60,
+            'role' => $user->role,
         ]);
     }
+
 
     protected function createRefreshToken()
     {

@@ -1,5 +1,6 @@
 "use client";
 
+import { logout } from "@/lib/logout";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaUserCog } from "react-icons/fa";
@@ -9,7 +10,7 @@ const NavUser = () => {
   const router = useRouter();
 
   const handleLogout = async () => {
-    router.push("/login");
+    await logout();
   };
 
   return (

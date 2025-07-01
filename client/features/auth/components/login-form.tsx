@@ -46,6 +46,7 @@ export function LoginForm({
     setLoginError("");
     try {
       const res = await login(data.user_name, data.password);
+      router.refresh();
       const res_profile = await profile();
       const role = res_profile.role;
       switch (role) {
@@ -111,7 +112,7 @@ export function LoginForm({
                 {loading ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
 
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+              {/* <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
                   Hoặc
                 </span>
@@ -127,7 +128,7 @@ export function LoginForm({
                   </svg>
                   Đăng nhập với Google
                 </Button>
-              </div>
+              </div> */}
             </div>
           </form>
         </CardContent>
