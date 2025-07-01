@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ClassAnnouncement extends Model
 {
     protected $table = 'class_announcements';
-
-    
+    public $timestamps = false;
 
     protected $primaryKey = null;  // Vì không có cột id riêng
 

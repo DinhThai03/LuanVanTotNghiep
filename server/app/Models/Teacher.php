@@ -10,6 +10,7 @@ class Teacher extends Model
     public $incrementing = false;    // Không tự tăng
     protected $keyType = 'string';   // Kiểu khóa chính là string
 
+    public $timestamps = false;
     protected $fillable = [
         'code',
         'status',

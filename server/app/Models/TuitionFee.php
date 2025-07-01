@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TuitionFee extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'registration_id',
         'amount',

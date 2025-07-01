@@ -19,8 +19,6 @@ return new class extends Migration
             $table->decimal('price_per_credit', 10, 2)->notNullable();
             $table->boolean('is_active')->notNullable();
             $table->integer('year')->notNullable();
-        
-            $table->timestamps();
         });
         
     }

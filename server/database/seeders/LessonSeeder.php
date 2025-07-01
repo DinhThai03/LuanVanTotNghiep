@@ -24,8 +24,6 @@ class LessonSeeder extends Seeder
                 'is_active' => true,
                 'teacher_subject_id' => 1,
                 'semester_id' => 3,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
             ],
             [
                 'start_date' => '2025-09-01',
@@ -37,8 +35,6 @@ class LessonSeeder extends Seeder
                 'is_active' => true,
                 'teacher_subject_id' => 2,
                 'semester_id' => 3,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
             ],
             [
                 'start_date' => '2025-09-01',
@@ -50,8 +46,6 @@ class LessonSeeder extends Seeder
                 'is_active' => true,
                 'teacher_subject_id' => 1,
                 'semester_id' => 3,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
             ],
         ]);
     }

@@ -18,8 +18,6 @@ return new class extends Migration
             $table->enum('status', ['Probation', 'Official', 'Resigned'])->default('Probation');
             $table->unsignedBigInteger('user_id')->unique();
             $table->unsignedBigInteger('faculty_id')->nullable();
-            $table->timestamps();
-
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('faculty_id')->references('id')->on('faculties');
         });

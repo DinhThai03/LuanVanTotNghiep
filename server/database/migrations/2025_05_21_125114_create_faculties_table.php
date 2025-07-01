@@ -16,7 +16,6 @@ return new class extends Migration
 
             $table->id(); // khóa chính tự tăng
             $table->string('name', 100); // tên khoa
-            $table->timestamps(); // created_at, updated_at
         });
     }
 

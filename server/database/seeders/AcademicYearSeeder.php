@@ -14,15 +14,13 @@ class AcademicYearSeeder extends Seeder
     public function run(): void
     {
         AcademicYear::create([
-            'start_year' => 2021,
+            'start_year' => 2024,
             'end_year' => 2025,
-            'name' => 'D21',
         ]);
 
         AcademicYear::create([
-            'start_year' => 2022,
+            'start_year' => 2025,
             'end_year' => 2026,
-            'name' => 'D22',
         ]);
     }
 }

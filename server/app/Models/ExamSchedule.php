@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExamSchedule extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'exam_date',
         'exam_time',
@@ -14,8 +16,7 @@ class ExamSchedule extends Model
         'semester_subject_id',
         'academic_year_semester_id',
     ];
-
-    
+  
 
     public function semesterSubject()
     {

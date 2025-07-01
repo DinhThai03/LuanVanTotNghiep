@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BiSolidSchool } from "react-icons/bi";
 import { FaBook, FaBriefcase, FaChalkboardTeacher, FaUserFriends, FaUserGraduate, FaUserShield } from "react-icons/fa";
+import { PiClockCountdownFill } from "react-icons/pi";
 import { IoHome } from "react-icons/io5";
 import { MdMeetingRoom } from "react-icons/md";
 import Cookies from "js-cookie";
 import { profile } from "@/features/auth/api";
-import { IoMdNotifications } from "react-icons/io";
+import { IoMdBookmarks, IoMdNotifications } from "react-icons/io";
 import { TbCircleDashedLetterA } from "react-icons/tb";
 import { GiArchiveRegister, GiSpellBook, GiTeacher } from "react-icons/gi";
 import { SiGoogleclassroom } from "react-icons/si";
@@ -59,6 +60,12 @@ const menuItems = [
       {
         icon: <BiSolidSchool className="w-4.5 h-4.5" />,
         label: "Niên khóa",
+        href: "/admin/lists/cohorts",
+        visible: ["admin"],
+      },
+      {
+        icon: <IoMdBookmarks className="w-4.5 h-4.5" />,
+        label: "Năm học",
         href: "/admin/lists/academic-years",
         visible: ["admin"],
       },
@@ -112,6 +119,12 @@ const menuItems = [
         icon: <GiTeacher className="w-4.5 h-4.5" />,
         label: "Bài giảng",
         href: "/admin/lists/lessons",
+        visible: ["admin"],
+      },
+      {
+        icon: <PiClockCountdownFill className="w-4.5 h-4.5" />,
+        label: "Thời gian đăng ký",
+        href: "/admin/lists/registration-period",
         visible: ["admin"],
       },
       {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SemesterSubject extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'subject_id',
         'semester_id',

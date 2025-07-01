@@ -152,6 +152,14 @@ const ClassedPage = () => {
             meta: { displayName: "Khoa" },
         }),
 
+        columnHelper.accessor("cohort.name", {
+            id: "cohort_name",
+            header: (info) => <DefaultHeader info={info} name="Niên khóa" />,
+            enableGlobalFilter: true,
+            size: 200,
+            meta: { displayName: "Niên khóa" },
+        }),
+
         columnHelper.display({
             id: "actions",
             header: () => "Tùy chọn",

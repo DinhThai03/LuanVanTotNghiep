@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Academic\AcademicYearController;
 use App\Http\Controllers\Api\Academic\ClassController;
+use App\Http\Controllers\Api\Academic\CohortController;
 use App\Http\Controllers\Api\Academic\FacultyController;
 use App\Http\Controllers\Api\Academic\FacultySubjectController;
 use App\Http\Controllers\Api\Academic\SemesterController;
@@ -17,7 +18,6 @@ use App\Http\Controllers\Api\Finance\RegistrationController;
 use App\Http\Controllers\Api\Finance\TuitionFeeController;
 use App\Http\Controllers\Api\Profile\PasswordController;
 use App\Http\Controllers\Api\Teaching\LessonController;
-use App\Http\Controllers\Api\Teaching\LessonRoomController;
 use App\Http\Controllers\Api\Teaching\RegistrationPeriodController;
 use App\Http\Controllers\Api\Teaching\RoomController;
 use App\Http\Controllers\Api\Teaching\TeacherSubjectController;
@@ -84,9 +84,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('guardian', [GuardianController::class, 'store']);
     Route::post('guardian/{id}', [GuardianController::class, 'update']);
     Route::delete('guardian/{id}', [GuardianController::class, 'destroy']);
+    //============== COHORT ==============
+
+    Route::get('/cohorts', [CohortController::class, 'index']);
+    Route::post('/cohorts', [CohortController::class, 'store']);
+    Route::get('/cohorts/{id}', [CohortController::class, 'show']);
+    Route::post('/cohorts/{id}', [CohortController::class, 'update']);
+    Route::delete('/cohorts/{id}', [CohortController::class, 'destroy']);
+    Route::get('/cohorts/by-year/{year}', [CohortController::class, 'byYear']);
+    Route::get('/cohorts/{id}/classes', [CohortController::class, 'classes']);
+    Route::get('/cohorts/{id}/students', [CohortController::class, 'students']);
 
     //============== ACADEMIC YEAR ==============
     Route::get('academic_years', [AcademicYearController::class, 'index']);
+    Route::get('/academic-years/with-semesters', [AcademicYearController::class, 'getAcademicYearsWithSemesters']);
     Route::get('academic_year/{id}', [AcademicYearController::class, 'show']);
     Route::post('academic_year', [AcademicYearController::class, 'store']);
     Route::post('academic_year/{id}', [AcademicYearController::class, 'update']);
@@ -114,6 +125,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('semester_subject', [SemesterSubjectController::class, 'store']);
     Route::post('semester_subject/{id}', [SemesterSubjectController::class, 'update']);
     Route::delete('semester_subject/{id}', [SemesterSubjectController::class, 'destroy']);
+
 
     //============== CLASS ==============
     Route::get('classed', [ClassController::class, 'index']);
@@ -216,7 +228,8 @@ Route::middleware(['auth'])->group(function () {
 
     //============== Registration Period ==============
     Route::get('registration_periods', [RegistrationPeriodController::class, 'index']);
-    Route::post('registration_periods', [RegistrationPeriodController::class, 'store']);
+    // Route::post('registration_periods', [RegistrationPeriodController::class, 'store']);
+    Route::post('/registration-periods/bulk', [RegistrationPeriodController::class, 'storeBulk']);
     Route::put('registration_periods/{id}', [RegistrationPeriodController::class, 'update']);
     Route::delete('registration_periods/{id}', [RegistrationPeriodController::class, 'destroy']);
 });

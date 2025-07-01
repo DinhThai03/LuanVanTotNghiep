@@ -16,8 +16,6 @@ return new class extends Migration
 
             $table->unsignedBigInteger('user_id')->primary(); // khóa chính và khóa ngoại tới users
             $table->integer('admin_level')->notNullable();
-            $table->timestamps();
-
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

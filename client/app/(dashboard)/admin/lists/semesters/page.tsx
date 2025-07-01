@@ -161,12 +161,12 @@ const SemesterPage = () => {
             }
         ),
 
-        columnHelper.accessor((r) => r.academic_year.name, {
+        columnHelper.accessor((r) => `${r.academic_year.start_year} - ${r.academic_year.end_year}`, {
             id: "academic_year",
-            header: (info) => <DefaultHeader info={info} name="Niên khóa" />,
+            header: (info) => <DefaultHeader info={info} name="Năm học" />,
             enableGlobalFilter: true,
             size: 140,
-            meta: { displayName: "Niên khóa" },
+            meta: { displayName: "Năm học" },
         }),
 
         columnHelper.display({

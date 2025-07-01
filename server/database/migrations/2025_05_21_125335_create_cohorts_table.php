@@ -11,23 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('teacher_subjects', function (Blueprint $table) {
+        Schema::create('cohorts', function (Blueprint $table) {
             $table->engine = 'InnoDB';
 
             $table->id();
-            $table->char('teacher_code', 10)->notNullable();
-            $table->unsignedBigInteger('subject_id')->notNullable();
-
-            $table->foreign('teacher_code')->references('code')->on('teachers');
-            $table->foreign('subject_id')->references('id')->on('subjects');
+            $table->string('name')->unique();
+            $table->integer('start_year');
+            $table->integer('end_year');
+            $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('teacher_subjects');
+        Schema::dropIfExists('cohorts');
     }
 };

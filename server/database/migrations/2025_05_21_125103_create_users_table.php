@@ -31,7 +31,6 @@ return new class extends Migration
             $table->string('religion', 50)->nullable();
             $table->boolean('is_active')->default(1);
             $table->rememberToken()->nullable();
-            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -23,8 +23,6 @@ return new class extends Migration
             $table->string('transaction_id', 100)->nullable();
 
             $table->foreign('registration_id')->references('id')->on('registrations');
-
-            $table->timestamps();
         });
     }
 

@@ -2,6 +2,7 @@
 import { logout } from "@/lib/logout";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 let isRefreshing = false;
 let failedQueue: any[] = [];
@@ -41,6 +42,27 @@ instance.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+            const refresh_token = Cookies.get("refresh_token");
+
+            // Kiểm tra refresh_token còn hạn hay không
+            if (!refresh_token) {
+                await logout();
+                return Promise.reject(error);
+            }
+
+            try {
+                const decoded: any = jwtDecode(refresh_token);
+                const currentTime = Date.now() / 1000;
+
+                if (decoded.exp < currentTime) {
+                    await logout();
+                    return Promise.reject(error);
+                }
+            } catch (e) {
+                await logout();
+                return Promise.reject(error);
+            }
+
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({
@@ -59,18 +81,16 @@ instance.interceptors.response.use(
             try {
                 const res = await axios.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
-                    {
-                        refresh_token: Cookies.get("refresh_token"),
-                    }
+                    { refresh_token }
                 );
 
-                const { access_token, refresh_token } = res.data;
+                const { access_token, refresh_token: new_refresh_token } = res.data;
                 Cookies.set("access_token", access_token);
-                Cookies.set("refresh_token", refresh_token);
+                Cookies.set("refresh_token", new_refresh_token);
 
                 processQueue(null, access_token);
 
-                originalRequest.headers["Authorization"] = "Bearer " + access_token;
+                originalRequest.headers["Authorization"] = `Bearer ${access_token}`;
                 return instance(originalRequest);
             } catch (refreshError) {
                 processQueue(refreshError, null);

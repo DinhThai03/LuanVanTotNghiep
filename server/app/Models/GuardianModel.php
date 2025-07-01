@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class GuardianModel extends Model
 {
     protected $table = 'parents';
-
-
+    public $timestamps = false;
 
     protected $primaryKey = 'user_id';
     public $incrementing = false; // vì user_id không phải auto increment

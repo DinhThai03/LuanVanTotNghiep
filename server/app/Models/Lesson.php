@@ -9,9 +9,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Lesson extends Model
 {
     use HasFactory;
+    public $timestamps = false;
 
     protected $fillable = [
-        'semester_id', // thêm dòng này
+        'semester_id',
         'start_date',
         'end_date',
         'day_of_week',
@@ -23,7 +24,7 @@ class Lesson extends Model
     ];
 
     protected $casts = [
-        'semester_id' => 'integer', // thêm dòng này
+        'semester_id' => 'integer',
         'day_of_week' => 'integer',
         'room_id' => 'integer',
         'teacher_subject_id' => 'integer',

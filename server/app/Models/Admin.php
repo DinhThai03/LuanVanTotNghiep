@@ -11,6 +11,7 @@ class Admin extends Model
     protected $primaryKey = 'user_id';
 
     public $incrementing = false;
+    public $timestamps = false;
 
     protected $fillable = [
         'user_id',

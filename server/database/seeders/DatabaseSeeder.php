@@ -52,6 +52,11 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
         ]);
 
+
+        $this->call([
+            CohortSeeder::class,
+        ]);
+
         // 11. Seed bảng classes (lớp học)
         $this->call([
             ClassSeeder::class,

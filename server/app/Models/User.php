@@ -10,6 +10,7 @@ use App\Notifications\ResetPasswordNotification;
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
+    public $timestamps = false;
 
     protected $fillable = [
         'username',

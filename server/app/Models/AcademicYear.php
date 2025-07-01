@@ -6,18 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class AcademicYear extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'start_year',
         'end_year',
-        'name',
     ];
 
     // Quan hệ 1-nhiều với bảng semesters
     public function semesters()
     {
-        return $this->belongsTo(
+        return $this->hasMany(
             Semester::class,
-            'academic_year_id',
+            'academic_year_id'
         );
     }
 }

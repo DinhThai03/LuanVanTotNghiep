@@ -16,6 +16,13 @@ class AcademicYearController extends Controller
         return response()->json(['data' => $years]);
     }
 
+    public function getAcademicYearsWithSemesters(): JsonResponse
+    {
+        $years = AcademicYear::whereHas('semesters')->get();
+        return response()->json(['data' => $years]);
+    }
+
+
     public function store(CreateAcademicYearRequest $request): JsonResponse
     {
         $year = AcademicYear::create($request->validated());

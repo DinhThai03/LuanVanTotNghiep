@@ -15,12 +15,15 @@ import SelectField from "../select-field";
 import SearchableSelectField from "../searchable-select-field";
 import { FacultyData } from "@/types/FacultyType";
 import { getFacultys } from "@/services/Faculty";
+import { CohortData } from "@/types/CohortType";
+import { getCohorts } from "@/services/Cohort";
 
 const classeschema = z.object({
     id: z.number().optional(),
     name: z.string().min(1, "Tên lớp không được để trống"),
     student_count: z.coerce.number().min(1, "Sĩ số phải lớn hơn 0"),
     faculty_id: z.coerce.number().min(1, "Vui lòng chọn khoa"),
+    cohort_id: z.coerce.number().min(1, "Vui lòng chọn khoa"),
 });
 
 type FormData = z.infer<typeof classeschema>;
@@ -30,6 +33,7 @@ const buildFormData = (fd: FormData) => {
     form.append("name", fd.name);
     form.append("student_count", String(fd.student_count));
     form.append("faculty_id", String(fd.faculty_id));
+    form.append("cohort_id", String(fd.cohort_id));
     return form;
 };
 
@@ -38,7 +42,6 @@ interface ClassedFormProps {
     data?: ClassedData;
     onSubmitSuccess?: (classed: ClassedData) => void;
 }
-
 export const ClassedForm = ({
     type,
     data,
@@ -46,6 +49,10 @@ export const ClassedForm = ({
 }: ClassedFormProps) => {
     const [loading, setLoading] = useState(false);
     const [facultys, setFaculty] = useState<FacultyData[]>([]);
+    const [cohorts, setCohorts] = useState<CohortData[]>([]);
+
+    const [isFacultyLoaded, setIsFacultyLoaded] = useState(false);
+    const [isCohortLoaded, setIsCohortLoaded] = useState(false);
 
     const {
         register,
@@ -60,17 +67,45 @@ export const ClassedForm = ({
             id: data?.id,
             name: data?.name ?? "",
             student_count: data?.student_count ?? 30,
-            faculty_id: data?.faculty_id ?? 0,
+            faculty_id: data?.faculty_id ?? undefined,
+            cohort_id: data?.cohort_id ?? undefined,
         },
     });
 
     useEffect(() => {
-        const fetchAcademicYears = async () => {
+        const fetchFacultys = async () => {
             try {
                 setLoading(true);
                 const res = await getFacultys();
                 if (res) {
                     setFaculty(res.data);
+                    setIsFacultyLoaded(true);
+                }
+            } catch (err) {
+                const axiosErr = err as AxiosError<any>;
+                let message = "Đã có lỗi xảy ra khi lấy danh sách khoa.";
+                if (axiosErr.response?.data?.message) {
+                    message = axiosErr.response.data.message;
+                } else if (axiosErr.response?.data?.error) {
+                    message = axiosErr.response.data.error;
+                } else if (axiosErr.message === "Network Error") {
+                    message = "Không thể kết nối đến server.";
+                }
+                toast.error(message, {
+                    description: "Vui lòng kiểm tra lại.",
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const fetchCohorts = async () => {
+            try {
+                setLoading(true);
+                const res = await getCohorts();
+                if (res) {
+                    setCohorts(res);
+                    setIsCohortLoaded(true);
                 }
             } catch (err) {
                 const axiosErr = err as AxiosError<any>;
@@ -90,8 +125,9 @@ export const ClassedForm = ({
             }
         };
 
-        fetchAcademicYears();
-    }, [])
+        fetchFacultys();
+        fetchCohorts();
+    }, []);
 
     useEffect(() => {
         if (data) {
@@ -100,6 +136,7 @@ export const ClassedForm = ({
                 name: data.name,
                 student_count: data.student_count,
                 faculty_id: data.faculty_id,
+                cohort_id: data.cohort_id,
             });
         }
     }, [data, reset]);
@@ -171,18 +208,35 @@ export const ClassedForm = ({
                     error={errors.student_count}
                 />
 
-                <SearchableSelectField
-                    id="faculty_id"
-                    name="faculty_id"
-                    label="Khoa"
-                    control={control}
-                    options={facultys.map((year) => ({
-                        label: year.name,
-                        value: year.id,
-                    }))}
-                    placeholder="Chọn Khoa..."
-                    error={errors.faculty_id}
-                />
+                {isFacultyLoaded && (
+                    <SearchableSelectField
+                        id="faculty_id"
+                        name="faculty_id"
+                        label="Khoa"
+                        control={control}
+                        options={facultys.map((f) => ({
+                            label: f.name,
+                            value: f.id,
+                        }))}
+                        placeholder="Chọn Khoa..."
+                        error={errors.faculty_id}
+                    />
+                )}
+
+                {isCohortLoaded && (
+                    <SearchableSelectField
+                        id="cohort_id"
+                        name="cohort_id"
+                        label="Niên khóa"
+                        control={control}
+                        options={cohorts.map((c) => ({
+                            label: c.name,
+                            value: c.id,
+                        }))}
+                        placeholder="Chọn niên khóa..."
+                        error={errors.cohort_id}
+                    />
+                )}
 
                 <div className="mt-4 col-span-2">
                     <button

@@ -32,8 +32,6 @@ class UserSeeder extends Seeder
                 'religion'         => 'Không',
                 'is_active'        => 1,
                 'remember_token'   => null,
-                'created_at'       => now(),
-                'updated_at'       => now(),
             ],
             [
                 'username'         => 'student01',
@@ -53,8 +51,6 @@ class UserSeeder extends Seeder
                 'religion'         => 'Không',
                 'is_active'        => 1,
                 'remember_token'   => null,
-                'created_at'       => now(),
-                'updated_at'       => now(),
             ],
             [
                 'username'         => 'parent01',
@@ -74,8 +70,6 @@ class UserSeeder extends Seeder
                 'religion'         => 'Phật giáo',
                 'is_active'        => 1,
                 'remember_token'   => null,
-                'created_at'       => now(),
-                'updated_at'       => now(),
             ],
         ]);
     }

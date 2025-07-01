@@ -20,10 +20,8 @@ return new class extends Migration
             $table->dateTime('round1_end');
             $table->dateTime('round2_start')->nullable();
             $table->dateTime('round2_end')->nullable();
-
-            $table->timestamps();
-
             $table->unique(['faculty_id', 'semester_id']);
+            $table->timestamps();
         });
     }
 

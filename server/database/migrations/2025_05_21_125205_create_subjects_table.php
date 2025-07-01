@@ -24,7 +24,6 @@ return new class extends Migration
             $table->integer('year')->notNullable();
             $table->enum('subject_type', ['LT', 'TH', 'DA', 'KL']);
             $table->boolean('is_active')->default(1);
-            $table->timestamps();
         });
     }
 

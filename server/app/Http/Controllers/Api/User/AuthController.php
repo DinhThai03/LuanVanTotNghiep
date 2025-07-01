@@ -88,7 +88,7 @@ class AuthController extends BaseController
             return $this->respondWithToken($token, $newRefreshToken);
             return response()->json($decode);
         } catch (JWTException $exception) {
-            return response()->json(['error' => 'refresh toke không đúng'], 500);
+            return response()->json(['error' => 'refresh token không đúng'], 500);
         }
     }
 

@@ -24,8 +24,6 @@ return new class extends Migration
             $table->foreign('exam_schedule_id')->references('id')->on('exam_schedules');
             $table->foreign('room_id')->references('id')->on('rooms');
             $table->foreign('class_id')->references('id')->on('school_classes');
-
-            $table->timestamps();
         });
     }
 

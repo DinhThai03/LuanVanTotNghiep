@@ -6,15 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class SchoolClass extends Model
 {
-    // protected $table = 'classes'; // Khai báo tên bảng vì model không trùng tên bảng
 
+    public $timestamps = false;
     protected $fillable = [
         'name',
         'student_count',
         'faculty_id',
+        'cohort_id'
     ];
 
-    
+    public function cohort()
+    {
+        return $this->belongsTo(Cohort::class);
+    }
 
     public function faculty()
     {

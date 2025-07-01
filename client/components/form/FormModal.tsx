@@ -26,6 +26,8 @@ import StudentParentForm from "./StudentParentForm";
 import { StudentData } from "@/types/StudentType";
 import { ParentForm } from "./ParentForm";
 import { ParentData } from "@/types/ParentType";
+import { CohortForm } from "./CohortForm";
+import { CohortData } from "@/types/CohortType";
 
 export type ModalType = "create" | "update";
 
@@ -80,6 +82,15 @@ const FormModal = ({
             type={type}
             data={data as ParentData}
             onSubmitSuccess={(parent) => { onSubmitSuccess?.(parent); onClose?.() }}
+          />
+        );
+
+      case "cohort":
+        return (
+          <CohortForm
+            type={type}
+            data={data as CohortData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );
 

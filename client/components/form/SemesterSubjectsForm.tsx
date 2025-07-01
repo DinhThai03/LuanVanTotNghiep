@@ -169,7 +169,7 @@ export default function SemesterSubjectForm({ onSubmitSuccess }: SemesterSubject
                         id="semester_id"
                         label="Học kỳ"
                         options={semesters.map((s) => ({
-                            label: `${s.name} (${s.academic_year.name})`,
+                            label: `${s.name} (${s.academic_year.start_year} - ${s.academic_year.end_year})`,
                             value: s.id,
                         }))}
                         register={register("semester_id", { valueAsNumber: true })}

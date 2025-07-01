@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CreditPrice extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'subject_type',
         'price_per_credit',

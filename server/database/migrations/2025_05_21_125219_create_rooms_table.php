@@ -19,8 +19,6 @@ return new class extends Migration
             $table->integer('size')->notNullable();
             $table->enum('room_type', ['LT', 'TH'])->default('LT');
             $table->boolean('is_active')->default(1);
-
-            $table->timestamps();
         });
     }
 

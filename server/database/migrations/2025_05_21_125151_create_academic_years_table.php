@@ -13,14 +13,11 @@ return new class extends Migration
     {
         Schema::create('academic_years', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
             $table->integer('start_year')->notNullable();
             $table->integer('end_year')->notNullable();
-            $table->string('name', 100)->notNullable();
-            $table->timestamps();
         });
-        
     }
 
     /**

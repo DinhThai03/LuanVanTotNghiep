@@ -6,6 +6,12 @@ export const getAcademicYears = async () => {
     return res.data;
 };
 
+export const getAcademicYearsWithSemesters = async () => {
+    const res = await axios.get("/api/academic-years/with-semesters");
+    return res.data;
+};
+
+
 // Thêm năm học mới
 export const addAcademicYear = async (academic_year: FormData) => {
     const res = await axios.post("/api/academic_year", academic_year);

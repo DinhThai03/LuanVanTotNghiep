@@ -17,6 +17,7 @@ class UpdateSchoolClassRequest extends FormRequest
             'name' => ['sometimes', 'string', 'max:100'],
             'student_count' => ['sometimes', 'integer', 'min:0'],
             'faculty_id' => ['sometimes', 'integer', 'exists:faculties,id'],
+            'cohort_id' => ['sometimes', 'integer', 'exists:cohorts,id'],
         ];
     }
 
@@ -27,6 +28,7 @@ class UpdateSchoolClassRequest extends FormRequest
             'student_count.integer' => 'Sĩ số phải là số nguyên.',
             'student_count.min' => 'Sĩ số không được nhỏ hơn 0.',
             'faculty_id.exists' => 'Khoa không tồn tại.',
+            'cohort_id.exists' => 'Niên khóa không tồn tại.',
         ];
     }
 
@@ -36,6 +38,7 @@ class UpdateSchoolClassRequest extends FormRequest
             'name' => 'tên lớp',
             'student_count' => 'sĩ số',
             'faculty_id' => 'khoa',
+            'cohort_id' => 'Niên khóa',
         ];
     }
 }

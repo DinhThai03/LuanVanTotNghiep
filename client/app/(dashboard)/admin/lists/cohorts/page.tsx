@@ -14,37 +14,37 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
-import { deleteAcademicYear, getAcademicYears } from "@/services/AcademicYear";
-import { AcademicYearData } from "@/types/AcademicYearType";
+import { deleteCohort, getCohorts } from "@/services/Cohort";
+import { CohortData } from "@/types/CohortType";
 
-const columnHelper = createColumnHelper<AcademicYearData>();
+const columnHelper = createColumnHelper<CohortData>();
 
-const AcademicYearPage = () => {
-    const [academic_yearMap, setAcademicYearMap] = useState<Map<number, AcademicYearData>>(new Map());
+const CohortPage = () => {
+    const [cohortMap, setCohortMap] = useState<Map<number, CohortData>>(new Map());
     const [loading, setLoading] = useState(true);
 
     const [showConfirm, setShowConfirm] = useState(false);
-    const [selectedAcademicYear, setSelectedAcademicYear] = useState<AcademicYearData | null>(null);
-    const [editingAcademicYear, setEditingAcademicYear] = useState<AcademicYearData | null>(null);
+    const [selectedCohort, setSelectedCohort] = useState<CohortData | null>(null);
+    const [editingCohort, setEditingCohort] = useState<CohortData | null>(null);
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
 
     useEffect(() => {
-        const fetchAcademicYears = async () => {
+        const fetchCohorts = async () => {
             try {
                 setLoading(true);
-                const res = await getAcademicYears();
+                const res = await getCohorts();
                 console.log(res);
                 if (res) {
-                    const newMap = new Map<number, AcademicYearData>();
-                    res.data.forEach((academic_year: AcademicYearData) => newMap.set(academic_year.id, academic_year));
-                    setAcademicYearMap(newMap);
+                    const newMap = new Map<number, CohortData>();
+                    res.forEach((cohort: CohortData) => newMap.set(cohort.id, cohort));
+                    setCohortMap(newMap);
                 }
             } catch (err) {
                 const axiosErr = err as AxiosError<any>;
                 let message;
-                console.error("Chi tiết lỗi khi lấy danh sách academic_year:", axiosErr.response?.data);
+                console.error("Chi tiết lỗi khi lấy danh sách cohort:", axiosErr.response?.data);
 
                 if (axiosErr.response?.data?.message) {
                     message = (axiosErr.response.data.message);
@@ -54,10 +54,10 @@ const AcademicYearPage = () => {
                 else if (axiosErr.message === "Network Error") {
                     message = ("Không thể kết nối đến server.");
                 } else {
-                    message = ("Đã có lỗi xảy ra khi lấy danh sách academic_year.");
+                    message = ("Đã có lỗi xảy ra khi lấy danh sách cohort.");
                 }
 
-                console.error("Lỗi khi lấy danh sách academic_year:", err);
+                console.error("Lỗi khi lấy danh sách cohort:", err);
                 toast.error(message, {
                     description: "Vui lòng kiểm tra lại",
                 });
@@ -66,24 +66,24 @@ const AcademicYearPage = () => {
             }
         };
 
-        fetchAcademicYears();
+        fetchCohorts();
     }, []);
 
-    const handleAddSuccess = (academic_year: AcademicYearData) => {
-        setAcademicYearMap(prev => new Map(prev).set(academic_year.id, academic_year));
+    const handleAddSuccess = (cohort: CohortData) => {
+        setCohortMap(prev => new Map(prev).set(cohort.id, cohort));
     };
 
-    const handleUpdateSuccess = (academic_year: AcademicYearData) => {
-        setAcademicYearMap(prev => new Map(prev).set(academic_year.id, academic_year));
+    const handleUpdateSuccess = (cohort: CohortData) => {
+        setCohortMap(prev => new Map(prev).set(cohort.id, cohort));
     };
 
     const handleDelete = async () => {
-        if (!selectedAcademicYear) return;
+        if (!selectedCohort) return;
         try {
-            await deleteAcademicYear(selectedAcademicYear.id);
-            setAcademicYearMap(prev => {
+            await deleteCohort(selectedCohort.id);
+            setCohortMap(prev => {
                 const newMap = new Map(prev);
-                newMap.delete(selectedAcademicYear.id);
+                newMap.delete(selectedCohort.id);
                 return newMap;
             });
             toast.success("Xóa thành công")
@@ -98,12 +98,11 @@ const AcademicYearPage = () => {
             });
         } finally {
             setShowConfirm(false);
-            setSelectedAcademicYear(null);
+            setSelectedCohort(null);
         }
     };
 
     const columns = [
-        // checkbox chọn hàng
         columnHelper.display({
             id: "select",
             header: ({ table }) => (
@@ -127,16 +126,14 @@ const AcademicYearPage = () => {
             size: 30,
         }),
 
-        // tên / mã niên khóa
-        columnHelper.accessor((r) => `${r.start_year} - ${r.end_year} `, {
+        columnHelper.accessor((r) => r.name, {
             id: "name",
-            header: (info) => <DefaultHeader info={info} name="Năm học" />,
+            header: (info) => <DefaultHeader info={info} name="Niên khóa" />,
             enableGlobalFilter: true,
             size: 160,
-            meta: { displayName: "Năm học" },
+            meta: { displayName: "Niên khóa" },
         }),
 
-        // năm bắt đầu
         columnHelper.accessor((r) => r.start_year, {
             id: "start_year",
             header: (info) => <DefaultHeader info={info} name="Năm bắt đầu" />,
@@ -145,7 +142,6 @@ const AcademicYearPage = () => {
             meta: { displayName: "Năm bắt đầu" },
         }),
 
-        // năm kết thúc
         columnHelper.accessor((r) => r.end_year, {
             id: "end_year",
             header: (info) => <DefaultHeader info={info} name="Năm kết thúc" />,
@@ -154,18 +150,17 @@ const AcademicYearPage = () => {
             meta: { displayName: "Năm kết thúc" },
         }),
 
-        // cột thao tác
         columnHelper.display({
             id: "actions",
             header: () => "Tùy chọn",
             cell: ({ row }) => {
-                const academic_year = row.original;
+                const cohort = row.original;
                 return (
                     <div className="flex text-lg gap-4">
                         <button
                             className="text-orange-500"
                             onClick={() => {
-                                setEditingAcademicYear(academic_year);
+                                setEditingCohort(cohort);
                                 setShowUpdateForm(true);
                                 setShowAddForm(false);
                             }}
@@ -175,7 +170,7 @@ const AcademicYearPage = () => {
                         <button
                             className="text-red-500"
                             onClick={() => {
-                                setSelectedAcademicYear(academic_year);
+                                setSelectedCohort(cohort);
                                 setShowConfirm(true);
                             }}
                         >
@@ -195,37 +190,37 @@ const AcademicYearPage = () => {
         <div className="w-full bg-white shadow-lg shadow-gray-500 p-4">
             {loading ? (
                 <div className="text-center py-10 text-gray-500">
-                    Đang tải danh sách academic_year...
+                    Đang tải danh sách cohort...
                 </div>
             ) : (
                 <>
-                    <DataTable<AcademicYearData, any>
+                    <DataTable<CohortData, any>
                         columns={columns}
-                        data={Array.from(academic_yearMap.values())}
+                        data={Array.from(cohortMap.values())}
                         onAddClick={() => {
                             setShowAddForm(true);
                             setShowUpdateForm(false);
-                            setEditingAcademicYear(null);
+                            setEditingCohort(null);
                         }}
                     />
 
                     {showAddForm && (
                         <FormModal
-                            table="academic_year"
+                            table="cohort"
                             type="create"
                             onClose={() => setShowAddForm(false)}
                             onSubmitSuccess={handleAddSuccess}
                         />
                     )}
 
-                    {showUpdateForm && editingAcademicYear && (
+                    {showUpdateForm && editingCohort && (
                         <FormModal
-                            table="academic_year"
+                            table="cohort"
                             type="update"
-                            data={editingAcademicYear}
+                            data={editingCohort}
                             onClose={() => {
                                 setShowUpdateForm(false);
-                                setEditingAcademicYear(null);
+                                setEditingCohort(null);
                             }}
                             onSubmitSuccess={handleUpdateSuccess}
                         />
@@ -234,12 +229,12 @@ const AcademicYearPage = () => {
                     <ConfirmDialog
                         open={showConfirm}
                         title="Xác nhận xóa"
-                        message={`Bạn có chắc chắn muốn xóa niên khóa “${selectedAcademicYear?.start_year} - ${selectedAcademicYear?.end_year}” không?`}
+                        message={`Bạn có chắc chắn muốn xóa niên khóa “${selectedCohort?.start_year} - ${selectedCohort?.end_year}” không?`}
                         confirmText="Xóa"
                         cancelText="Hủy"
                         onCancel={() => {
                             setShowConfirm(false);
-                            setSelectedAcademicYear(null);
+                            setSelectedCohort(null);
                         }}
                         onConfirm={handleDelete}
                     />
@@ -249,4 +244,4 @@ const AcademicYearPage = () => {
     );
 };
 
-export default AcademicYearPage;
+export default CohortPage;

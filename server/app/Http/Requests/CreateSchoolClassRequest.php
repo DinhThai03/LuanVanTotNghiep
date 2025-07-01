@@ -17,6 +17,7 @@ class CreateSchoolClassRequest extends FormRequest
             'name' => ['required', 'string', 'max:100', "unique:school_classes,name"],
             'student_count' => ['required', 'integer', 'min:0'],
             'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
+            'cohort_id' => ['required', 'integer', 'exists:cohorts,id'],
         ];
     }
 
@@ -31,6 +32,8 @@ class CreateSchoolClassRequest extends FormRequest
             'student_count.min' => 'Sĩ số không được nhỏ hơn 0.',
             'faculty_id.required' => 'Khoa là bắt buộc.',
             'faculty_id.exists' => 'Khoa không tồn tại.',
+            'cohort_id.required' => 'niên khóa là bắt buộc.',
+            'cohort_id.exists' => 'niên khóa không tồn tại.',
         ];
     }
 

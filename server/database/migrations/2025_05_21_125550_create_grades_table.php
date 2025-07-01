@@ -21,7 +21,6 @@ return new class extends Migration
 
             $table->foreign('registration_id')->references('id')->on('registrations');
 
-            $table->timestamps();
         });
     }
 

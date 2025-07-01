@@ -22,7 +22,6 @@ return new class extends Migration
 
             $table->foreign('academic_year_id')->references('id')->on('academic_years');
 
-            $table->timestamps();
         });
         
     }

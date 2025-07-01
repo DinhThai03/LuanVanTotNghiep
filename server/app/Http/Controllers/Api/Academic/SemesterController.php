@@ -7,13 +7,19 @@ use App\Http\Requests\CreateSemesterRequest;
 use App\Http\Requests\UpdateSemesterRequest;
 use App\Models\Semester;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use PHPUnit\Event\TestSuite\Loaded;
 
 class SemesterController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $semesters = Semester::with('academicYear')->orderBy('id', 'desc')->get();
+        $query = Semester::with('academicYear');
+        if ($request->has('academic_year_id')) {
+            $query->where('academic_year_id', $request->get('academic_year_id'));
+        }
+
+        $semesters = $query->orderBy('id', 'desc')->get();
         return response()->json(['data' => $semesters]);
     }
 

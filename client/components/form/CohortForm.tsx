@@ -10,11 +10,13 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { AcademicYearData } from "@/types/AcademicYearType";
-import { addAcademicYear, updateAcademicYear } from "@/services/AcademicYear";
+import { CohortData } from "@/types/CohortType";
+import { addCohort, updateCohort } from "@/services/Cohort";
 
 // Zod Schemas
 const baseSchema = z.object({
     id: z.number().optional(),
+    name: z.string().min(1, "Tên niên khóa không được để trống"),
     start_year: z
         .number({ invalid_type_error: "Năm bắt đầu phải là số" })
         .min(1900, "Năm bắt đầu không hợp lệ"),
@@ -51,22 +53,23 @@ type FormData = CreateFormData | UpdateFormData;
 // Convert to FormData for backend
 const buildFormData = (fd: FormData) => {
     const form = new FormData();
+    form.append("name", fd.name);
     form.append("start_year", fd.start_year.toString());
     form.append("end_year", fd.end_year.toString());
     return form;
 };
 
-interface AcademicYearFormProps {
+interface CohortFormProps {
     type: ModalType;
-    data?: AcademicYearData;
+    data?: CohortData;
     onSubmitSuccess?: (academicYear: AcademicYearData) => void;
 }
 
-export const AcademicYearForm = ({
+export const CohortForm = ({
     type,
     data,
     onSubmitSuccess,
-}: AcademicYearFormProps) => {
+}: CohortFormProps) => {
     const [loading, setLoading] = useState(false);
 
     const {
@@ -79,6 +82,7 @@ export const AcademicYearForm = ({
         resolver: zodResolver(type === "create" ? createSchema : updateSchema),
         defaultValues: {
             id: data?.id,
+            name: data?.name ?? "",
             start_year: data?.start_year ?? new Date().getFullYear(),
             end_year: data?.end_year ?? new Date().getFullYear() + 4,
         },
@@ -89,13 +93,13 @@ export const AcademicYearForm = ({
         try {
             let res;
             if (type === "create") {
-                res = await addAcademicYear(buildFormData(formData));
+                res = await addCohort(buildFormData(formData));
                 toast.success(res.data.message || "Thêm niên khóa thành công");
             } else {
-                res = await updateAcademicYear(formData.id!, buildFormData(formData));
+                res = await updateCohort(formData.id!, buildFormData(formData));
                 toast.success(res.data.message || "Cập nhật niên khóa thành công");
             }
-            onSubmitSuccess?.(res.data.data);
+            onSubmitSuccess?.(res.data);
             reset();
         } catch (err) {
             const axiosErr = err as AxiosError<any>;
@@ -137,6 +141,14 @@ export const AcademicYearForm = ({
 
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid md:grid-cols-3 gap-4">
+                    <InputField
+                        id="name"
+                        label="Tên niên khóa"
+                        type="text"
+                        register={register("name")}
+                        error={errors.name}
+                    />
+
                     <InputField
                         id="start_year"
                         label="Năm bắt đầu"

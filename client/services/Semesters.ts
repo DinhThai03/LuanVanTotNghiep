@@ -2,8 +2,10 @@
 import axios from "@/lib/Axios";
 
 // Lấy danh sách học kỳ
-export const getSemesters = async () => {
-    const res = await axios.get("/api/semesters");
+export const getSemesters = async (academic_year_id?: number) => {
+    const res = await axios.get("/api/semesters", {
+        params: academic_year_id ? { academic_year_id } : {},
+    });
     return res.data;
 };
 

@@ -20,8 +20,6 @@ return new class extends Migration
         
             $table->foreign('subject_id')->references('id')->on('subjects');
             $table->foreign('semester_id')->references('id')->on('semesters');
-        
-            $table->timestamps();
         });
         
     }

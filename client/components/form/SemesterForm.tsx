@@ -191,7 +191,7 @@ export const SemesterForm = ({
                         label="Niên khóa"
                         control={control}
                         options={academicYears.map((year) => ({
-                            label: year.name,
+                            label: `${year.start_year} - ${year.end_year}`,
                             value: year.id,
                         }))}
                         placeholder="Chọn niên khóa…"

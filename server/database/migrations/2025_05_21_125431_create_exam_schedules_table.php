@@ -22,8 +22,6 @@ return new class extends Migration
             $table->unsignedBigInteger('semester_subject_id')->notNullable();
 
             $table->foreign('semester_subject_id')->references('id')->on('semester_subjects');
-
-            $table->timestamps();
         });
     }
 

@@ -13,9 +13,9 @@ class ClassController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = SchoolClass::with('faculty');
+        $query = SchoolClass::with('faculty', 'cohort');
 
-        if ($request->filled('faculty')) {
+        if ($request->filled('faculty', 'cohort')) {
             $faculty = $request->input('faculty');
             $query->whereHas('faculty', function ($q) use ($faculty) {
                 $q->where('id', $faculty);
@@ -32,7 +32,7 @@ class ClassController extends Controller
     public function store(CreateSchoolClassRequest $request): JsonResponse
     {
         $class = SchoolClass::create($request->validated());
-        $class->load('faculty');
+        $class->load('faculty', 'cohort');
         return response()->json([
             'message' => 'Tạo lớp học thành công.',
             'data' => $class,
@@ -41,7 +41,7 @@ class ClassController extends Controller
 
     public function show($id): JsonResponse
     {
-        $class = SchoolClass::with('faculty')->find($id);
+        $class = SchoolClass::with('faculty', 'cohort')->find($id);
         if (!$class) {
             return response()->json(['message' => 'Không tìm thấy lớp học.'], 404);
         }
@@ -57,7 +57,7 @@ class ClassController extends Controller
 
         $class->update($request->validated());
 
-        $class->load('faculty');
+        $class->load('faculty', 'cohort');
 
         return response()->json([
             'message' => 'Cập nhật lớp học thành công.',

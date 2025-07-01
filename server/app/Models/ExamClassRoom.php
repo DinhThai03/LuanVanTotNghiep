@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ExamClassRoom extends Model
 {
     protected $table = 'exam_class_rooms';
+    public $timestamps = false;
 
     protected $fillable = [
         'exam_schedule_id',
@@ -16,7 +17,7 @@ class ExamClassRoom extends Model
         'end_seat',
     ];
 
-    
+
 
     public function examSchedule()
     {
