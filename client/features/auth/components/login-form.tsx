@@ -51,7 +51,7 @@ export function LoginForm({
       const role = res_profile.role;
       switch (role) {
         case 'admin':
-          router.push("admin/home/");
+          router.push("/admin/home/");
           break;
         case 'student':
         case 'parent':

@@ -15,7 +15,7 @@ class ClassController extends Controller
     {
         $query = SchoolClass::with('faculty', 'cohort');
 
-        if ($request->filled('faculty', 'cohort')) {
+        if ($request->filled('faculty')) {
             $faculty = $request->input('faculty');
             $query->whereHas('faculty', function ($q) use ($faculty) {
                 $q->where('id', $faculty);

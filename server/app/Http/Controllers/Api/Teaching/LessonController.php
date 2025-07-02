@@ -39,6 +39,62 @@ class LessonController extends Controller
             'data' => $query->get()
         ]);
     }
+    public function getGroupedLessons(Request $request)
+    {
+        $request->validate([
+            'faculty_id' => 'required|integer',
+            'semester_id' => 'required|integer',
+            'year' => 'required|integer',
+        ]);
+
+        $facultyId = $request->input('faculty_id');
+        $semesterId = $request->input('semester_id');
+        $year = $request->input('year');
+
+        $lessons = Lesson::withCount('registrations') // Đếm số SV đã đăng ký
+            ->with([
+                'teacherSubject.subject',
+                'teacherSubject.teacher',
+                'room'
+            ])
+            ->where('semester_id', $semesterId)
+            ->where('is_active', true)
+            ->whereHas('teacherSubject', function ($query) use ($facultyId, $year) {
+                $query->whereHas('subject', function ($q) use ($facultyId, $year) {
+                    $q->where('year', $year)
+                        ->whereHas('faculties', function ($fq) use ($facultyId) {
+                            $fq->where('faculties.id', $facultyId);
+                        });
+                });
+            })
+            ->get()
+            ->groupBy(fn($lesson) => $lesson->teacherSubject->subject->code)
+            ->map(function ($groupedLessons, $subjectCode) {
+                $subject = optional($groupedLessons->first()->teacherSubject->subject);
+
+                return [
+                    'subject_code' => $subjectCode,
+                    'subject_name' => $subject->name,
+                    'credit' => $subject->credit,
+                    'lessons' => $groupedLessons->map(function ($lesson) {
+                        return [
+                            'id' => $lesson->id,
+                            'day_of_week' => $lesson->day_of_week,
+                            'start_time' => $lesson->start_time,
+                            'end_time' => $lesson->end_time,
+                            'room' => optional($lesson->room)->name,
+                            'room_capacity' => optional($lesson->room)->capacity,
+                            'registered_count' => $lesson->registrations_count,
+                            'teacher' => optional($lesson->teacherSubject->teacher)->name
+                                ?? $lesson->teacherSubject->teacher_code,
+                        ];
+                    })->values(),
+                ];
+            })
+            ->values();
+
+        return response()->json(['data' => $lessons]);
+    }
 
 
     public function store(CreateLessonRequest $request): JsonResponse

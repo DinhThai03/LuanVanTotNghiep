@@ -353,7 +353,7 @@ const RegistrationPage = () => {
                             </option>
                             {semesters.map((semester) => (
                                 <option key={semester.id} value={semester.id}>
-                                    {semester.name + " - " + semester.academic_year.name}
+                                    {semester.name + " - (" + semester.academic_year.start_year + " - " + semester.academic_year.start_year + ")"}
                                 </option>
                             ))}
                         </select>

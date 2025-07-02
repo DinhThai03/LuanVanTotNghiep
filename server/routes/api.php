@@ -151,6 +151,7 @@ Route::middleware(['auth'])->group(function () {
 
     //============== LESSON ==============
     Route::get('lessons', [LessonController::class, 'index']);
+    Route::get('/lessons/registration', [LessonController::class, 'getGroupedLessons']);
     Route::get('lesson/{id}', [LessonController::class, 'show']);
     Route::post('lesson', [LessonController::class, 'store']);
     Route::post('lesson/{id}', [LessonController::class, 'update']);
