@@ -120,11 +120,18 @@ class RegistrationController extends Controller
     {
         $registration = Registration::create($request->validated());
 
+        // 👇 Tạo grade rỗng gắn với registration vừa tạo
+        $registration->grade()->create([
+            'process_score' => null,
+            'midterm_score' => null,
+            'final_score' => null,
+        ]);
+
         $registration->load(
             'student.user',
             'lesson.room',
             'lesson.teacherSubject.teacher.user',
-            'lesson.teacherSubject.subject'
+            'lesson.teacherSubject.subject',
         );
 
         return response()->json([
@@ -132,6 +139,7 @@ class RegistrationController extends Controller
             'data' => $registration,
         ], 201);
     }
+
 
     public function show($id)
     {
@@ -181,6 +189,10 @@ class RegistrationController extends Controller
             return response()->json(['message' => 'Không tìm thấy đăng ký.'], 404);
         }
 
+        // Xóa grade nếu có
+        $registration->grade()?->delete();
+
+        // Xóa đăng ký
         $registration->delete();
 
         return response()->json(['message' => 'Xóa đăng ký thành công.']);

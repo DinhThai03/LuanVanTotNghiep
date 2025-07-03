@@ -17,7 +17,7 @@ class UpdateCreditPriceRequest extends FormRequest
             'subject_type' => 'sometimes|in:LT,TH',
             'price_per_credit' => 'sometimes|numeric|min:0',
             'is_active' => 'sometimes|boolean',
-            'year' => 'sometimes|integer|min:2000|max:' . (date('Y') + 1),
+            'academic_year_id' => 'sometimes|integer|exists:academic_years,id',
         ];
     }
 
@@ -25,12 +25,14 @@ class UpdateCreditPriceRequest extends FormRequest
     {
         return [
             'subject_type.in' => 'Loại môn học phải là LT (Lý thuyết) hoặc TH (Thực hành).',
+
             'price_per_credit.numeric' => 'Giá mỗi tín chỉ phải là số.',
             'price_per_credit.min' => 'Giá mỗi tín chỉ phải lớn hơn hoặc bằng 0.',
+
             'is_active.boolean' => 'Trạng thái phải là true hoặc false.',
-            'year.integer' => 'Năm phải là số nguyên.',
-            'year.min' => 'Năm không hợp lệ.',
-            'year.max' => 'Năm không hợp lệ.',
+
+            'academic_year_id.integer' => 'Năm học phải là số nguyên.',
+            'academic_year_id.exists' => 'Năm học không tồn tại trong hệ thống.',
         ];
     }
 
@@ -40,7 +42,7 @@ class UpdateCreditPriceRequest extends FormRequest
             'subject_type' => 'loại môn học',
             'price_per_credit' => 'giá mỗi tín chỉ',
             'is_active' => 'trạng thái',
-            'year' => 'năm áp dụng',
+            'academic_year_id' => 'năm học',
         ];
     }
 }

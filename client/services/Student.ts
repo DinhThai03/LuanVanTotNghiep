@@ -7,6 +7,17 @@ export const getStudents = async () => {
     return res.data;
 };
 
+// Lấy 1 sinh viên
+export const getOneStudent = async (user_id: number) => {
+    const res = await axios.get(`/api/student/${user_id}`);
+    return res.data;
+};
+
+export const getStudentInfo = async (user_id: number) => {
+    const res = await axios.get(`/api/students/${user_id}/info`);
+    return res.data;
+};
+
 // Thêm sinh viên
 export const addStudent = async (student: FormData) => {
     const res = await axios.post("/api/student", student);

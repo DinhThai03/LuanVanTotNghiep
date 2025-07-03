@@ -107,6 +107,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   overflow: visible !important;
 }
 
+/* Đồng bộ chiều rộng giữa time gutter ở phần header và body */
+.rbc-label.rbc-time-header-gutter,
+.rbc-time-gutter.rbc-time-column {
+  min-width: 60px !important;
+  /* hoặc giá trị phù hợp bạn muốn */
+  width: 60px !important;
+  max-width: 60px !important;
+  flex: 0 0 60px !important;
+}
+
 .rbc-event-label {
   display: none !important;
 }

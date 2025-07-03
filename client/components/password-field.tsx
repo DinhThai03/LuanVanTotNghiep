@@ -20,7 +20,7 @@ export default function PasswordField({
     label = "Mật khẩu",
     forgotPasswordLink = "",
     id = "password",
-    placeholder = "••••••••",
+    placeholder = "Nhập mật khẩu",
     className = "",
 }: PasswordFieldProps) {
     const [showPassword, setShowPassword] = useState(false);

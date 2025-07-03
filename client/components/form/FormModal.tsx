@@ -28,6 +28,10 @@ import { ParentForm } from "./ParentForm";
 import { ParentData } from "@/types/ParentType";
 import { CohortForm } from "./CohortForm";
 import { CohortData } from "@/types/CohortType";
+import { GradeForm } from "./GradeForm";
+import { GradeData } from "@/types/GradeType";
+import { CreditPriceForm } from "./CreditPriceForm";
+import { CreditPriceData } from "@/types/CreditPriceType";
 
 export type ModalType = "create" | "update";
 
@@ -163,6 +167,23 @@ const FormModal = ({
           <RegistrationForm
             type={type}
             data={data as RegistrationData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
+
+      case "grade":
+        return (
+          <GradeForm
+            data={data as GradeData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
+
+      case "creditPrice":
+        return (
+          <CreditPriceForm
+            type={type}
+            data={data as CreditPriceData}
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );

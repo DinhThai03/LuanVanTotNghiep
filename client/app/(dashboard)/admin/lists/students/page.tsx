@@ -15,6 +15,8 @@ import { AxiosError } from "axios";
 import { StudentData } from "@/types/StudentType";
 import { deleteStudent, getStudents } from "@/services/Student";
 import FormModal from "@/components/form/FormModal";
+import Link from "next/link";
+import { TbScanEye } from "react-icons/tb";
 
 const columnHelper = createColumnHelper<StudentData>();
 
@@ -255,6 +257,13 @@ const StudentPage = () => {
                 const student = row.original;
                 return (
                     <div className="flex text-lg gap-4">
+                        <Link
+                            href={`/admin/lists/students/${student.user_id}`}
+                            className="text-gray-500"
+                        >
+                            <TbScanEye />
+                        </Link>
+
                         <button
                             className="text-orange-500"
                             onClick={() => {

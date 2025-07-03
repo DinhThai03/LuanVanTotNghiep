@@ -1,17 +1,22 @@
 // lib/axios.ts
 import { logout } from "@/lib/logout";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
-let isRefreshing = false;
-let failedQueue: any[] = [];
+type FailedQueueItem = {
+    resolve: (token: string) => void;
+    reject: (error: AxiosError) => void;
+};
 
-const processQueue = (error: any, token: string | null = null) => {
+let isRefreshing = false;
+let failedQueue: FailedQueueItem[] = [];
+
+const processQueue = (error: AxiosError | null, token: string | null = null): void => {
     failedQueue.forEach((prom) => {
         if (error) {
             prom.reject(error);
-        } else {
+        } else if (token) {
             prom.resolve(token);
         }
     });
@@ -22,36 +27,36 @@ const instance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         Accept: "application/json",
+        "Content-Type": "application/json",
     },
 });
 
 instance.interceptors.request.use(
-    (config) => {
+    (config: InternalAxiosRequestConfig) => {
         const token = Cookies.get("access_token");
-        if (token && config.headers) {
+        if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
-    (error) => Promise.reject(error)
+    (error: AxiosError) => Promise.reject(error)
 );
 
 instance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
+    (response: AxiosResponse) => response,
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
         if (error.response?.status === 401 && !originalRequest._retry) {
             const refresh_token = Cookies.get("refresh_token");
 
-            // Kiểm tra refresh_token còn hạn hay không
             if (!refresh_token) {
                 await logout();
                 return Promise.reject(error);
             }
 
             try {
-                const decoded: any = jwtDecode(refresh_token);
+                const decoded = jwtDecode<{ exp: number }>(refresh_token);
                 const currentTime = Date.now() / 1000;
 
                 if (decoded.exp < currentTime) {
@@ -64,14 +69,17 @@ instance.interceptors.response.use(
             }
 
             if (isRefreshing) {
-                return new Promise((resolve, reject) => {
+                return new Promise<string>((resolve, reject) => {
                     failedQueue.push({
                         resolve: (token: string) => {
-                            originalRequest.headers["Authorization"] = "Bearer " + token;
-                            resolve(instance(originalRequest));
+                            originalRequest.headers.Authorization = `Bearer ${token}`;
+                            resolve(token);
                         },
-                        reject: (err: any) => reject(err),
+                        reject: (err: AxiosError) => reject(err),
                     });
+                }).then((token) => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return instance(originalRequest);
                 });
             }
 
@@ -90,10 +98,10 @@ instance.interceptors.response.use(
 
                 processQueue(null, access_token);
 
-                originalRequest.headers["Authorization"] = `Bearer ${access_token}`;
+                originalRequest.headers.Authorization = `Bearer ${access_token}`;
                 return instance(originalRequest);
             } catch (refreshError) {
-                processQueue(refreshError, null);
+                processQueue(refreshError as AxiosError, null);
                 await logout();
                 return Promise.reject(refreshError);
             } finally {

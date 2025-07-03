@@ -17,6 +17,8 @@ import { TeacherData } from "@/types/TeacherType";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { TeacherSubjectData } from "@/types/TeacherSubjectType";
+import Link from "next/link";
+import { TbScanEye } from "react-icons/tb";
 
 const columnHelper = createColumnHelper<TeacherData>();
 
@@ -289,6 +291,13 @@ const TeacherPage = () => {
                 const teacher = row.original;
                 return (
                     <div className="flex text-lg gap-4">
+
+                        <Link
+                            href={`/admin/lists/teachers/${teacher.user_id}`}
+                            className="text-gray-500"
+                        >
+                            <TbScanEye />
+                        </Link>
                         <button
                             className="text-orange-500"
                             onClick={() => {

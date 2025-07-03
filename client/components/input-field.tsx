@@ -11,7 +11,10 @@ interface InputFieldProps {
     placeholder?: string;
     className?: string;
     readOnly?: boolean;
-
+    disabled?: boolean;
+    step?: string | number;
+    min?: number;
+    max?: number;
 }
 
 export default function InputField({
@@ -23,6 +26,10 @@ export default function InputField({
     placeholder,
     className = "",
     readOnly,
+    disabled,
+    step,
+    min,
+    max,
 }: InputFieldProps) {
     return (
         <div className={`grid gap-3 ${className}`}>
@@ -34,6 +41,10 @@ export default function InputField({
                 {...register}
                 className={` relative ${type === "date" ? "w-full  pr-8" : ""} ${readOnly && "opacity-50"}`}
                 readOnly={readOnly}
+                disabled={disabled}
+                step={step}
+                min={min}
+                max={max}
             />
             <div className="min-h-[18px] transition-all duration-200">
                 {error && (

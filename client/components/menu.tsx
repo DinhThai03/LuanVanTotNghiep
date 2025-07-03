@@ -11,8 +11,9 @@ import Cookies from "js-cookie";
 import { profile } from "@/features/auth/api";
 import { IoMdBookmarks, IoMdNotifications } from "react-icons/io";
 import { TbCircleDashedLetterA } from "react-icons/tb";
-import { GiArchiveRegister, GiSpellBook, GiTeacher } from "react-icons/gi";
+import { GiArchiveRegister, GiMoneyStack, GiSpellBook, GiTeacher } from "react-icons/gi";
 import { SiGoogleclassroom } from "react-icons/si";
+import { FaMoneyCheckDollar } from "react-icons/fa6";
 
 const menuItems = [
   {
@@ -136,14 +137,34 @@ const menuItems = [
       {
         icon: <TbCircleDashedLetterA className="w-4.5 h-4.5" />,
         label: "Kết quả",
-        href: "",
+        href: "/admin/lists/grades",
         visible: ["admin"],
       },
     ],
   },
 
   {
-    title: "Quản lý giảng dạy",
+    title: "Quản lý Học phí",
+    items: [
+      {
+        icon: <FaMoneyCheckDollar className="w-4.5 h-4.5" />,
+        label: "Số tiền / tín chỉ",
+        href: "/admin/lists/credit-prices",
+        visible: ["admin"],
+      },
+
+      {
+        icon: <GiMoneyStack className="w-4.5 h-4.5" />,
+        label: "Học phí",
+        href: "",
+        visible: ["admin"],
+      },
+    ],
+
+  },
+
+  {
+    title: "Quản lý thông báo",
     items: [
       {
         icon: <IoMdNotifications className="w-4.5 h-4.5" />,

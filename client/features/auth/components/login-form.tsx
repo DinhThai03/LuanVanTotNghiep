@@ -46,7 +46,6 @@ export function LoginForm({
     setLoginError("");
     try {
       const res = await login(data.user_name, data.password);
-      router.refresh();
       const res_profile = await profile();
       const role = res_profile.role;
       switch (role) {

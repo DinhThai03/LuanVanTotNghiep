@@ -9,20 +9,18 @@ class CreditPriceSeeder extends Seeder
 {
     public function run(): void
     {
-        $year = now()->year;
-
         $data = [
             [
                 'subject_type' => 'LT', // Lý thuyết
                 'price_per_credit' => 250000,
                 'is_active' => true,
-                'year' => $year,
+                'academic_year_id' => 1,
             ],
             [
                 'subject_type' => 'TH', // Thực hành
                 'price_per_credit' => 300000,
                 'is_active' => true,
-                'year' => $year,
+                'academic_year_id' => 2,
             ],
         ];
 

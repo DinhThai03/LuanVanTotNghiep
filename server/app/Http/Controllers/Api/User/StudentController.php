@@ -8,8 +8,10 @@ use App\Http\Requests\CreateStudentWithParentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Http\Requests\UpdateStudentWithParentRequest;
 use App\Models\GuardianModel;
+use App\Models\Semester;
 use App\Models\Student;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -133,9 +135,23 @@ class StudentController extends Controller
     /**
      * Lấy thông tin một sinh viên theo mã.
      */
-    public function show(string $code): JsonResponse
+    // public function show(string $code): JsonResponse
+    // {
+    //     $student = Student::with(['user', 'schoolClass'])->find($code);
+
+    //     if (!$student) {
+    //         return response()->json(['message' => 'Không tìm thấy sinh viên.'], 404);
+    //     }
+
+    //     return response()->json($student);
+    // }
+
+    /**
+     * Lấy thông tin một sinh viên theo user_id.
+     */
+    public function show(string $userId): JsonResponse
     {
-        $student = Student::with(['user', 'schoolClass'])->find($code);
+        $student = Student::with(['user', 'schoolClass'])->where('user_id', $userId)->first();
 
         if (!$student) {
             return response()->json(['message' => 'Không tìm thấy sinh viên.'], 404);
@@ -143,6 +159,8 @@ class StudentController extends Controller
 
         return response()->json($student);
     }
+
+
 
     /**
      * Cập nhật thông tin sinh viên.
@@ -315,5 +333,63 @@ class StudentController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function getStudentSummaryByUserId($userId): JsonResponse
+    {
+        // Tìm sinh viên theo user_id, kèm thông tin lớp và user
+        $student = Student::with(['schoolClass', 'user'])
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$student) {
+            return response()->json(['message' => 'Không tìm thấy sinh viên.'], 404);
+        }
+
+        // Ưu tiên học kỳ hiện tại, nếu không có thì học kỳ sắp tới
+        $today = Carbon::today();
+
+        $currentSemester = Semester::where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->first();
+
+        if (!$currentSemester) {
+            $currentSemester = Semester::where('start_date', '>', $today)
+                ->orderBy('start_date', 'asc')
+                ->first();
+        }
+
+        if (!$currentSemester) {
+            return response()->json(['message' => 'Không tìm thấy học kỳ phù hợp.'], 404);
+        }
+
+        // Lấy các đăng ký trong học kỳ hiện tại
+        $registrations = $student->registrations()
+            ->whereHas('lesson', function ($query) use ($currentSemester) {
+                $query->where('semester_id', $currentSemester->id);
+            })
+            ->with('lesson.teacherSubject.subject')
+            ->get();
+
+        $totalCredits = $registrations->sum(function ($registration) {
+            return $registration->lesson->teacherSubject->subject->credit ?? 0;
+        });
+
+        $finishedSubjectsCount = $registrations->where('status', 'finished')->count();
+
+        return response()->json([
+            'student_code' => $student->code,
+            'full_name' => $student->user->last_name . " " . $student->user->first_name,
+            'email' => $student->user->email ?? null,
+            'phone' => $student->user->phone ?? null,
+            'class' => $student->schoolClass->name ?? null,
+            'status' => $student->status,
+            'status_label' => $student->status_label,
+            'semester' => $currentSemester->name,
+            'semester_id' => $currentSemester->id,
+            'registration_count' => $registrations->count(),
+            'total_credits' => $totalCredits,
+            'finished_subjects_count' => $finishedSubjectsCount,
+        ]);
     }
 }

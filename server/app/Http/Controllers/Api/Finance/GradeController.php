@@ -11,8 +11,38 @@ class GradeController extends Controller
 {
     public function index()
     {
-        return response()->json(Grade::all());
+        $query = Grade::with([
+            'registration.student.user',
+            'registration.lesson.teacherSubject.teacher.user',
+            'registration.lesson.teacherSubject.subject',
+            'registration.lesson.semester.academicYear',
+            'registration.student.schoolClass'
+        ])
+            ->when(request()->has('academic_year_id'), function ($q) {
+                $q->whereHas('registration.lesson.semester', function ($q2) {
+                    $q2->where('academic_year_id', request('academic_year_id'));
+                });
+            })
+            ->when(request()->has('semester_id'), function ($q) {
+                $q->whereHas('registration.lesson', function ($q2) {
+                    $q2->where('semester_id', request('semester_id'));
+                });
+            })
+            ->when(request()->has('lesson_id'), function ($q) {
+                $q->whereHas('registration', function ($q2) {
+                    $q2->where('lesson_id', request('lesson_id'));
+                });
+            })
+            ->when(request()->has('class_id'), function ($q) {
+                $q->whereHas('registration.student', function ($q2) {
+                    $q2->where('class_id', request('class_id'));
+                });
+            })
+            ->get();
+
+        return response()->json($query);
     }
+
 
     public function store(CreateGradeRequest $request)
     {
@@ -44,6 +74,13 @@ class GradeController extends Controller
         }
 
         $grade->update($request->validated());
+        $grade->load([
+            'registration.student.user',
+            'registration.lesson.teacherSubject.teacher.user',
+            'registration.lesson.teacherSubject.subject',
+            'registration.lesson.semester.academicYear',
+            'registration.student.schoolClass'
+        ]);
 
         return response()->json([
             'message' => 'Cập nhật điểm thành công.',

@@ -11,7 +11,8 @@ class CreditPriceController extends Controller
 {
     public function index()
     {
-        return response()->json(CreditPrice::all());
+        $creditPrice = CreditPrice::with('academicYear')->orderBy('academic_year_id', 'desc')->get();
+        return response()->json($creditPrice);
     }
 
     public function store(CreateCreditPriceRequest $request)
@@ -27,6 +28,7 @@ class CreditPriceController extends Controller
     public function show($id)
     {
         $creditPrice = CreditPrice::find($id);
+        $creditPrice->load('academicYear');
 
         if (!$creditPrice) {
             return response()->json(['message' => 'Không tìm thấy đơn giá tín chỉ.'], 404);
@@ -45,6 +47,7 @@ class CreditPriceController extends Controller
 
 
         $creditPrice->update($request->validated());
+        $creditPrice->load('academicYear');
 
         return response()->json([
             'message' => 'Cập nhật đơn giá tín chỉ thành công.',

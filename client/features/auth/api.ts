@@ -15,3 +15,8 @@ export const profile = async () => {
     const res = await axios.get("/api/auth/profile");
     return res.data;
 };
+
+export const changePassword = async (data: FormData) => {
+    const res = await axios.post("/api/auth/change_password", data);
+    return res.data;
+};

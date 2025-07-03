@@ -72,10 +72,12 @@ Route::middleware(['auth'])->group(function () {
 
     //============== STUDENT ==============
     Route::get('students', [StudentController::class, 'index']);
-    Route::get('student/{code}', [StudentController::class, 'show']);
+    // Route::get('student/{code}', [StudentController::class, 'show']);
+    Route::get('student/{user_id}', [StudentController::class, 'show']);
     Route::post('student', [StudentController::class, 'store']);
     Route::post('student/{code}', [StudentController::class, 'update']);
     Route::delete('student/{code}', [StudentController::class, 'destroy']);
+    Route::get('/students/{user_id}/info', [StudentController::class, 'getStudentSummaryByUserId']);
 
     //============== PARENT ==============
     Route::get('guardians', [GuardianController::class, 'index']);

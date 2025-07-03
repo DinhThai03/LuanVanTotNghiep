@@ -10,3 +10,18 @@ export interface StudentData {
     user: User;
     school_class: ClassData;
 }
+
+export interface StudentSummary {
+    student_code: string;
+    full_name: string;
+    email: string | null;
+    phone: string | null;
+    class: string | null;
+    status: 'studying' | 'paused' | 'graduated' | string;
+    status_label: string;
+    semester: string;
+    semester_id: number;
+    registration_count: number;
+    total_credits: number;
+    finished_subjects_count: number;
+}
