@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('registration_id')->notNullable();
             $table->decimal('amount', 10, 2)->notNullable();
-            $table->dateTime('paid_at')->notNullable();
+            $table->dateTime('paid_at')->nullable();
             $table->string('payment_method', 50)->nullable();
             $table->string('payment_status', 20)->nullable(); // pending, success, failed
             $table->string('transaction_id', 100)->nullable();

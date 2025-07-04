@@ -9,6 +9,11 @@ export const getSemesters = async (academic_year_id?: number) => {
     return res.data;
 };
 
+export const getSemestersByStudent = async (userId: number) => {
+    const res = await axios.get(`api/students/${userId}/semesters`);
+    return res.data;
+};
+
 // Thêm học kỳ mới
 export const addSemester = async (semester: FormData) => {
     const res = await axios.post("/api/semester", semester);

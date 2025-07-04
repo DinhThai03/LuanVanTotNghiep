@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateGradeRequest;
 use App\Http\Requests\UpdateGradeRequest;
 use App\Models\Grade;
+use App\Models\Student;
 
 class GradeController extends Controller
 {
@@ -99,5 +100,61 @@ class GradeController extends Controller
         $grade->delete();
 
         return response()->json(['message' => 'Xóa điểm thành công.']);
+    }
+
+    public function getStudentGrades($user_id)
+    {
+        $student = Student::with([
+            'registrations.grade',
+            'registrations.lesson.semester.academicYear',
+            'registrations.lesson.teacherSubject.subject',
+        ])->where('user_id', $user_id)->first();
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Sinh viên không tồn tại',
+            ], 404);
+        }
+
+        $grouped = $student->registrations
+            ->filter(fn($reg) => $reg->grade && $reg->lesson && $reg->lesson->semester)
+            ->groupBy(fn($reg) => $reg->lesson->semester->id);
+
+        $result = [];
+
+        foreach ($grouped as $semesterId => $registrations) {
+            $semester = $registrations->first()->lesson->semester;
+            $grades = [];
+
+            foreach ($registrations as $index => $reg) {
+                $subject = $reg->lesson->teacherSubject->subject;
+                $grade = $reg->grade;
+
+                $avg = $grade->average_score;
+
+                $grades[] = [
+                    'stt' => $index + 1,
+                    'subject_code' => $subject->code,
+                    'subject_name' => $subject->name,
+                    'credit' => $subject->credit,
+                    'process_percent' => floatval($subject->process_percent),
+                    'midterm_percent' => floatval($subject->midterm_percent),
+                    'process_score' => is_null($grade->process_score) ? null : floatval($grade->process_score),
+                    'midterm_score' => is_null($grade->midterm_score) ? null : floatval($grade->midterm_score),
+                    'final_score' => is_null($grade->final_score) ? null : floatval($grade->final_score),
+                    'average_score' => $avg,
+                    'letter_grade' => $grade->letter_grade,
+                    'result' => $grade->result, // 1: Đạt, 0: Không đạt
+                ];
+            }
+
+            $result[] = [
+                'semester_name' => $semester->name,
+                'academic_year_name' => $semester->academicYear->start_year . " - " . $semester->academicYear->end_year,
+                'grades' => $grades,
+            ];
+        }
+
+        return response()->json($result);
     }
 }

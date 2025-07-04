@@ -46,7 +46,6 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
   const [popupPos, setPopupPos] = useState({ x: 0, y: 0 });
   const wrapperRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
 
   const generateEvents = useCallback(() => {
     const all: CalendarEvent[] = [];
@@ -90,12 +89,17 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
 
   const allEvents = useMemo(() => generateEvents(), [generateEvents]);
 
-  const CustomEvent = ({ event }: { event: CalendarEvent }) => (
-    <div className="text-xs px-1 py-0.5 truncate">
-      <div className="font-semibold">{event.title}</div>
-      <div>{event.room}</div>
-    </div>
-  );
+  const CustomEvent = useCallback(({ event }: { event: CalendarEvent }) => {
+    return (
+      <div className="flex h-full flex-col gap-2 justify-center items-center text-gray-800 text-md font-medium p-1">
+        <div className="text-[10px]">
+          {moment(event.start).format("HH:mm")} - {moment(event.end).format("HH:mm")}
+        </div>
+        <div className="font-bold line-clamp-1">{event.title}</div>
+        <div className="line-clamp-1">{event.room}</div>
+      </div>
+    );
+  }, []);
 
   const handleSelectEvent = useCallback((event: CalendarEvent, e: React.SyntheticEvent) => {
     e.stopPropagation();
@@ -179,13 +183,13 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
       </div>
       <div className="flex gap-2">
         <button
-          className={`px-2 py-1 text-sm rounded ${view === Views.WEEK ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+          className={`px-2 py-1 text-sm rounded ${view === Views.WEEK ? "bg-gray-800 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
           onClick={() => setView(Views.WEEK)}
         >
           Tuần
         </button>
         <button
-          className={`px-2 py-1 text-sm rounded ${view === Views.DAY ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+          className={`px-2 py-1 text-sm rounded ${view === Views.DAY ? "bg-gray-800 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
           onClick={() => setView(Views.DAY)}
         >
           Ngày
@@ -196,18 +200,6 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
 
 
   useEffect(() => {
-    const updateScale = () => {
-      if (!wrapperRef.current) return;
-      const width = wrapperRef.current.offsetWidth;
-      const baseWidth = 1200;
-      setScale(Math.min(width / baseWidth, 1));
-    };
-    updateScale();
-    window.addEventListener("resize", updateScale);
-    return () => window.removeEventListener("resize", updateScale);
-  }, []);
-
-  useEffect(() => {
     const closePopup = () => setSelectedEvent(null);
     window.addEventListener("click", closePopup);
     return () => window.removeEventListener("click", closePopup);
@@ -216,16 +208,13 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
   return (
     <div
       ref={wrapperRef}
-      className="relative w-full h-fit"
-      style={{
-        transform: `scale(${scale})`,
-        transformOrigin: "top left",
-        width: `${100 / scale}%`,
-        height: `${100 / scale}%`,
-      }}
+      className="relative [zoom:0.4] md:[zoom:0.7] lg:[zoom:0.8] xl:[zoom:1]"
+
     >
-      <div ref={calendarRef} className="relative">
+      <div ref={calendarRef} >
         <Calendar
+          timeslots={1}
+          step={50}
           localizer={localizer}
           events={allEvents}
           startAccessor="start"
@@ -244,6 +233,7 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
               return moment(date).format("dddd");
             },
           }}
+
         />
         {EventPopup()}
       </div>

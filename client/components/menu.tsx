@@ -3,7 +3,7 @@ import { User } from "@/types/UserType";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BiSolidSchool } from "react-icons/bi";
-import { FaBook, FaBriefcase, FaChalkboardTeacher, FaUserFriends, FaUserGraduate, FaUserShield } from "react-icons/fa";
+import { FaBell, FaBook, FaBriefcase, FaCalendarAlt, FaChalkboardTeacher, FaTable, FaUserFriends, FaUserGraduate, FaUserShield } from "react-icons/fa";
 import { PiClockCountdownFill } from "react-icons/pi";
 import { IoHome } from "react-icons/io5";
 import { MdMeetingRoom } from "react-icons/md";
@@ -13,7 +13,8 @@ import { IoMdBookmarks, IoMdNotifications } from "react-icons/io";
 import { TbCircleDashedLetterA } from "react-icons/tb";
 import { GiArchiveRegister, GiMoneyStack, GiSpellBook, GiTeacher } from "react-icons/gi";
 import { SiGoogleclassroom } from "react-icons/si";
-import { FaMoneyCheckDollar } from "react-icons/fa6";
+import { FaListCheck, FaMoneyCheckDollar } from "react-icons/fa6";
+import { BsTable } from "react-icons/bs";
 
 const menuItems = [
   {
@@ -23,6 +24,12 @@ const menuItems = [
         label: "Trang chủ",
         href: "/admin/home",
         visible: ["admin"],
+      },
+      {
+        icon: <IoHome className="w-4.5 h-4.5" />,
+        label: "Trang chủ",
+        href: "/",
+        visible: ["student", "teacher", "parent",],
       },
     ],
   },
@@ -172,20 +179,56 @@ const menuItems = [
         href: "",
         visible: ["admin"],
       },
-      //   {
-      //     icon: <FaBriefcase className="w-4.5 h-4.5" />,
-      //     label: "Đăng ký môn",
-      //     href: "",
-      //     visible: ["admin"],
-      //   },
-      //   {
-      //     icon: <FaBook className="w-4.5 h-4.5" />,
-      //     label: "Kết quả",
-      //     href: "",
-      //     visible: ["admin"],
-      //   },
     ],
   },
+
+  {
+    items: [
+      {
+        icon: <FaListCheck className="w-4.5 h-4.5" />,
+        label: "Đăng ký môn",
+        href: "/",
+        visible: ["student"],
+      },
+      {
+        icon: <FaCalendarAlt className="w-4.5 h-4.5" />,
+        label: "Lịch thi",
+        href: "/",
+        visible: ["student", "parent"],
+      },
+      {
+        icon: <BsTable className="w-4.5 h-4.5" />,
+        label: "Thời khóa biểu",
+        href: "/student-schedule",
+        visible: ["student", "parent"],
+      },
+      {
+        icon: <GiMoneyStack className="w-4.5 h-4.5" />,
+        label: "Học phí",
+        href: "/tuition-fee",
+        visible: ["student", "parent"],
+      },
+      {
+        icon: <FaTable className="w-4.5 h-4.5" />,
+        label: "Lịch dạy",
+        href: "/",
+        visible: ["teacher"],
+      },
+      {
+        icon: <TbCircleDashedLetterA className="w-4.5 h-4.5" />,
+        label: "Điểm",
+        href: "/result",
+        visible: ["student", "parent",],
+      },
+      {
+        icon: <FaBell className="w-4.5 h-4.5" />,
+        label: "thông báo",
+        href: "/",
+        visible: ["student", "teacher", "parent",],
+      },
+    ],
+  },
+
 ];
 
 const Menu = () => {

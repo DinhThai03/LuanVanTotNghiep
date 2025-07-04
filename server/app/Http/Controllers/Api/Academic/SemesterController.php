@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateSemesterRequest;
 use App\Http\Requests\UpdateSemesterRequest;
 use App\Models\Semester;
+use App\Models\Student;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use PHPUnit\Event\TestSuite\Loaded;
@@ -22,6 +23,43 @@ class SemesterController extends Controller
         $semesters = $query->orderBy('id', 'desc')->get();
         return response()->json(['data' => $semesters]);
     }
+
+    public function getSemestersByStudent(string $userId): JsonResponse
+    {
+        $student = Student::with('schoolClass.cohort')->where('user_id', $userId)->first();
+
+        if (!$student) {
+            return response()->json(['message' => 'Không tìm thấy sinh viên.'], 404);
+        }
+
+        if (!$student->schoolClass) {
+            return response()->json(['message' => 'Sinh viên chưa được phân vào lớp học.'], 404);
+        }
+
+        $cohort = $student->schoolClass->cohort;
+
+        if (!$cohort) {
+            return response()->json(['message' => 'Không tìm thấy niên khóa (cohort) của lớp học.'], 404);
+        }
+
+        // Lấy danh sách academic year trong khoảng niên khóa
+        $academicYearIds = \App\Models\AcademicYear::whereBetween('start_year', [$cohort->start_year, $cohort->end_year])
+            ->pluck('id');
+
+        if ($academicYearIds->isEmpty()) {
+            return response()->json(['message' => 'Không có niên khóa nào khớp với cohort.'], 404);
+        }
+
+        $semesters = \App\Models\Semester::with('academicYear')
+            ->whereIn('academic_year_id', $academicYearIds)
+            ->orderBy('start_date', 'desc')
+            ->get();
+
+        return response()->json([
+            'data' => $semesters,
+        ]);
+    }
+
 
     public function store(CreateSemesterRequest $request): JsonResponse
     {

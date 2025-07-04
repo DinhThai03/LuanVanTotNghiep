@@ -20,6 +20,12 @@ export const getGrades = async (
     return res.data;
 };
 
+export const getStudentGrades = async (user_id: number) => {
+    const res = await axios.get(`/api/students/${user_id}/grades`);
+    return res.data;
+};
+
+
 // Thêm giảng viên mới
 export const addGrade = async (grade: FormData) => {
     const res = await axios.post("/api/grade", grade);

@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Examination\ExamClassRoomController;
 use App\Http\Controllers\Api\Examination\ExamScheduleController;
 use App\Http\Controllers\Api\Finance\CreditPriceController;
 use App\Http\Controllers\Api\Finance\GradeController;
+use App\Http\Controllers\Api\Finance\MomoController;
 use App\Http\Controllers\Api\Finance\RegistrationController;
 use App\Http\Controllers\Api\Finance\TuitionFeeController;
 use App\Http\Controllers\Api\Profile\PasswordController;
@@ -107,6 +108,7 @@ Route::middleware(['auth'])->group(function () {
 
     //============== SEMESTER ==============
     Route::get('semesters', [SemesterController::class, 'index']);
+    Route::get('/students/{userId}/semesters', [SemesterController::class, 'getSemestersByStudent']);
     Route::get('semester/{id}', [SemesterController::class, 'show']);
     Route::post('semester', [SemesterController::class, 'store']);
     Route::post('semester/{id}', [SemesterController::class, 'update']);
@@ -210,6 +212,7 @@ Route::middleware(['auth'])->group(function () {
     //============== Grade ==============
     Route::get('grades', [GradeController::class, 'index']);
     Route::get('grade/{id}', [GradeController::class, 'show']);
+    Route::get('/students/{user_id}/grades', [GradeController::class, 'getStudentGrades']);
     Route::post('grade', [GradeController::class, 'store']);
     Route::post('grade/{id}', [GradeController::class, 'update']);
     Route::delete('grade/{id}', [GradeController::class, 'destroy']);
@@ -225,6 +228,7 @@ Route::middleware(['auth'])->group(function () {
     //============== Tuition Fee ==============
     Route::get('tuition_fees', [TuitionFeeController::class, 'index']);
     Route::get('tuition_fee/{id}', [TuitionFeeController::class, 'show']);
+    Route::get('/tuition_fees/{studentCode}', [TuitionFeeController::class, 'getBySemester']);
     Route::post('tuition_fee', [TuitionFeeController::class, 'store']);
     Route::post('tuition_fee/{id}', [TuitionFeeController::class, 'update']);
     Route::delete('tuition_fee/{id}', [TuitionFeeController::class, 'destroy']);
@@ -235,4 +239,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/registration-periods/bulk', [RegistrationPeriodController::class, 'storeBulk']);
     Route::put('registration_periods/{id}', [RegistrationPeriodController::class, 'update']);
     Route::delete('registration_periods/{id}', [RegistrationPeriodController::class, 'destroy']);
+
+    //============== Registration Period ==============
+    Route::post('/payment/momo', [MomoController::class, 'createPayment']);
 });
+Route::post('/momo/ipn', [MomoController::class, 'handleIpn']);

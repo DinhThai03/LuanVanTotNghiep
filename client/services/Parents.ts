@@ -5,6 +5,13 @@ export const getParents = async () => {
     return res.data;
 };
 
+
+export const getOneParents = async (user_id: number) => {
+    const res = await axios.get(`/api/guardian/${user_id}`);
+    return res.data;
+};
+
+
 export const getParentByStudentCode = async (code: string) => {
     const res = await axios.get(`/api/student/${code}/guardian`);
     return res.data;
