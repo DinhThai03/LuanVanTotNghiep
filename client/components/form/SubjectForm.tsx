@@ -15,6 +15,7 @@ import SelectField from "../select-field";
 import { FacultyData } from "@/types/FacultyType";
 import { getFacultys } from "@/services/Faculty";
 import CheckboxGroupField from "../checkbox-group-field";
+import FileUploader from "../FileUploader";
 
 const subjectSchema = z.object({
     id: z.coerce.number().optional(),
@@ -32,6 +33,20 @@ const subjectSchema = z.object({
     year: z.coerce.number().min(1).max(4, "Năm học phải từ 1-4"),
     faculty_ids: z
         .array(z.coerce.number().int()).optional(),
+    file: z
+        .instanceof(File)
+        .refine(
+            (file) =>
+                [
+                    "application/pdf",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+                    "application/vnd.ms-powerpoint", // .ppt
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+                ].includes(file.type),
+            {
+                message: "Tệp không hợp lệ. Chỉ chấp nhận PDF, DOCX, PPT, PPTX.",
+            }
+        ).optional(),
 });
 
 type FormData = z.infer<typeof subjectSchema>;
@@ -66,6 +81,10 @@ export const SubjectForm = ({
         form.append("subject_type", String(fd.subject_type));
         form.append("year", String(fd.year));
         fd.faculty_ids?.forEach(id => form.append("faculty_ids[]", String(id)));
+        if (fd.file) {
+            console.log("file: ", fd.file);
+            form.append("file_path", fd.file);
+        }
         return form;
     };
 
@@ -298,6 +317,9 @@ export const SubjectForm = ({
                         error={errors.faculty_ids as FieldError}
                     />
                 </div>
+
+                <FileUploader name="file" defaultFilename={data?.file_path} control={control} error={errors.file} />
+
                 <div className="col-span-3 mt-4">
                     <button
                         type="submit"

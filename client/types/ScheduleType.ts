@@ -14,4 +14,5 @@ export interface ScheduleData {
     room: string;
     repeat: "weekly" | "none" | string;
     dayOfWeek: number;
+    file_path: string;
 }

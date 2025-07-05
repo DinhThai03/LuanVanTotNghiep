@@ -18,6 +18,7 @@ class Subject extends Model
         'year',
         'subject_type',
         'is_active',
+        'file_path'
     ];
 
 

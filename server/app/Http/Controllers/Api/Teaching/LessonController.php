@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateLessonRequest;
 use App\Http\Requests\UpdateLessonRequest;
 use App\Models\Lesson;
+use App\Models\Registration;
+use App\Models\Student;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,6 +19,7 @@ class LessonController extends Controller
             'teacherSubject.teacher.user',
             'teacherSubject.subject',
             'room',
+            'semester.academicYear'
         ]);
 
         if ($request->has('semester_id')) {
@@ -55,7 +58,7 @@ class LessonController extends Controller
             ->with([
                 'teacherSubject.subject',
                 'teacherSubject.teacher',
-                'room'
+                'room',
             ])
             ->where('semester_id', $semesterId)
             ->where('is_active', true)
@@ -143,5 +146,48 @@ class LessonController extends Controller
         $lesson->delete();
 
         return response()->json(['message' => 'Xóa lịch học thành công.']);
+    }
+
+    public function getLessonsGroupedBySubject(Request $request)
+    {
+        $semesterId = $request->input('semester_id');
+        $facultyId = $request->input('faculty_id');
+        $year = $request->input('year');
+        $studentCode = $request->input('student_code');
+
+        if (!$semesterId) {
+            return response()->json(['error' => 'semester_id is required'], 422);
+        }
+
+        $registeredLessonIds = [];
+        if ($studentCode) {
+            $registeredLessonIds = Registration::where('student_code', $studentCode)
+                ->pluck('lesson_id')
+                ->toArray();
+        }
+
+        $lessons = Lesson::with([
+            'teacherSubject.subject.faculties',
+            'room',
+            'teacherSubject.teacher.user'
+        ])
+            ->withCount('registrations')
+            ->where('semester_id', $semesterId)
+            ->whereHas('teacherSubject.subject', function ($query) use ($facultyId, $year) {
+                if ($facultyId) {
+                    $query->whereHas('faculties', fn($q) => $q->where('faculties.id', $facultyId));
+                }
+                if ($year) {
+                    $query->where('year', $year);
+                }
+            })
+            ->get()
+            ->map(function ($lesson) use ($registeredLessonIds) {
+                $lesson->is_registered = in_array($lesson->id, $registeredLessonIds);
+                return $lesson;
+            })
+            ->groupBy(fn($lesson) => $lesson->teacherSubject->subject->code ?? 'unknown');
+
+        return response()->json($lessons);
     }
 }

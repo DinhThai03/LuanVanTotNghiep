@@ -1,3 +1,4 @@
+import { getLessons } from '@/services/Lesson';
 // services/student.ts
 import axios from "@/lib/Axios";
 

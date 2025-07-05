@@ -13,14 +13,18 @@ return new class extends Migration
     {
         Schema::create('announcements', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-        
+
             $table->id();
-            $table->string('title', 100)->notNullable();
-            $table->text('content')->notNullable();
-            $table->date('date')->notNullable();
+            $table->string('title', 100);
+            $table->text('content');
+            $table->date('date');
+
+            // Thêm các cột mới cho form
+            $table->enum('target_type', ['all', 'students', 'teachers', 'custom'])->default('all');
+            $table->string('file_path')->nullable(); // đường dẫn file nếu có
+
             $table->timestamps();
         });
-        
     }
 
     /**

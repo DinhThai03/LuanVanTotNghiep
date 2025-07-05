@@ -15,13 +15,21 @@ export const getSubjectsByFaculty = async (faculty_id: number) => {
 
 // Thêm môn học mới
 export const addSubject = async (subject: FormData) => {
-    const res = await axios.post("/api/subject", subject);
+    const res = await axios.post("/api/subject", subject, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     return res;
 };
 
 // Cập nhật môn học
 export const updateSubject = async (id: number, subject: FormData) => {
-    const res = await axios.post(`/api/subject/${id}`, subject);
+    const res = await axios.post(`/api/subject/${id}`, subject, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     return res;
 };
 

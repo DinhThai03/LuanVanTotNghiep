@@ -163,7 +163,7 @@ const menuItems = [
       {
         icon: <GiMoneyStack className="w-4.5 h-4.5" />,
         label: "Học phí",
-        href: "",
+        href: "/admin/lists/tuition-fees",
         visible: ["admin"],
       },
     ],
@@ -176,7 +176,7 @@ const menuItems = [
       {
         icon: <IoMdNotifications className="w-4.5 h-4.5" />,
         label: "Thông báo",
-        href: "",
+        href: "/admin/lists/announcements",
         visible: ["admin"],
       },
     ],
@@ -187,13 +187,13 @@ const menuItems = [
       {
         icon: <FaListCheck className="w-4.5 h-4.5" />,
         label: "Đăng ký môn",
-        href: "/",
+        href: "/registration",
         visible: ["student"],
       },
       {
         icon: <FaCalendarAlt className="w-4.5 h-4.5" />,
         label: "Lịch thi",
-        href: "/",
+        href: "/exam-schedule",
         visible: ["student", "parent"],
       },
       {
@@ -211,7 +211,7 @@ const menuItems = [
       {
         icon: <FaTable className="w-4.5 h-4.5" />,
         label: "Lịch dạy",
-        href: "/",
+        href: "/teacher-schedule",
         visible: ["teacher"],
       },
       {
@@ -220,12 +220,12 @@ const menuItems = [
         href: "/result",
         visible: ["student", "parent",],
       },
-      {
-        icon: <FaBell className="w-4.5 h-4.5" />,
-        label: "thông báo",
-        href: "/",
-        visible: ["student", "teacher", "parent",],
-      },
+      // {
+      //   icon: <FaBell className="w-4.5 h-4.5" />,
+      //   label: "thông báo",
+      //   href: "/announcements",
+      //   visible: ["student", "teacher", "parent",],
+      // },
     ],
   },
 

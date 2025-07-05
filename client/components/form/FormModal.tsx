@@ -32,8 +32,15 @@ import { GradeForm } from "./GradeForm";
 import { GradeData } from "@/types/GradeType";
 import { CreditPriceForm } from "./CreditPriceForm";
 import { CreditPriceData } from "@/types/CreditPriceType";
+import AdminTuitionFeeForm from "./AdminTuitionFeeForm";
+import { AnnouncementForm } from "./AnnouncementForm";
+import { AnnouncementData } from "@/types/AnnouncementType";
 
 export type ModalType = "create" | "update";
+interface AdminTuitionFeeFormProps {
+  code: string;
+  semester_id: number;
+}
 
 interface FormModalProps {
   table: string;
@@ -187,7 +194,23 @@ const FormModal = ({
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );
+      case "tuitionFee":
+        const tuitionData = data as AdminTuitionFeeFormProps;
+        return (
+          <AdminTuitionFeeForm
+            code={tuitionData.code}
+            semester_id={tuitionData.semester_id}
+          />
+        );
 
+      case "announcement":
+        return (
+          <AnnouncementForm
+            type={type}
+            data={data as AnnouncementData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
       default:
         return <div>Form không tồn tại!</div>;
     }

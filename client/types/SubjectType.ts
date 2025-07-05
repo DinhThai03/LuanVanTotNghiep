@@ -20,6 +20,8 @@ export interface SubjectData {
     year: number;
     subject_type: 'LT' | 'TH' | 'DA' | 'KL';
     is_active: number;
+    file_path: string;
     faculty_subjects: FacultySubjectData[];
     teacher_subjects?: TeacherSubjectData;
+
 }

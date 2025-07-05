@@ -77,7 +77,7 @@ const Page = () => {
 
                 {/* Lịch học */}
                 <div className="w-full">
-                    <BigCalendar events={data} />
+                    <BigCalendar events={data} role="student" />
                 </div>
             </div>
         </ScrollArea>

@@ -133,7 +133,7 @@ const SingleTeacherPage = () => {
                 {/* BOTTOM */}
                 <div className="mt-4 bg-white rounded-md p-4 h-auto">
                     <h1>Thời khóa biểu</h1>
-                    {/* <BigCalendar events={lessons} /> */}
+                    {/* <BigCalendar events={lessons} role="teacher" /> */}
                 </div>
             </div>
             {/* RIGHT */}

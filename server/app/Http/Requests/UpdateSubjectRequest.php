@@ -32,6 +32,7 @@ class UpdateSubjectRequest extends FormRequest
             'subject_type' => ['sometimes', 'in:LT,TH'],
             'is_active' => ['sometimes'],
             'faculty_ids' => ['sometimes', 'array'],
+            'file_path' => ['nullable', 'file', 'mimes:pdf,docx,doc,zip', 'max:10240'],
         ];
     }
 
@@ -45,6 +46,9 @@ class UpdateSubjectRequest extends FormRequest
             'year.integer' => 'Năm phải là số nguyên.',
             'year.min' => 'Năm không hợp lệ.',
             'year.max' => 'Năm không hợp lệ.',
+            'file_path.file' => 'Tài liệu phải là một file.',
+            'file_path.mimes' => 'Tài liệu phải có định dạng pdf, doc, docx hoặc zip.',
+            'file_path.max' => 'Tài liệu không được vượt quá 10MB.',
         ];
     }
 
@@ -59,6 +63,7 @@ class UpdateSubjectRequest extends FormRequest
             'process_percent' => 'tỷ lệ quá trình',
             'final_percent' => 'tỷ lệ cuối kỳ',
             'subject_type' => 'loại môn học',
+            'file_path' => 'tài liệu môn học',
         ];
     }
 }

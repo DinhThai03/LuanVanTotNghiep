@@ -10,7 +10,11 @@ class Announcement extends Model
         'title',
         'content',
         'date',
+        'target_type',
+        'file_path',
     ];
+
+    protected $with = ['classes'];
 
     // Quan hệ nhiều-nhiều với lớp học (classes) qua bảng class_announcements
     public function classes()

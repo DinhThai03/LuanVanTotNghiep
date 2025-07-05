@@ -13,6 +13,16 @@ export const getLessons = async (faculty_id?: number, semester_id?: number) => {
 };
 
 
+export const getLessonsGroupedBySubject = async (params: {
+    student_code: string;
+    semester_id: number;
+    faculty_id?: number;
+    year?: number;
+}) => {
+    const res = await axios.get("/api/lessons/grouped", { params });
+    return res.data;
+};
+
 // Thêm buổi học
 export const addLesson = async (lesson: FormData) => {
     const res = await axios.post("/api/lesson", lesson);

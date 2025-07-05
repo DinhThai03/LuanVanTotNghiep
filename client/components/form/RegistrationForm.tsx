@@ -90,7 +90,7 @@ export const RegistrationForm = ({
 
                 setLessons(
                     lessonRes.data.map((l: any) => ({
-                        label: `${l.teacher_subject.subject.name} - ${l.teacher_subject.teacher.user.last_name} ${l.teacher_subject.teacher.user.first_name} - ${l.room.name} (${l.start_time} - ${l.end_time})`,
+                        label: `${l.teacher_subject.subject.name} - ${l.teacher_subject.teacher.user.last_name} ${l.teacher_subject.teacher.user.first_name} - ${l.room.name} (${l.start_time} - ${l.end_time}) - ${l.semester.name} (${l.semester.academic_year.start_year} - ${l.semester.academic_year.end_year})`,
                         value: l.id,
                     }))
                 );

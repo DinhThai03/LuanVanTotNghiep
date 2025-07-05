@@ -28,14 +28,23 @@ class ClassAnnouncementController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $classAnnouncements = DB::table('class_announcements')
-            ->join('school_classes', 'class_announcements.class_id', '=', 'school_classes.id')
-            ->get();
+        $query = ClassAnnouncement::query()
+            ->join('announcements', 'class_announcements.announcement_id', '=', 'announcements.id')
+            ->with('class', 'announcement')
+            ->orderBy('announcements.date', 'desc')
+            ->select('class_announcements.*');
+
+        if ($request->has('class_id')) {
+            $query->where('class_announcements.class_id', $request->input('class_id'));
+        }
+
+        $classAnnouncements = $query->get();
 
         return response()->json($classAnnouncements);
     }
+
 
     public function destroy($class_id, $announcement_id)
     {

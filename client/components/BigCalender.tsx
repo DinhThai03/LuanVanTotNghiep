@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ScheduleData } from "@/types/ScheduleType";
 import { SubjectData } from "@/types/SubjectType";
 import { TeacherData } from "@/types/TeacherType";
+import Link from "next/link";
 
 moment.locale("vi");
 const localizer = momentLocalizer(moment);
@@ -27,7 +28,7 @@ type CalendarEvent = {
   subject: SubjectData;
   teacher: TeacherData;
   room: string;
-  link?: string;
+  file_path?: string;
 };
 
 const getTeacherName = (teacher?: TeacherData) =>
@@ -39,7 +40,7 @@ const parseDateTime = (date: string | Date, time: string) => {
   return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate(), h, m);
 };
 
-const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
+const ResponsiveSchedule = ({ events, role }: { events: ScheduleData[], role: string }) => {
   const [view, setView] = useState<View>(Views.WEEK);
   const [currentDate, setCurrentDate] = useState(moment().startOf("week").toDate());
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -65,7 +66,7 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
               subject: ev.subject,
               teacher: ev.teacher,
               room: ev.room,
-              // link: ev.link,
+              file_path: ev.file_path,
             });
           }
           day.add(1, "day");
@@ -79,7 +80,7 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
           subject: ev.subject,
           teacher: ev.teacher,
           room: ev.room,
-          // link: ev.link,
+          file_path: ev.file_path,
         });
       }
     });
@@ -135,26 +136,28 @@ const ResponsiveSchedule = ({ events }: { events: ScheduleData[] }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="font-bold mb-1">{selectedEvent.title}</div>
-        <div>Mã môn: {selectedEvent.subject.id}</div>
+        <div>Mã môn: {selectedEvent.subject.code}</div>
         <div>GV: {getTeacherName(selectedEvent.teacher)}</div>
         <div>Phòng: {selectedEvent.room}</div>
-        <div className="mt-2 space-y-1">
-          {selectedEvent.link && (
-            <a
-              href={`${process.env.NEXT_PUBLIC_API_URL_FILE}${selectedEvent.link}`}
-              className="block text-center bg-blue-600 text-white text-xs py-1 rounded"
+        <div className="mt-2 flex gap-1">
+          {selectedEvent.file_path && (
+            <Link
+              href={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${selectedEvent.file_path}`}
+              className="block flex-1 text-center bg-cyan-100 text-gray-800 text-xs py-1 rounded"
               target="_blank"
-              rel="noopener noreferrer"
             >
-              Xem bài giảng
-            </a>
+              Bài giảng
+            </Link>
           )}
-          <a
-            href={`/teacher/students/${selectedEvent.id}`}
-            className="block text-center bg-green-600 text-white text-xs py-1 rounded"
-          >
-            Danh sách lớp
-          </a>
+          {(role == "teacher" || role == "admin") &&
+
+            <Link
+              href={`/lesson-classes/${selectedEvent.id}`}
+              className="block  flex-1 text-center bg-orange-200 text-gray-800 text-xs py-1 rounded"
+            >
+              Ds lớp
+            </Link>
+          }
         </div>
       </div>
     );

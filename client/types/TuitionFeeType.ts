@@ -1,3 +1,7 @@
+import { FacultyData } from "./FacultyType";
+import { SemesterData } from "./SemesterType";
+import { StudentData } from "./StudentType";
+
 export interface TuitionFee {
     id: number;
     registration_id: number;
@@ -37,3 +41,34 @@ export interface TuitionFee {
         };
     };
 };
+
+export interface StudentInfo {
+    code: string;
+    full_name: string;
+    email: string;
+    phone: string;
+}
+
+export interface PaymentDetail {
+    id: number;
+    amount: string; // có thể để kiểu `string` nếu backend trả về string, hoặc `number` nếu muốn chuẩn hóa
+    paid_at: string; // ISO datetime string
+    payment_method: string;
+    transaction_id: string;
+}
+
+export interface StudentTuitionData {
+    stt: number;
+    student: StudentInfo;
+    faculties: FacultyData[];
+    class: string | null;
+    paid_amount: number;
+    total_amount: number;
+    remaining_amount: number;
+    payment_details: PaymentDetail[];
+}
+
+export interface TuitionSummaryData {
+    semester: SemesterData;
+    students: StudentTuitionData[];
+}

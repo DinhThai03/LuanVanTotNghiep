@@ -1,11 +1,18 @@
+import { jwtDecode } from 'jwt-decode';
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtDecode } from "jwt-decode";
-
 
 const publicRoutes = [
     "/forgot-password",
     "/contact",
+];
+
+// Các route không cho admin truy cập
+const restrictedForAdmin = [
+    "/",
+    "/student-schedule",
+    "/tuition-fee",
+    "/result",
 ];
 
 export function middleware(request: NextRequest) {
@@ -16,27 +23,29 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // Nếu KHÔNG có token và KHÔNG đang ở /login => redirect về /login
     if (!accessToken && pathname !== "/login") {
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    // Nếu KHÔNG có token và đang ở /login => cho đi tiếp
     if (!accessToken && pathname === "/login") {
         return NextResponse.next();
     }
 
-    // Nếu CÓ token, xử lý kiểm tra quyền truy cập và redirect nếu cần
     try {
         const decoded: any = jwtDecode(accessToken!);
         const role = decoded.role;
 
-        // Nếu đang vào trang admin mà không phải admin => về /
+        // Không phải admin mà truy cập /admin => redirect
         if (pathname.startsWith("/admin") && role !== "admin") {
             return NextResponse.redirect(new URL("/", request.url));
         }
 
-        // Nếu đã đăng nhập mà truy cập /login => redirect đúng role
+        // Nếu là admin mà truy cập vào các route chỉ dành cho user => redirect về admin/home
+        if (role === "admin" && restrictedForAdmin.some((route) => pathname === route || pathname.startsWith(route + "/"))) {
+            return NextResponse.redirect(new URL("/admin/home", request.url));
+        }
+
+        // Nếu đã login mà truy cập /login => redirect về home tương ứng
         if (pathname === "/login") {
             const redirectUrl = role === "admin" ? "/admin/home" : "/";
             return NextResponse.redirect(new URL(redirectUrl, request.url));

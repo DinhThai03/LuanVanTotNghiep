@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Finance;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateRegistrationRequest;
 use App\Http\Requests\UpdateRegistrationRequest;
+use App\Models\Lesson;
 use App\Models\Registration;
 use App\Models\Semester;
 use Carbon\Carbon;
@@ -95,7 +96,7 @@ class RegistrationController extends Controller
             $room = $lesson->room;
 
             return [
-                'id' => $item->id,
+                'id' => $lesson->id,
                 'title' => $subject->name ?? '',
                 'subject' => $subject,
                 'teacher' => $teacher,
@@ -107,26 +108,58 @@ class RegistrationController extends Controller
                 'room' => $room->name,
                 'repeat' => 'weekly',
                 'dayOfWeek' => $lesson->day_of_week,
+                'file_path' => $subject->file_path,
             ];
         });
 
         return response()->json($mappedData);
     }
 
-
-
-
     public function store(CreateRegistrationRequest $request)
     {
         $registration = Registration::create($request->validated());
 
-        // 👇 Tạo grade rỗng gắn với registration vừa tạo
+        // Tạo grade rỗng
         $registration->grade()->create([
             'process_score' => null,
             'midterm_score' => null,
             'final_score' => null,
         ]);
 
+        // Nếu trạng thái là approved thì tạo học phí
+        if ($registration->status === 'approved') {
+            $lesson = $registration->lesson;
+            $subject = $lesson->teacherSubject->subject;
+            $semester = $lesson->semester;
+            $academicYearId = $semester->academic_year_id;
+            $subjectType = $subject->subject_type;
+
+            // Lấy giá tín chỉ cho loại môn học trong năm học đó
+            $creditPrice = \App\Models\CreditPrice::where([
+                ['academic_year_id', '=', $academicYearId],
+                ['subject_type', '=', $subjectType],
+                ['is_active', '=', true],
+            ])->first();
+
+            if (!$creditPrice) {
+                return response()->json([
+                    'message' => 'Không tìm thấy đơn giá tín chỉ cho loại môn học này trong năm học.',
+                ], 400);
+            }
+
+            $tuitionCredit = $subject->tuition_credit ?? $subject->credit;
+            $amount = $tuitionCredit * $creditPrice->price_per_credit;
+
+            $registration->tuitionFee()->create([
+                'amount' => $amount,
+                'paid_at' => null,
+                'payment_method' => null,
+                'payment_status' => 'unpaid',
+                'transaction_id' => null,
+            ]);
+        }
+
+        // Load các quan hệ liên quan
         $registration->load(
             'student.user',
             'lesson.room',
@@ -139,6 +172,7 @@ class RegistrationController extends Controller
             'data' => $registration,
         ], 201);
     }
+
 
 
     public function show($id)
@@ -196,5 +230,105 @@ class RegistrationController extends Controller
         $registration->delete();
 
         return response()->json(['message' => 'Xóa đăng ký thành công.']);
+    }
+
+    public function getStudentsByLesson($lesson_id)
+    {
+        $registrations = Registration::with('student.user', 'student.schoolClass')
+            ->where('lesson_id', $lesson_id)
+            ->get();
+
+        $students = $registrations->map(function ($registration) {
+            return $registration->student;
+        });
+
+        return response()->json([
+            'lesson_id' => $lesson_id,
+            'students' => $students,
+        ]);
+    }
+
+    public function registerLessons(Request $request)
+    {
+        $request->validate([
+            'student_code' => 'required|string|exists:students,code',
+            'semester_id' => 'required|integer|exists:semesters,id',
+            'selections' => 'required|array|min:1',
+            'selections.*' => 'integer|exists:lessons,id',
+        ]);
+
+        $studentCode = $request->student_code;
+        $semesterId = $request->semester_id;
+        $selections = $request->selections;
+
+        $success = [];
+        $failed = [];
+
+        foreach ($selections as $subjectCode => $lessonId) {
+            $lesson = Lesson::with(['room', 'teacherSubject.subject'])->find($lessonId);
+
+            if (!$lesson) {
+                $failed[] = [
+                    'lesson_id' => $lessonId,
+                    'subject_code' => $subjectCode,
+                    'reason' => 'Bài giảng không tồn tại',
+                ];
+                continue;
+            }
+            $subject = optional($lesson->teacherSubject->subject);
+            $subjectId = $subject->id ?? null;
+
+            if ($subject->code !== $subjectCode || $lesson->semester_id != $semesterId) {
+                $failed[] = [
+                    'lesson_id' => $lessonId,
+                    'subject_code' => $subjectCode,
+                    'reason' => 'Bài giảng không khớp với môn học hoặc học kỳ',
+                ];
+                continue;
+            }
+
+            $existingRegistration = Registration::where('student_code', $studentCode)
+                ->whereHas('lesson', function ($query) use ($subjectId, $semesterId) {
+                    $query->where('semester_id', $semesterId)
+                        ->whereHas('teacherSubject', function ($q) use ($subjectId) {
+                            $q->where('subject_id', $subjectId);
+                        });
+                })->first();
+            if ($existingRegistration) {
+                $existingRegistration->delete();
+            }
+
+            // Kiểm tra phòng còn chỗ
+            $currentCount = $lesson->registrations()->count();
+            $roomSize = $lesson->room->size ?? 0;
+
+            if ($currentCount >= $roomSize) {
+                $failed[] = [
+                    'lesson_id' => $lessonId,
+                    'subject_code' => $subjectCode,
+                    'reason' => 'Phòng đã đầy',
+                ];
+                continue;
+            }
+
+            // Đăng ký mới
+            Registration::create([
+                'student_code' => $studentCode,
+                'lesson_id' => $lessonId,
+                'status' => 'approved',
+            ]);
+
+            $success[] = [
+                'lesson_id' => $lessonId,
+                'subject_code' => $subjectCode,
+                'subject_name' => $subject->name ?? 'Không xác định',
+            ];
+        }
+
+        return response()->json([
+            'message' => 'Kết quả đăng ký',
+            'registered' => $success,
+            'skipped' => $failed,
+        ]);
     }
 }

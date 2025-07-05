@@ -1,10 +1,23 @@
 // services/tuition_fee.ts
 import axios from "@/lib/Axios";
+import { TuitionSummaryData } from "@/types/TuitionFeeType";
 
 export const getTuitionFees = async () => {
     const res = await axios.get("/api/tuition_fees");
     return res.data;
 };
+
+export const getTuitionSummary = async (semester_id?: number, faculty_id?: number) => {
+    const res = await axios.get("/api/tuition_summary", {
+        params: {
+            ...(semester_id !== undefined && { semester_id }),
+            ...(faculty_id !== undefined && { faculty_id }),
+        },
+    });
+    return res.data;
+};
+
+
 
 export const getStudentTuitionFee = async (code: string, semester_id?: number) => {
     const res = await axios.get(`/api/tuition_fees/${code}`, {
@@ -41,3 +54,12 @@ export const createMomoPayment = async (
 
     return res.data;
 };
+
+
+export const payByCash = async (tuitionFeeIds: number[]) => {
+    const res = await axios.post("/api/payment/cash", {
+        tuition_fee_ids: tuitionFeeIds,
+    });
+    return res.data;
+};
+

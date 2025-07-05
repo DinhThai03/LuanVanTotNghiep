@@ -114,7 +114,7 @@ const SingleStudentPage = () => {
                 {/* BOTTOM */}
                 <div className="mt-4 w-full bg-white rounded-md p-4 h-auto md:h-[calc(100vh-290px)]">
                     <h1>Thời khóa biểu</h1>
-                    <BigCalendar events={data} />
+                    <BigCalendar events={data} role="admin" />
                 </div>
             </div>
             {/* RIGHT */}

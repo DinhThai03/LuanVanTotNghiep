@@ -7,6 +7,7 @@ use App\Http\Requests\CreateSubjectRequest;
 use App\Http\Requests\UpdateSubjectRequest;
 use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class SubjectController extends Controller
 {
@@ -20,8 +21,18 @@ class SubjectController extends Controller
     {
         $validated = $request->validated();
 
-        $subject = Subject::create(collect($validated)->except('faculty_ids')->toArray());
+        // Xử lý file nếu có
+        $filePath = null;
+        if ($request->hasFile('file_path')) {
+            $file = $request->file('file_path');
+            $filePath = $file->store('subjects/files', 'public');
+            $validated['file_path'] = $filePath;
+        }
 
+        // Tạo subject, bao gồm đường dẫn file nếu có
+        $subject = Subject::create($validated);
+
+        // Liên kết khoa
         $subject->faculties()->sync($validated['faculty_ids'] ?? []);
         $subject->load('facultySubjects', 'facultySubjects.faculty');
 
@@ -30,6 +41,7 @@ class SubjectController extends Controller
             'data' => $subject->load('faculties'),
         ], 201);
     }
+
 
 
     public function show($id): JsonResponse
@@ -48,9 +60,26 @@ class SubjectController extends Controller
         $subject = Subject::findOrFail($id);
 
         $validated = $request->validated();
+
+        // Xử lý file nếu có
+        if ($request->hasFile('file_path')) {
+            // Xóa file cũ nếu có
+            if ($subject->file_path && Storage::disk('public')->exists($subject->file_path)) {
+                Storage::disk('public')->delete($subject->file_path);
+            }
+
+            // Lưu file mới
+            $file = $request->file('file_path');
+            $filePath = $file->store('subjects/files', 'public');
+            $validated['file_path'] = $filePath;
+        }
+
+        // Cập nhật dữ liệu (trừ faculty_ids)
         $subject->update(collect($validated)->except('faculty_ids')->toArray());
+
+        // Đồng bộ khoa
         $subject->faculties()->sync($validated['faculty_ids'] ?? []);
-        $subject->load('facultySubjects', 'facultySubjects.faculty');
+
         return response()->json([
             'message' => 'Cập nhật môn học thành công.',
             'data' => $subject->load('faculties'),
@@ -65,6 +94,15 @@ class SubjectController extends Controller
             return response()->json(['message' => 'Không tìm thấy môn học.'], 404);
         }
 
+        // Xóa file đính kèm nếu tồn tại
+        if ($subject->file_path && Storage::disk('public')->exists($subject->file_path)) {
+            Storage::disk('public')->delete($subject->file_path);
+        }
+
+        // Gỡ liên kết với các khoa
+        $subject->faculties()->detach();
+
+        // Xóa môn học
         $subject->delete();
 
         return response()->json(['message' => 'Xóa môn học thành công.']);

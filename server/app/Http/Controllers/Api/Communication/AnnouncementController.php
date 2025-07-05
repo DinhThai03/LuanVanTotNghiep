@@ -3,22 +3,49 @@
 namespace App\Http\Controllers\Api\Communication;
 
 use App\Http\Controllers\Api\Controller;
-use App\Http\Requests\AnnouncementRequest;
 use App\Http\Requests\CreateAnnouncementRequest;
 use App\Http\Requests\UpdateAnnouncementRequest;
 use App\Models\Announcement;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(['data' => Announcement::latest('date')->get()]);
+        $query = Announcement::with('classes');
+
+        if ($request->has('class_id')) {
+            $query->whereHas('classes', function ($q) use ($request) {
+                $q->where('class_id', $request->input('class_id'));
+            });
+        }
+
+        $announcements = $query->orderBy('date', 'desc')->get();
+
+        return response()->json($announcements);
     }
 
     public function store(CreateAnnouncementRequest $request): JsonResponse
     {
-        $announcement = Announcement::create($request->validated());
+        $data = $request->validated();
+
+        // Xử lý file đính kèm nếu có
+        if ($request->hasFile('file_path')) {
+            $file = $request->file('file_path');
+            $data['file_path'] = $file->store('announcements/files', 'public');
+        }
+
+        $announcement = Announcement::create($data);
+
+        // Gán lớp nếu target_type là custom
+        if ($data['target_type'] === 'custom' && !empty($data['target_classes'])) {
+            $announcement->classes()->sync($data['target_classes']);
+        }
+
+        $announcement->load('classes');
 
         return response()->json([
             'message' => 'Tạo thông báo thành công.',
@@ -28,7 +55,8 @@ class AnnouncementController extends Controller
 
     public function show($id): JsonResponse
     {
-        $announcement = Announcement::find($id);
+        $announcement = Announcement::with('classes')->find($id);
+
         if (!$announcement) {
             return response()->json(['message' => 'Không tìm thấy thông báo.'], 404);
         }
@@ -39,11 +67,34 @@ class AnnouncementController extends Controller
     public function update(UpdateAnnouncementRequest $request, $id): JsonResponse
     {
         $announcement = Announcement::find($id);
+
         if (!$announcement) {
             return response()->json(['message' => 'Không tìm thấy thông báo.'], 404);
         }
 
-        $announcement->update($request->validated());
+        $data = $request->validated();
+
+        // Xử lý file nếu upload mới
+        if ($request->hasFile('file_path')) {
+            // Xóa file cũ nếu có
+            if ($announcement->file_path) {
+                Storage::disk('public')->delete($announcement->file_path);
+            }
+
+            $file = $request->file('file_path');
+            $data['file_path'] = $file->store('announcements/files', 'public');
+        }
+
+        $announcement->update($data);
+
+        // Cập nhật lớp nếu target_type là custom
+        if (isset($data['target_type']) && $data['target_type'] === 'custom') {
+            $announcement->classes()->sync($data['target_classes'] ?? []);
+        } else {
+            $announcement->classes()->detach(); // nếu không phải custom thì xóa quan hệ lớp
+        }
+
+        $announcement->load('classes');
 
         return response()->json([
             'message' => 'Cập nhật thông báo thành công.',
@@ -54,12 +105,67 @@ class AnnouncementController extends Controller
     public function destroy($id): JsonResponse
     {
         $announcement = Announcement::find($id);
+
         if (!$announcement) {
             return response()->json(['message' => 'Không tìm thấy thông báo.'], 404);
         }
 
+        // Xóa file đính kèm nếu có
+        if ($announcement->file_path) {
+            Storage::disk('public')->delete($announcement->file_path);
+        }
+
+        $announcement->classes()->detach(); // xóa quan hệ lớp
         $announcement->delete();
 
         return response()->json(['message' => 'Xóa thông báo thành công.']);
+    }
+
+    public function filter(Request $request): JsonResponse
+    {
+        $target = $request->input('target'); // all, students, teachers
+        $query = Announcement::query()->with('classes');
+
+        // Lọc theo ngày nếu có
+        if ($request->has('from')) {
+            $query->whereDate('date', '>=', Carbon::parse($request->input('from')));
+        }
+
+        if ($request->has('to')) {
+            $query->whereDate('date', '<=', Carbon::parse($request->input('to')));
+        }
+
+        switch ($target) {
+            case 'students':
+                if ($request->has('class_id')) {
+                    $query->where(function ($q) use ($request) {
+                        $q->where('target_type', 'students')
+                            ->orWhere(function ($sub) use ($request) {
+                                $sub->where('target_type', 'custom')
+                                    ->whereHas('classes', function ($c) use ($request) {
+                                        $c->where('class_id', $request->input('class_id'));
+                                    });
+                            });
+                    });
+                }
+                break;
+
+            case 'teachers':
+                // Nếu cần lọc kỹ hơn theo môn học hoặc bộ môn của giáo viên
+                $query->where('target_type', 'teachers');
+                break;
+
+            case 'all':
+            default:
+                $query->where('target_type', 'all');
+                break;
+        }
+
+        $announcements = $query->orderByDesc('date')->get();
+
+        return response()->json([
+            'message' => 'Lấy danh sách thông báo thành công.',
+            'data' => $announcements,
+        ]);
     }
 }

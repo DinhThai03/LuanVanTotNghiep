@@ -24,6 +24,7 @@ return new class extends Migration
             $table->decimal('final_percent', 5, 2)->notNullable();
             $table->integer('year')->notNullable();
             $table->enum('subject_type', ['LT', 'TH', 'DA', 'KL']);
+            $table->string('file_path')->nullable();
             $table->boolean('is_active')->default(1);
         });
     }

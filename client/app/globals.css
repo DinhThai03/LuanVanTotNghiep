@@ -95,6 +95,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .rbc-header.rbc-today {
   background-color: #ffffff !important;
   color: black;
+  border-block: solid 2px #919191;
 }
 
 .rbc-event {

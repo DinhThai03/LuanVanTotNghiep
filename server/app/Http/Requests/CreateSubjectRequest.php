@@ -25,6 +25,7 @@ class CreateSubjectRequest extends FormRequest
             'subject_type' => ['required', 'in:LT,TH'],
             'is_active' => ['sometimes'],
             'faculty_ids' => ['sometimes', 'array'],
+            'file_path' => ['nullable', 'file', 'mimes:pdf,doc,docx,zip', 'max:10240'],
         ];
     }
 
@@ -47,6 +48,9 @@ class CreateSubjectRequest extends FormRequest
             'year.max' => 'Năm không phải nhỏ hơn hoặc bằng 4.',
             'subject_type.required' => 'Loại môn học là bắt buộc.',
             'subject_type.in' => 'Loại môn học phải là LT hoặc TH.',
+            'file_path.file' => 'Tài liệu phải là một file.',
+            'file_path.mimes' => 'Tài liệu phải có định dạng pdf, doc, docx hoặc zip.',
+            'file_path.max' => 'Tài liệu không được vượt quá 10MB.',
         ];
     }
 
@@ -61,6 +65,7 @@ class CreateSubjectRequest extends FormRequest
             'process_percent' => 'tỷ lệ quá trình',
             'final_percent' => 'tỷ lệ cuối kỳ',
             'subject_type' => 'loại môn học',
+            'file_path' => 'tài liệu môn học',
         ];
     }
 }
