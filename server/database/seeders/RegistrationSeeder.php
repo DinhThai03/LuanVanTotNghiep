@@ -25,7 +25,7 @@ class RegistrationSeeder extends Seeder
             ],
             [
                 'status' => 'completed',
-                'student_code' => 'DH52100125',
+                'student_code' => 'DH52100123',
                 'lesson_id' => 3,
             ],
         ]);

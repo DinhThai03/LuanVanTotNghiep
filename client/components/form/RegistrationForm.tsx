@@ -126,6 +126,9 @@ export const RegistrationForm = ({
             const axiosErr = err as AxiosError<any>;
             console.error("Chi tiết lỗi:", axiosErr.response?.data);
 
+            let toastMessage = "Đã xảy ra lỗi khi gửi dữ liệu";
+            let toastDescription = "Vui lòng kiểm tra lại.";
+
             if (
                 axiosErr.response?.status === 422 &&
                 axiosErr.response.data?.errors
@@ -137,12 +140,23 @@ export const RegistrationForm = ({
                         message: (msgs as string[])[0],
                     });
                 });
+
+                // Lấy lỗi đầu tiên để hiển thị
+                const firstError = Object.values(backendErrors)[0];
+                if (Array.isArray(firstError)) {
+                    toastDescription = firstError[0];
+                }
             }
 
-            toast.error("Đã xảy ra lỗi khi gửi dữ liệu", {
-                description: "Vui lòng kiểm tra lại.",
+            if (axiosErr.response?.data?.message) {
+                toastMessage = axiosErr.response.data.message;
+            }
+
+            toast.error(toastMessage, {
+                description: toastDescription,
             });
-        } finally {
+        }
+        finally {
             setLoading(false);
         }
     };

@@ -217,7 +217,7 @@ const ResponsiveSchedule = ({ events, role }: { events: ScheduleData[], role: st
       <div ref={calendarRef} >
         <Calendar
           timeslots={1}
-          step={50}
+          step={60}
           localizer={localizer}
           events={allEvents}
           startAccessor="start"

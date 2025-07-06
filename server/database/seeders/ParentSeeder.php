@@ -14,16 +14,12 @@ class ParentSeeder extends Seeder
     {
         DB::table('parents')->insert([
             [
-                'user_id' => 1,           // user_id của phụ huynh (phải tồn tại trong bảng users)
+                'user_id' => 5,           // user_id của phụ huynh (phải tồn tại trong bảng users)
                 'student_code' => 'DH52100123' // mã học sinh (phải tồn tại trong bảng students)
             ],
             [
-                'user_id' => 2,
+                'user_id' => 6,
                 'student_code' => 'DH52100124'
-            ],
-            [
-                'user_id' => 3,
-                'student_code' => 'DH52100125'
             ],
         ]);
     }

@@ -7,6 +7,7 @@ use App\Http\Requests\CreateLessonRequest;
 use App\Http\Requests\UpdateLessonRequest;
 use App\Models\Lesson;
 use App\Models\Registration;
+use App\Models\Semester;
 use App\Models\Student;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -187,6 +188,73 @@ class LessonController extends Controller
                 return $lesson;
             })
             ->groupBy(fn($lesson) => $lesson->teacherSubject->subject->code ?? 'unknown');
+
+        return response()->json($lessons);
+    }
+
+    public function getLessonsByTeacher(Request $request)
+    {
+        $teacherCode = $request->input('teacher_code'); // yêu cầu truyền mã giảng viên
+        $semesterId = $request->input('semester_id');
+
+        if (!$teacherCode) {
+            return response()->json(['error' => 'teacher_code is required'], 422);
+        }
+
+        // Nếu không có semester_id, tìm học kỳ hiện tại hoặc gần nhất
+        if (!$semesterId) {
+            $today = now()->toDateString();
+
+            $semester = Semester::where('start_date', '<=', $today)
+                ->where('end_date', '>=', $today)
+                ->first();
+
+            if (!$semester) {
+                $semester = Semester::orderByRaw("ABS(DATEDIFF(start_date, ?))", [$today])
+                    ->first();
+            }
+
+            if (!$semester) {
+                return response()->json(['error' => 'No semester found'], 404);
+            }
+
+            $semesterId = $semester->id;
+        }
+
+        // Lấy danh sách lessons theo teacher_code và semester_id
+        $lessons = Lesson::with([
+            'teacherSubject.teacher.user',
+            'teacherSubject.subject',
+            'room'
+        ])
+            ->where('semester_id', $semesterId)
+            ->whereHas('teacherSubject', function ($query) use ($teacherCode) {
+                $query->where('teacher_code', $teacherCode);
+            })
+            ->get()
+            ->map(function ($lesson) {
+                return [
+                    'id' => $lesson->id,
+                    'title' => $lesson->teacherSubject->subject->name ?? '',
+                    'subject' => $lesson->teacherSubject->subject,
+                    'teacher' => [
+                        'code' => $lesson->teacherSubject->teacher->code,
+                        'status' => $lesson->teacherSubject->teacher->status,
+                        'user_id' => $lesson->teacherSubject->teacher->user_id,
+                        'faculty_id' => $lesson->teacherSubject->teacher->faculty_id,
+                        'user' => $lesson->teacherSubject->teacher->user,
+                    ],
+                    'allDay' => false,
+                    'startDate' => $lesson->start_date,
+                    'endDate' => $lesson->end_date,
+                    'startTime' => $lesson->start_time,
+                    'endTime' => $lesson->end_time,
+                    'room' => $lesson->room->name ?? null,
+                    'repeat' => 'weekly',
+                    'dayOfWeek' => $lesson->day_of_week,
+                    'file_path' => $lesson->teacherSubject->subject->file_path,
+                ];
+            });
 
         return response()->json($lessons);
     }

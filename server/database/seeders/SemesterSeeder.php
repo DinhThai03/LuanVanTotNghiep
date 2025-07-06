@@ -15,21 +15,21 @@ class SemesterSeeder extends Seeder
         DB::table('semesters')->insert([
             [
                 'name' => 'Học kỳ 1',
-                'start_date' => '2025-09-01',
-                'end_date' => '2025-12-31',
-                'academic_year_id'=>1,
+                'start_date' => '2024-09-01',
+                'end_date' => '2024-12-31',
+                'academic_year_id' => 1,
             ],
             [
                 'name' => 'Học kỳ 2',
-                'start_date' => '2026-01-10',
-                'end_date' => '2026-05-15',
-                'academic_year_id'=>1,
+                'start_date' => '2025-01-10',
+                'end_date' => '2025-05-15',
+                'academic_year_id' => 1,
             ],
             [
                 'name' => 'Học kỳ hè',
-                'start_date' => '2026-06-01',
-                'end_date' => '2026-08-15',
-                'academic_year_id'=>1,
+                'start_date' => '2025-06-01',
+                'end_date' => '2025-08-15',
+                'academic_year_id' => 1,
             ],
         ]);
     }

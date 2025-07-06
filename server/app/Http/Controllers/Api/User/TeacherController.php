@@ -90,6 +90,12 @@ class TeacherController extends Controller
         return response()->json(['data' => $teacher]);
     }
 
+    public static function getTeacherWithUserByUserId(int $id)
+    {
+        return Teacher::with('user')->where('user_id', $id)->first();
+    }
+
+
     public function update(Request $request, string $code): JsonResponse
     {
         $teacher = Teacher::where('code', $code)->first();

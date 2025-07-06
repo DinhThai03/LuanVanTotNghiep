@@ -16,13 +16,13 @@ class TeacherSeeder extends Seeder
         DB::table('teachers')->insert([
             [
                 'code' => 'GV00000001',
-                'user_id' => 2,
+                'user_id' => 1,
                 'faculty_id' => 1,
             ],
             [
                 'code' => 'GV00000002',
                 'user_id' => 3,
-                'faculty_id' => 3,
+                'faculty_id' => 2,
             ],
 
         ]);

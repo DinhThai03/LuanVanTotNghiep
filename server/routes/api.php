@@ -67,6 +67,7 @@ Route::delete('admin/{user_id}', [AdminController::class, 'destroy']);
 //============== TEACHER ==============
 Route::get('teachers', [TeacherController::class, 'index']);
 Route::get('teacher/{code}', [TeacherController::class, 'show']);
+Route::get('teacher_byId/{id}', [TeacherController::class, 'getTeacherWithUserByUserId']);
 Route::post('teacher', [TeacherController::class, 'store']);
 Route::post('teacher/{code}', [TeacherController::class, 'update']);
 Route::delete('teacher/{code}', [TeacherController::class, 'destroy']);
@@ -162,6 +163,7 @@ Route::post('lesson', [LessonController::class, 'store']);
 Route::post('lesson/{id}', [LessonController::class, 'update']);
 Route::delete('lesson/{id}', [LessonController::class, 'destroy']);
 Route::get('/lessons/grouped', [LessonController::class, 'getLessonsGroupedBySubject']);
+Route::get('/lessons/teacher', [LessonController::class, 'getLessonsByTeacher']);
 
 
 //============== ROOM ==============

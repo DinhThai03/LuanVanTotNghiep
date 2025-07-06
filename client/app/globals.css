@@ -87,6 +87,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 14px !important;
 }
 
+.rbc-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  background-color: #4d5869;
+  color: white;
+  /* font-weight: bold; */
+}
+
 .rbc-header {
   background-color: #4d5869;
   color: white;

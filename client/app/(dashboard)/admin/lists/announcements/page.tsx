@@ -161,31 +161,55 @@ const AnnouncementPage = () => {
 
         columnHelper.accessor(
             (row) => {
-                if (!row.classes || row.classes.length === 0) return "Tất cả lớp";
-                return row.classes.map((cls) => cls.name).join(", ");
+                switch (row.target_type) {
+                    case "all":
+                        return "Tất cả đối tượng";
+                    case "students":
+                        return "Tất cả sinh viên";
+                    case "teachers":
+                        return "Tất cả giảng viên";
+                    case "custom":
+                        if (!row.classes || row.classes.length === 0) return "Không có lớp";
+                        return row.classes.map((cls) => cls.name).join(", ");
+                    default:
+                        return "Không xác định";
+                }
             },
             {
                 id: "classes",
                 header: (info) => <DefaultHeader info={info} name="Lớp áp dụng" />,
                 enableGlobalFilter: true,
-                size: 200,
+                size: 240,
                 cell: ({ row }) => {
-                    const classNames = row.original.classes;
-                    if (!classNames || classNames.length === 0) {
-                        return <span className="">Tất cả lớp</span>;
-                    }
+                    const { target_type, classes } = row.original;
 
-                    return (
-                        <ul className="list-none text-sm">
-                            {classNames.map((cls, idx) => (
-                                <li key={idx}>{cls.name}</li>
-                            ))}
-                        </ul>
-                    );
+                    switch (target_type) {
+                        case "all":
+                            return <span className="italic text-gray-500">Tất cả đối tượng</span>;
+                        case "students":
+                            return <span className="italic text-gray-500">Tất cả sinh viên</span>;
+                        case "teachers":
+                            return <span className="italic text-gray-500">Tất cả giảng viên</span>;
+                        case "custom":
+                            if (!classes || classes.length === 0) {
+                                return <span className="italic text-gray-500">Không có lớp</span>;
+                            }
+
+                            return (
+                                <ul className="list-none text-sm">
+                                    {classes.map((cls, idx) => (
+                                        <li key={idx}>{cls.name}</li>
+                                    ))}
+                                </ul>
+                            );
+                        default:
+                            return <span className="italic text-red-500">Không xác định</span>;
+                    }
                 },
-                meta: { displayName: "Danh sách lớp áp dụng" },
+                meta: { displayName: "Đối tượng áp dụng" },
             }
         ),
+
 
         columnHelper.display({
             id: "actions",

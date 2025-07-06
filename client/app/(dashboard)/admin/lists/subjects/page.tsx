@@ -179,7 +179,8 @@ const SubjectPage = () => {
                 cell: ({ row }) => {
                     const facultyNames = row.original.faculty_subjects
                         ?.map((fs: any) => fs.faculty?.name)
-                        .filter(Boolean);
+                        .filter(Boolean) ?? []; // <-- đảm bảo là mảng
+
                     return (
                         <ul className="list-inside space-y-1">
                             {facultyNames.map((name: string, idx: number) => (

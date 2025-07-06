@@ -72,7 +72,7 @@ export const AnnouncementForm = ({
             title: data?.title ?? "",
             content: data?.content ?? "",
             date: data?.date ?? "",
-            target_type: "all",
+            target_type: data?.target_type ?? "all",
             target_classes: data?.classes?.map((cls) => cls.id) ?? [],
         },
     });
@@ -84,7 +84,7 @@ export const AnnouncementForm = ({
                 title: data.title,
                 content: data.content,
                 date: data.date,
-                target_type: "all", // bạn có thể thay bằng data.target_type nếu có
+                target_type: data.target_type,
                 target_classes: data.classes?.map((cls) => cls.id) ?? [],
             });
         }

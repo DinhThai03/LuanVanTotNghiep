@@ -79,10 +79,11 @@ class SubjectController extends Controller
 
         // Đồng bộ khoa
         $subject->faculties()->sync($validated['faculty_ids'] ?? []);
+        $subject->refresh()->load('facultySubjects', 'facultySubjects.faculty');
 
         return response()->json([
             'message' => 'Cập nhật môn học thành công.',
-            'data' => $subject->load('faculties'),
+            'data' => $subject,
         ]);
     }
 

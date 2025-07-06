@@ -7,7 +7,12 @@ export const getTeachers = async () => {
     return res.data;
 };
 
-// Thêm giảng viên mới
+export const getOneTeachers = async (teacher_id: number) => {
+    const res = await axios.get(`/api/teacher_byId/${teacher_id}`);
+    return res.data;
+};
+
+
 export const addTeacher = async (teacher: FormData) => {
     const res = await axios.post("/api/teacher", teacher);
     return res;

@@ -17,7 +17,7 @@ const Page = () => {
                     const res = await getFilterAnnouncements({ target: "students" });
                     setAnnouncementData(res.data);
                 } else {
-                    const res = await getFilterAnnouncements({ target: "teachers" });
+                    const res = await getFilterAnnouncements({ target: "all" });
                     setAnnouncementData(res.data);
                 }
             } catch (err) {
@@ -26,7 +26,7 @@ const Page = () => {
             }
         };
         fetchInfo();
-    })
+    }, [])
     return (
         <div className='bg-white w-full h-[calc(100vh-60px)] p-4'>
             <AnnouncementList announcements={announcementData} />
