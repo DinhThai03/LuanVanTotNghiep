@@ -7,6 +7,11 @@ export const getRegistrationPeriods = async (semester_id: number) => {
     return res.data;
 };
 
+export const getSemesterInPeriod = async () => {
+    const res = await axios.get("/api/CurrentSemester/registration_period");
+    return res.data;
+};
+
 export const addRegistrationPeriod = async (registration_period: FormData) => {
     const res = await axios.post("/api/registration-periods/bulk", registration_period);
     return res;

@@ -18,7 +18,7 @@ const LoginPage = () => {
                                     width={200}
                                     height={200}
                                     alt="logo"
-                                    className='w-30'
+                                    className='w-30 h-fit'
                                     priority
                                 />
                                 <div >

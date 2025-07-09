@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Teaching;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\UpdateRegistrationPeriodRequest;
 use App\Models\RegistrationPeriod;
+use App\Models\Semester;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -108,5 +110,24 @@ class RegistrationPeriodController extends Controller
         $period->delete();
 
         return response()->json(['message' => 'Xóa thành công']);
+    }
+
+    public static function getCurrentSemesterIfInRegistrationPeriod(): ?Semester
+    {
+        $now = Carbon::now();
+
+        $registrationPeriod = RegistrationPeriod::with('semester')
+            ->where(function ($query) use ($now) {
+                $query->where(function ($q) use ($now) {
+                    $q->where('round1_start', '<=', $now)
+                        ->where('round1_end', '>=', $now);
+                })->orWhere(function ($q) use ($now) {
+                    $q->where('round2_start', '<=', $now)
+                        ->where('round2_end', '>=', $now);
+                });
+            })
+            ->first();
+
+        return $registrationPeriod?->semester;
     }
 }

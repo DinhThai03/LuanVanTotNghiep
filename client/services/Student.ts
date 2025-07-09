@@ -36,3 +36,14 @@ export const deleteStudent = async (code: string) => {
     const res = await axios.delete(`/api/student/${code}`);
     return res.data;
 };
+
+
+export const importStudent = async (formData: FormData) => {
+    const res = await axios.post("/api/students/import", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return res.data;
+
+};

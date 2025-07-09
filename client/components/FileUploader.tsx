@@ -3,21 +3,26 @@
 import React, { useEffect, useState } from "react";
 import { Controller, Control, FieldError } from "react-hook-form";
 
-const allowedTypes = [
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
-    "application/vnd.ms-powerpoint", // ppt
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // pptx
-];
-
 type Props = {
     name: string;
     control: Control<any>;
     error?: FieldError;
     defaultFilename?: string;
+    acceptTypes?: string[]; // ← kiểu MIME được truyền từ ngoài
 };
 
-const FileUploader: React.FC<Props> = ({ name, control, error, defaultFilename }) => {
+const FileUploader: React.FC<Props> = ({
+    name,
+    control,
+    error,
+    defaultFilename,
+    acceptTypes = [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
+        "application/vnd.ms-powerpoint", // ppt
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation", // pptx
+    ],
+}) => {
     const [filename, setFilename] = useState<string | null>(defaultFilename || null);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -27,6 +32,19 @@ const FileUploader: React.FC<Props> = ({ name, control, error, defaultFilename }
         }
     }, [defaultFilename]);
 
+    const acceptAttr = acceptTypes
+        .map((type) => {
+            if (type === "application/pdf") return ".pdf";
+            if (type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") return ".docx";
+            if (type === "application/vnd.ms-powerpoint") return ".ppt";
+            if (type === "application/vnd.openxmlformats-officedocument.presentationml.presentation") return ".pptx";
+            if (type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") return ".xlsx";
+            if (type === "application/vnd.ms-excel") return ".xls";
+            return "";
+        })
+        .filter(Boolean)
+        .join(",");
+
     return (
         <Controller
             name={name}
@@ -34,8 +52,8 @@ const FileUploader: React.FC<Props> = ({ name, control, error, defaultFilename }
             rules={{
                 validate: (file: File | null) => {
                     if (!file && !defaultFilename) return "Tệp là bắt buộc";
-                    if (file && !allowedTypes.includes(file.type)) {
-                        return "Tệp không hợp lệ. Chỉ chấp nhận PDF, DOCX, PPT, PPTX.";
+                    if (file && !acceptTypes.includes(file.type)) {
+                        return "Tệp không hợp lệ.";
                     }
                     return true;
                 },
@@ -43,19 +61,18 @@ const FileUploader: React.FC<Props> = ({ name, control, error, defaultFilename }
             render={({ field: { onChange } }) => (
                 <div className="flex flex-col gap-2 w-full">
                     <label className="text-xs text-gray-500" htmlFor={name}>
-                        Chọn tệp (PDF, DOCX, PPT, PPTX)
+                        Chọn tệp {acceptAttr ? `(${acceptAttr})` : ""}
                     </label>
                     <input
                         type="file"
                         id={name}
                         ref={inputRef}
-                        accept=".pdf,.docx,.ppt,.pptx"
+                        accept={acceptAttr}
                         className="hidden"
                         onChange={(e) => {
                             const file = e.target.files?.[0] || null;
                             setFilename(file?.name || null);
                             onChange(file);
-                            // Reset input để cho phép chọn lại cùng file
                             if (inputRef.current) inputRef.current.value = "";
                         }}
                     />
@@ -65,9 +82,7 @@ const FileUploader: React.FC<Props> = ({ name, control, error, defaultFilename }
                     >
                         {filename || "Chưa có tệp được chọn"}
                     </label>
-                    {error?.message && (
-                        <p className="text-sm text-red-500">{error.message}</p>
-                    )}
+                    {error?.message && <p className="text-sm text-red-500">{error.message}</p>}
                 </div>
             )}
         />

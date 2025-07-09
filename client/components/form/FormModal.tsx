@@ -35,6 +35,7 @@ import { CreditPriceData } from "@/types/CreditPriceType";
 import AdminTuitionFeeForm from "./AdminTuitionFeeForm";
 import { AnnouncementForm } from "./AnnouncementForm";
 import { AnnouncementData } from "@/types/AnnouncementType";
+import ExcelUploadForm from "./inportForm/ExcelUploadForm";
 
 export type ModalType = "create" | "update";
 interface AdminTuitionFeeFormProps {
@@ -48,6 +49,7 @@ interface FormModalProps {
   data?: unknown;
   onClose?: () => void;
   onSubmitSuccess?: (item: any) => void;
+  onUpload?: (file: FormData) => void;
 }
 
 const FormModal = ({
@@ -56,6 +58,7 @@ const FormModal = ({
   data,
   onClose,
   onSubmitSuccess,
+  onUpload,
 }: FormModalProps) => {
 
   const renderForm = () => {
@@ -211,6 +214,17 @@ const FormModal = ({
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );
+
+      case "import":
+        return (
+          <ExcelUploadForm
+            onUpload={async (formData) => {
+              await onUpload?.(formData);
+              onClose?.();
+            }}
+          />
+        );
+
       default:
         return <div>Form không tồn tại!</div>;
     }

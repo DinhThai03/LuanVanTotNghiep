@@ -14,8 +14,6 @@ class Semester extends Model
         'academic_year_id'
     ];
 
-
-
     public function academicYear()
     {
         return $this->belongsTo(

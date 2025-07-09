@@ -5,10 +5,15 @@ namespace App\Http\Controllers\Api\Communication;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateAnnouncementRequest;
 use App\Http\Requests\UpdateAnnouncementRequest;
+use App\Mail\AnnouncementMail;
 use App\Models\Announcement;
+use App\Models\User;
+use App\Notifications\AnnouncementNotification;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
@@ -47,6 +52,40 @@ class AnnouncementController extends Controller
 
         $announcement->load('classes');
 
+        // Gửi mail dựa theo target_type
+        $recipientEmails = [];
+
+        switch ($announcement->target_type) {
+            case 'all':
+                $recipientEmails = User::pluck('email')->toArray();
+                break;
+
+            case 'teachers':
+                $recipientEmails = User::where('role', 'teacher')->pluck('email')->toArray();
+                break;
+
+            case 'students':
+                $recipientEmails = User::where('role', 'student')->pluck('email')->toArray();
+                break;
+
+            case 'custom':
+                $recipientEmails = User::where('role', 'student')
+                    ->whereHas('student.classroom', function ($query) use ($data) {
+                        $query->whereIn('classrooms.id', $data['target_classes']);
+                    })
+                    ->pluck('email')
+                    ->toArray();
+                break;
+
+            default:
+                // Không gửi nếu target_type không hợp lệ
+                break;
+        }
+
+        $users = User::whereIn('email', $recipientEmails)->get();
+        foreach ($users as $user) {
+            $user->notify(new AnnouncementNotification($announcement));
+        }
         return response()->json([
             'message' => 'Tạo thông báo thành công.',
             'data' => $announcement,
@@ -104,6 +143,8 @@ class AnnouncementController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        Log::info("haha");
+
         $announcement = Announcement::find($id);
 
         if (!$announcement) {

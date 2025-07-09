@@ -79,7 +79,14 @@ const TuitionFeePage = () => {
         fetchTuitionFee();
     }, [student, semesterId]);
 
-    if (loading) return <div className="p-4">Đang tải dữ liệu...</div>;
+    // ✅ Loading toàn trang
+    if (loading) {
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-white/60 z-50">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 border-solid"></div>
+            </div>
+        );
+    }
 
     return (
         <ScrollArea className="bg-white w-full h-[calc(100vh-60px)]">
@@ -129,15 +136,21 @@ const TuitionFeePage = () => {
                     </select>
                 </div>
 
-                {/* Học phí */}
-                {loadingTuition ? (
-                    <div className="p-4 text-center text-gray-500">Đang tải học phí...</div>
-                ) : tuitionData && (
-                    <TuitionFeeForm
-                        semesterName={tuitionData.semester}
-                        tuitionFees={tuitionData.tuition_fees}
-                    />
-                )}
+                {/* Học phí + loading */}
+                <div className="relative">
+                    {loadingTuition && (
+                        <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 border-solid"></div>
+                        </div>
+                    )}
+
+                    {tuitionData && (
+                        <TuitionFeeForm
+                            semesterName={tuitionData.semester}
+                            tuitionFees={tuitionData.tuition_fees}
+                        />
+                    )}
+                </div>
             </div>
         </ScrollArea>
     );

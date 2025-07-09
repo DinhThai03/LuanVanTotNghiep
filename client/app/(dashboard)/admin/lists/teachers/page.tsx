@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DefaultHeader } from "@/components/ui/defautl-header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
-import { deleteTeacher, getTeachers } from "@/services/Teacher";
+import { deleteTeacher, getTeachers, importTeachers } from "@/services/Teacher";
 import { TeacherData } from "@/types/TeacherType";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -30,8 +30,11 @@ const TeacherPage = () => {
     const [selectedTeacher, setSelectedTeacher] = useState<TeacherData | null>(null);
     const [editingTeacher, setEditingTeacher] = useState<TeacherData | null>(null);
 
+    const [showImportForm, setShowImportForm] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
+    const [importErrors, setImportErrors] = useState<any[] | null>(null);
+
 
     useEffect(() => {
         const fetchTeachers = async () => {
@@ -80,6 +83,57 @@ const TeacherPage = () => {
         setTeacherMap(prev => new Map(prev).set(teacher.user_id, teacher));
     };
 
+    const handleUpload = async (formData: FormData) => {
+        try {
+            await importTeachers(formData);
+            toast.success("Nhập dữ liệu thành công!");
+        } catch (err) {
+            const axiosErr = err as AxiosError<any>;
+            const resData = axiosErr.response?.data;
+
+            if (axiosErr.response?.status === 422) {
+                // 1a. Lỗi từng dòng trong file Excel (mảng lỗi từ getErrors())
+                if (Array.isArray(resData?.errors)) {
+                    const errors = resData.errors;
+
+                    setImportErrors(errors); // << lưu để hiển thị dialog
+
+                    if (errors.length <= 5) {
+                        errors.forEach((errObj: any) => {
+                            const row = errObj.row;
+                            const messages = Object.entries(errObj.errors)
+                                .map(([field, msgList]) => `${field}: ${(Array.isArray(msgList) ? msgList.join(', ') : msgList)}`)
+                                .join(' | ');
+                            toast.error(`Dòng ${row}: ${messages}`);
+                        });
+                    } else {
+                        toast.error(`Có ${errors.length} dòng lỗi. Vui lòng kiểm tra chi tiết.`);
+                    }
+                }
+                // 1b. Lỗi validate trực tiếp từ Laravel validate()
+                else if (resData?.errors && typeof resData.errors === 'object') {
+                    Object.entries(resData.errors).forEach(([field, messages]) => {
+                        const msg = Array.isArray(messages) ? messages.join(', ') : messages;
+                        toast.error(`${field}: ${msg}`);
+                    });
+                }
+                return;
+            }
+
+
+            // 4. Lỗi quá kích thước file (413 Payload Too Large)
+            if (axiosErr.response?.status === 413) {
+                toast.error("File quá lớn. Vui lòng chọn file nhỏ hơn.");
+                return;
+            }
+
+            // 5. Các lỗi khác
+            toast.error(resData?.message || "Đã xảy ra lỗi không xác định.");
+        }
+
+    };
+
+
     const handleDelete = async () => {
         if (!selectedTeacher) return;
         try {
@@ -97,7 +151,7 @@ const TeacherPage = () => {
                 JSON.stringify(err); // nếu là object khác
 
             toast.error("Xóa thất bại", {
-                description: message
+                description: "không thể xóa giảng viên này"
             });
         } finally {
             setShowConfirm(false);
@@ -343,6 +397,7 @@ const TeacherPage = () => {
                             setShowUpdateForm(false);
                             setEditingTeacher(null);
                         }}
+                        onImportClick={() => setShowImportForm(true)}
                     />
 
                     {showAddForm && (
@@ -351,6 +406,17 @@ const TeacherPage = () => {
                             type="create"
                             onClose={() => setShowAddForm(false)}
                             onSubmitSuccess={handleAddSuccess}
+                        />
+                    )}
+
+                    {showImportForm && (
+                        <FormModal
+                            table="import"
+                            type="create"
+                            onUpload={handleUpload}
+                            onClose={() => {
+                                setShowImportForm(false);
+                            }}
                         />
                     )}
 
@@ -379,6 +445,32 @@ const TeacherPage = () => {
                         }}
                         onConfirm={handleDelete}
                     />
+
+                    {importErrors && (
+                        <ConfirmDialog
+                            open={!!importErrors}
+                            title="Chi tiết lỗi khi nhập file"
+                            message={
+                                <div className="max-h-[300px] overflow-y-auto space-y-2 text-sm text-left">
+                                    {importErrors.map((err, idx) => (
+                                        <div key={idx}>
+                                            <div className="font-semibold">Dòng {err.row}:</div>
+                                            <ul className="list-disc list-inside">
+                                                {Object.entries(err.errors).map(([field, messages]: [string, any], i) => (
+                                                    <li key={i}>
+                                                        {field}: {Array.isArray(messages) ? messages.join(', ') : messages}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    ))}
+                                </div>
+                            }
+                            confirmText="Đóng"
+                            onConfirm={() => setImportErrors(null)}
+                        />
+                    )}
+
                 </>
             )}
         </div>

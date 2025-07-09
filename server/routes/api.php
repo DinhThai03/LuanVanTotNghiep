@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Academic\FacultySubjectController;
 use App\Http\Controllers\Api\Academic\SemesterController;
 use App\Http\Controllers\Api\Academic\SemesterSubjectController;
 use App\Http\Controllers\Api\Academic\SubjectController;
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\Communication\AnnouncementController;
 use App\Http\Controllers\Api\Communication\ClassAnnouncementController;
 use App\Http\Controllers\Api\Examination\ExamClassRoomController;
@@ -29,7 +30,10 @@ use App\Http\Controllers\Api\User\GuardianController;
 use App\Http\Controllers\Api\User\TeacherController;
 use App\Http\Controllers\Api\User\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Imports\TeachersImport;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Maatwebsite\Excel\Facades\Excel;
 
 Route::group([
 
@@ -71,7 +75,8 @@ Route::get('teacher_byId/{id}', [TeacherController::class, 'getTeacherWithUserBy
 Route::post('teacher', [TeacherController::class, 'store']);
 Route::post('teacher/{code}', [TeacherController::class, 'update']);
 Route::delete('teacher/{code}', [TeacherController::class, 'destroy']);
-
+Route::get('/teachers/info/{userId}', [TeacherController::class, 'getTeacherByUserId']);
+Route::post('/teachers/import', [TeacherController::class, 'import']);
 
 //============== STUDENT ==============
 Route::get('students', [StudentController::class, 'index']);
@@ -81,6 +86,8 @@ Route::post('student', [StudentController::class, 'store']);
 Route::post('student/{code}', [StudentController::class, 'update']);
 Route::delete('student/{code}', [StudentController::class, 'destroy']);
 Route::get('/students/{user_id}/info', [StudentController::class, 'getStudentSummaryByUserId']);
+Route::post('/students/import', [StudentController::class, 'import']);
+
 
 //============== PARENT ==============
 Route::get('guardians', [GuardianController::class, 'index']);
@@ -200,6 +207,8 @@ Route::get('exam_schedule/{id}', [ExamScheduleController::class, 'show']);
 Route::post('exam_schedule', [ExamScheduleController::class, 'store']);
 Route::post('exam_schedule/{id}', [ExamScheduleController::class, 'update']);
 Route::delete('exam_schedule/{id}', [ExamScheduleController::class, 'destroy']);
+Route::get('/exam-schedules/student/{studentId}/semester/{semesterId}', [ExamScheduleController::class, 'getStudentExamSchedules']);
+
 
 //============== EXAM CLASSROOM ==============
 Route::get('exam_classrooms', [ExamClassRoomController::class, 'index']);
@@ -244,6 +253,7 @@ Route::delete('tuition_fee/{id}', [TuitionFeeController::class, 'destroy']);
 
 //============== Registration Period ==============
 Route::get('registration_periods', [RegistrationPeriodController::class, 'index']);
+Route::get('CurrentSemester/registration_period', [RegistrationPeriodController::class, 'getCurrentSemesterIfInRegistrationPeriod']);
 // Route::post('registration_periods', [RegistrationPeriodController::class, 'store']);
 Route::post('/registration-periods/bulk', [RegistrationPeriodController::class, 'storeBulk']);
 Route::put('registration_periods/{id}', [RegistrationPeriodController::class, 'update']);
@@ -255,5 +265,7 @@ Route::post('/payment/cash', [TuitionFeeController::class, 'payByCash']);
 
 //============== DASHBOARD ==============
 Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
+Route::get('/backup-now', [BackupController::class, 'backupNow']);
 // });
 Route::post('/momo/ipn', [MomoController::class, 'handleIpn']);

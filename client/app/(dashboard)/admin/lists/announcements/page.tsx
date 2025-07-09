@@ -80,7 +80,9 @@ const AnnouncementPage = () => {
     };
 
     const handleDelete = async () => {
-        if (!selectedAnnouncement) return;
+        if (!selectedAnnouncement || loading) return;
+        setLoading(true);
+
         try {
             await deleteAnnouncement(selectedAnnouncement.id);
             setAnnouncementMap(prev => {
@@ -88,21 +90,23 @@ const AnnouncementPage = () => {
                 newMap.delete(selectedAnnouncement.id);
                 return newMap;
             });
-            toast.success("Xóa thành công")
+            toast.success("Xóa thành công");
         } catch (err: any) {
             const message =
-                err?.response?.data?.message || // nếu từ axios hoặc fetch API
-                err?.message || // nếu là Error object
-                JSON.stringify(err); // nếu là object khác
+                err?.response?.data?.message ||
+                err?.message ||
+                JSON.stringify(err);
 
             toast.error("Xóa thất bại", {
-                description: message
+                description: message,
             });
         } finally {
+            setLoading(false);
             setShowConfirm(false);
             setSelectedAnnouncement(null);
         }
     };
+
 
     const columns = [
         columnHelper.display({

@@ -43,12 +43,14 @@ import { FaPlus } from "react-icons/fa"
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import { BiTable } from "react-icons/bi"
+import { TbTableImport } from "react-icons/tb"
 
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     className?: string
+    onImportClick?: () => void
     onAddClick?: () => void
 }
 
@@ -56,6 +58,7 @@ export function DataTable<TData, TValue>({
     columns,
     data,
     className = "h-full",
+    onImportClick,
     onAddClick
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
@@ -207,6 +210,13 @@ export function DataTable<TData, TValue>({
                                 })}
                         </DropdownMenuContent>
                     </DropdownMenu>
+
+                    {onImportClick &&
+                        <Button variant="outline" onClick={onImportClick}>
+                            <TbTableImport className=" h-4 w-4" />
+                            <p className="hidden md:inline ml-2">Thêm từ excel</p>
+                        </Button>
+                    }
 
                     <Button variant="outline" onClick={handleExport}>
                         <BiTable className=" h-4 w-4" />

@@ -44,7 +44,7 @@ class MomoController extends Controller
             'partnerCode' => $partnerCode,
             'accessKey' => $accessKey,
             'requestId' => $requestId,
-            'amount' => (string)$amount,
+            'amount' => (string)(int)$amount,
             'orderId' => $orderId,
             'orderInfo' => $orderInfo,
             'redirectUrl' => $redirectUrl,
@@ -58,7 +58,17 @@ class MomoController extends Controller
         $response = Http::post($endpoint, $body);
         Log::debug('MoMo API response: ', $response->json());
 
-        return response()->json($response->json());
+        $data = $response->json();
+        Log::debug('MoMo API response: ', $data);
+
+        if ($data['resultCode'] != 0) {
+            return response()->json([
+                'message' => $data['message'] ?? 'Giao dịch thất bại',
+                'resultCode' => $data['resultCode'],
+            ], 400); // Bad Request
+        }
+
+        return response()->json($data);
     }
 
     public function handleIpn(Request $request)

@@ -10,16 +10,18 @@ import {
     AlertDialogCancel,
     AlertDialogAction,
 } from "@/components/ui/alert-dialog"
+import { ReactNode } from "react"
 
 type ConfirmDeleteDialogProps = {
     open: boolean
     title: string
-    message: string
+    message: ReactNode // 👈 sửa từ string thành ReactNode
     onConfirm: () => void
-    onCancel: () => void
+    onCancel?: () => void
     cancelText?: string
     confirmText?: string
 }
+
 
 export const ConfirmDialog = ({
     open,
@@ -31,7 +33,7 @@ export const ConfirmDialog = ({
     confirmText = "Xác nhận",
 }: ConfirmDeleteDialogProps) => {
     const handleOpenChange = (value: boolean) => {
-        if (!value) onCancel()
+        if (!value) onCancel?.()
     }
 
     return (
@@ -44,9 +46,11 @@ export const ConfirmDialog = ({
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel onClick={onCancel}>
-                        {cancelText}
-                    </AlertDialogCancel>
+                    {oncancel &&
+                        <AlertDialogCancel onClick={onCancel}>
+                            {cancelText}
+                        </AlertDialogCancel>
+                    }
                     <AlertDialogAction onClick={onConfirm}>
                         {confirmText}
                     </AlertDialogAction>

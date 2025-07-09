@@ -19,7 +19,11 @@ export const getFilterAnnouncements = async (params?: GetAnnouncementsParams) =>
 };
 
 export const addAnnouncement = async (announcement: FormData) => {
-    const res = await axios.post("/api/announcement", announcement);
+    const res = await axios.post("/api/announcement", announcement, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     return res;
 };
 

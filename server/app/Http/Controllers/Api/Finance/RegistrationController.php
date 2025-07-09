@@ -250,12 +250,31 @@ class RegistrationController extends Controller
 
     public function registerLessons(Request $request)
     {
-        $request->validate([
+
+        $rules = [
             'student_code' => 'required|string|exists:students,code',
             'semester_id' => 'required|integer|exists:semesters,id',
             'selections' => 'required|array|min:1',
             'selections.*' => 'integer|exists:lessons,id',
-        ]);
+        ];
+
+        $messages = [
+            'student_code.required' => 'Mã sinh viên là bắt buộc.',
+            'student_code.string' => 'Mã sinh viên phải là chuỗi.',
+            'student_code.exists' => 'Mã sinh viên không tồn tại trong hệ thống.',
+
+            'semester_id.required' => 'Học kỳ là bắt buộc.',
+            'semester_id.integer' => 'Học kỳ phải là số nguyên.',
+            'semester_id.exists' => 'Học kỳ không tồn tại trong hệ thống.',
+
+            'selections.required' => 'Bạn phải chọn ít nhất một buổi học.',
+            'selections.array' => 'Danh sách buổi học không hợp lệ.',
+            'selections.min' => 'Bạn phải chọn ít nhất một buổi học.',
+
+            'selections.*.integer' => 'ID buổi học phải là số nguyên.',
+            'selections.*.exists' => 'Một hoặc nhiều buổi học được chọn không tồn tại.',
+        ];
+        $request->validate($rules, $messages);
 
         $studentCode = $request->student_code;
         $semesterId = $request->semester_id;

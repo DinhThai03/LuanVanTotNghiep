@@ -14,7 +14,6 @@ export const getLessons = async (faculty_id?: number, semester_id?: number) => {
 
 
 export const getLessonsGroupedBySubject = async (params: {
-    student_code: string;
     semester_id: number;
     faculty_id?: number;
     year?: number;

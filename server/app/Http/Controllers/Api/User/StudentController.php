@@ -7,6 +7,7 @@ use App\Http\Requests\CreateStudentRequest;
 use App\Http\Requests\CreateStudentWithParentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Http\Requests\UpdateStudentWithParentRequest;
+use App\Imports\StudentsImport;
 use App\Models\GuardianModel;
 use App\Models\Semester;
 use App\Models\Student;
@@ -19,6 +20,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller
 {
@@ -338,7 +340,7 @@ class StudentController extends Controller
     public function getStudentSummaryByUserId($userId): JsonResponse
     {
         // Tìm sinh viên theo user_id, kèm thông tin lớp và user
-        $student = Student::with(['schoolClass', 'user'])
+        $student = Student::with(['schoolClass.cohort', 'user']) // cập nhật
             ->where('user_id', $userId)
             ->first();
 
@@ -377,6 +379,13 @@ class StudentController extends Controller
 
         $finishedSubjectsCount = $registrations->where('status', 'finished')->count();
 
+        $yearLevel = null;
+        if ($student->schoolClass && $student->schoolClass->cohort) {
+            $cohortStartYear = $student->schoolClass->cohort->start_year;
+            $currentYear = Carbon::now()->year;
+            $yearLevel = min(4, max(1, $currentYear - $cohortStartYear + 1));
+        }
+
         return response()->json([
             'student_code' => $student->code,
             'full_name' => $student->user->last_name . " " . $student->user->first_name,
@@ -385,11 +394,31 @@ class StudentController extends Controller
             'class' => $student->schoolClass->name ?? null,
             'status' => $student->status,
             'status_label' => $student->status_label,
+            'faculty_id' => $student->schoolClass->faculty_id,
             'semester' => $currentSemester->name,
             'semester_id' => $currentSemester->id,
             'registration_count' => $registrations->count(),
             'total_credits' => $totalCredits,
             'finished_subjects_count' => $finishedSubjectsCount,
+            'current_year_level' => $yearLevel,
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate(['file' => 'required|file|mimes:xlsx,xls']);
+
+        $import = new StudentsImport();
+        Excel::import($import, $request->file('file'));
+
+        if ($import->getErrors()) {
+            return response()->json([
+                'message' => 'Một số dòng không hợp lệ.',
+                'success_count' => $import->getSuccessCount(),
+                'errors' => $import->getErrors(),
+            ], 422);
+        }
+
+        return response()->json(['message' => 'Nhập sinh viên thành công!']);
     }
 }

@@ -12,6 +12,10 @@ export const getOneTeachers = async (teacher_id: number) => {
     return res.data;
 };
 
+export const getTeacherInfo = async (teacher_id: number) => {
+    const res = await axios.get(`/api/teachers/info/${teacher_id}`);
+    return res.data;
+};
 
 export const addTeacher = async (teacher: FormData) => {
     const res = await axios.post("/api/teacher", teacher);
@@ -28,4 +32,14 @@ export const updateTeacher = async (code: string, teacher: FormData) => {
 export const deleteTeacher = async (code: string) => {
     const res = await axios.delete(`/api/teacher/${code}`);
     return res.data;
+};
+
+export const importTeachers = async (formData: FormData) => {
+    const res = await axios.post("/api/teachers/import", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return res.data;
+
 };

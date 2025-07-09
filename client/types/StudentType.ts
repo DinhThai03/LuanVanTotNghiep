@@ -19,9 +19,11 @@ export interface StudentSummary {
     class: string | null;
     status: 'studying' | 'paused' | 'graduated' | string;
     status_label: string;
+    faculty_id: number;
     semester: string;
     semester_id: number;
     registration_count: number;
     total_credits: number;
     finished_subjects_count: number;
+    current_year_level: number;
 }

@@ -131,6 +131,7 @@ export const AnnouncementForm = ({
         } catch (err) {
             const axiosErr = err as AxiosError<any>;
             if (axiosErr.response?.status === 422) {
+                console.error("Validation errors:", axiosErr.response.data);
                 const backendErrors = axiosErr.response.data.errors;
                 Object.entries(backendErrors).forEach(([field, msgs]) => {
                     setError(field as keyof FormData, {
@@ -148,7 +149,7 @@ export const AnnouncementForm = ({
     const targetType = watch("target_type");
 
     return (
-        <form className="grid grid-cols-3 gap-4 p-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="md:grid grid-cols-3 gap-4 p-4" onSubmit={handleSubmit(onSubmit)}>
             <InputField
                 id="title"
                 label="Tiêu đề"
