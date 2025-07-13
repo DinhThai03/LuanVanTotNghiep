@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModalType } from "./FormModal";
 import InputField from "../input-field";
 import { cn } from "@/lib/utils";
@@ -43,12 +43,10 @@ const updateSchema = baseSchema.superRefine((data, ctx) => {
     }
 });
 
-// Type inference
 type CreateFormData = z.infer<typeof createSchema>;
 type UpdateFormData = z.infer<typeof updateSchema>;
 type FormData = CreateFormData | UpdateFormData;
 
-// Convert to FormData for backend
 const buildFormData = (fd: FormData) => {
     const form = new FormData();
     form.append("start_year", fd.start_year.toString());
@@ -73,6 +71,8 @@ export const AcademicYearForm = ({
         register,
         handleSubmit,
         setError,
+        setValue,
+        watch,
         formState: { errors },
         reset,
     } = useForm<FormData>({
@@ -80,9 +80,18 @@ export const AcademicYearForm = ({
         defaultValues: {
             id: data?.id,
             start_year: data?.start_year ?? new Date().getFullYear(),
-            end_year: data?.end_year ?? new Date().getFullYear() + 4,
+            end_year: data?.end_year ?? new Date().getFullYear() + 1,
         },
     });
+
+    const startYear = watch("start_year");
+
+    // Tự động cập nhật end_year = start_year + 1 khi tạo mới
+    useEffect(() => {
+        if (type === "create" && typeof startYear === "number" && !isNaN(startYear)) {
+            setValue("end_year", startYear + 1);
+        }
+    }, [startYear, setValue, type]);
 
     const onSubmit: SubmitHandler<FormData> = async (formData) => {
         setLoading(true);

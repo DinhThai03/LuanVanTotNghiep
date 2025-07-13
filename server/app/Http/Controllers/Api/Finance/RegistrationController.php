@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\Finance;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateRegistrationRequest;
 use App\Http\Requests\UpdateRegistrationRequest;
+use App\Models\CreditPrice;
 use App\Models\Lesson;
 use App\Models\Registration;
 use App\Models\Semester;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RegistrationController extends Controller
 {
@@ -250,7 +252,6 @@ class RegistrationController extends Controller
 
     public function registerLessons(Request $request)
     {
-
         $rules = [
             'student_code' => 'required|string|exists:students,code',
             'semester_id' => 'required|integer|exists:semesters,id',
@@ -262,18 +263,16 @@ class RegistrationController extends Controller
             'student_code.required' => 'Mã sinh viên là bắt buộc.',
             'student_code.string' => 'Mã sinh viên phải là chuỗi.',
             'student_code.exists' => 'Mã sinh viên không tồn tại trong hệ thống.',
-
             'semester_id.required' => 'Học kỳ là bắt buộc.',
             'semester_id.integer' => 'Học kỳ phải là số nguyên.',
             'semester_id.exists' => 'Học kỳ không tồn tại trong hệ thống.',
-
             'selections.required' => 'Bạn phải chọn ít nhất một buổi học.',
             'selections.array' => 'Danh sách buổi học không hợp lệ.',
             'selections.min' => 'Bạn phải chọn ít nhất một buổi học.',
-
             'selections.*.integer' => 'ID buổi học phải là số nguyên.',
             'selections.*.exists' => 'Một hoặc nhiều buổi học được chọn không tồn tại.',
         ];
+
         $request->validate($rules, $messages);
 
         $studentCode = $request->student_code;
@@ -283,71 +282,131 @@ class RegistrationController extends Controller
         $success = [];
         $failed = [];
 
-        foreach ($selections as $subjectCode => $lessonId) {
-            $lesson = Lesson::with(['room', 'teacherSubject.subject'])->find($lessonId);
+        DB::beginTransaction();
+        try {
+            foreach ($selections as $subjectCode => $lessonId) {
+                $lesson = Lesson::with(['room', 'teacherSubject.subject', 'semester'])->find($lessonId);
 
-            if (!$lesson) {
-                $failed[] = [
+                if (!$lesson) {
+                    $failed[] = [
+                        'lesson_id' => $lessonId,
+                        'subject_code' => $subjectCode,
+                        'reason' => 'Bài giảng không tồn tại',
+                    ];
+                    continue;
+                }
+
+                $subject = optional($lesson->teacherSubject->subject);
+                $subjectId = $subject->id ?? null;
+
+                if ($subject->code !== $subjectCode || $lesson->semester_id != $semesterId) {
+                    $failed[] = [
+                        'lesson_id' => $lessonId,
+                        'subject_code' => $subjectCode,
+                        'reason' => 'Bài giảng không khớp với môn học hoặc học kỳ',
+                    ];
+                    continue;
+                }
+
+                // Xoá đăng ký cũ nếu có
+                $existingRegistration = Registration::where('student_code', $studentCode)
+                    ->whereHas('lesson', function ($query) use ($subjectId, $semesterId) {
+                        $query->where('semester_id', $semesterId)
+                            ->whereHas('teacherSubject', function ($q) use ($subjectId) {
+                                $q->where('subject_id', $subjectId);
+                            });
+                    })->first();
+
+                if ($existingRegistration) {
+                    $existingRegistration->grade()?->delete();
+                    $existingRegistration->tuitionFee()?->delete();
+                    $existingRegistration->delete();
+                }
+
+                // Kiểm tra phòng còn chỗ
+                $currentCount = $lesson->registrations()->count();
+                $roomSize = $lesson->room->size ?? 0;
+
+                if ($currentCount >= $roomSize) {
+                    $failed[] = [
+                        'lesson_id' => $lessonId,
+                        'subject_code' => $subjectCode,
+                        'reason' => 'Phòng đã đầy',
+                    ];
+                    continue;
+                }
+
+                // Đăng ký mới
+                $registration = Registration::create([
+                    'student_code' => $studentCode,
+                    'lesson_id' => $lessonId,
+                    'status' => 'approved',
+                ]);
+
+                // Tạo bảng điểm rỗng
+                $registration->grade()->create([
+                    'process_score' => null,
+                    'midterm_score' => null,
+                    'final_score' => null,
+                ]);
+
+                // Tạo học phí nếu approved
+                if ($registration->status === 'approved') {
+                    $subject = $lesson->teacherSubject->subject;
+                    $semester = $lesson->semester;
+                    $academicYearId = $semester->academic_year_id;
+                    $subjectType = $subject->subject_type;
+
+                    $creditPrice = CreditPrice::where([
+                        ['academic_year_id', '=', $academicYearId],
+                        ['subject_type', '=', $subjectType],
+                        ['is_active', '=', true],
+                    ])->first();
+
+                    if (!$creditPrice) {
+                        // Rollback phần đăng ký nếu không có đơn giá
+                        $registration->grade()->delete();
+                        $registration->delete();
+                        $failed[] = [
+                            'lesson_id' => $lessonId,
+                            'subject_code' => $subjectCode,
+                            'reason' => 'Không tìm thấy đơn giá tín chỉ cho loại môn học này trong năm học.',
+                        ];
+                        continue;
+                    }
+
+                    $tuitionCredit = $subject->tuition_credit ?? $subject->credit;
+                    $amount = $tuitionCredit * $creditPrice->price_per_credit;
+
+                    $registration->tuitionFee()->create([
+                        'amount' => $amount,
+                        'paid_at' => null,
+                        'payment_method' => null,
+                        'payment_status' => 'unpaid',
+                        'transaction_id' => null,
+                    ]);
+                }
+
+                $success[] = [
                     'lesson_id' => $lessonId,
                     'subject_code' => $subjectCode,
-                    'reason' => 'Bài giảng không tồn tại',
+                    'subject_name' => $subject->name ?? 'Không xác định',
                 ];
-                continue;
-            }
-            $subject = optional($lesson->teacherSubject->subject);
-            $subjectId = $subject->id ?? null;
-
-            if ($subject->code !== $subjectCode || $lesson->semester_id != $semesterId) {
-                $failed[] = [
-                    'lesson_id' => $lessonId,
-                    'subject_code' => $subjectCode,
-                    'reason' => 'Bài giảng không khớp với môn học hoặc học kỳ',
-                ];
-                continue;
             }
 
-            $existingRegistration = Registration::where('student_code', $studentCode)
-                ->whereHas('lesson', function ($query) use ($subjectId, $semesterId) {
-                    $query->where('semester_id', $semesterId)
-                        ->whereHas('teacherSubject', function ($q) use ($subjectId) {
-                            $q->where('subject_id', $subjectId);
-                        });
-                })->first();
-            if ($existingRegistration) {
-                $existingRegistration->delete();
-            }
+            DB::commit();
 
-            // Kiểm tra phòng còn chỗ
-            $currentCount = $lesson->registrations()->count();
-            $roomSize = $lesson->room->size ?? 0;
-
-            if ($currentCount >= $roomSize) {
-                $failed[] = [
-                    'lesson_id' => $lessonId,
-                    'subject_code' => $subjectCode,
-                    'reason' => 'Phòng đã đầy',
-                ];
-                continue;
-            }
-
-            // Đăng ký mới
-            Registration::create([
-                'student_code' => $studentCode,
-                'lesson_id' => $lessonId,
-                'status' => 'approved',
+            return response()->json([
+                'message' => 'Kết quả đăng ký',
+                'registered' => $success,
+                'skipped' => $failed,
             ]);
-
-            $success[] = [
-                'lesson_id' => $lessonId,
-                'subject_code' => $subjectCode,
-                'subject_name' => $subject->name ?? 'Không xác định',
-            ];
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Lỗi trong quá trình đăng ký.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'Kết quả đăng ký',
-            'registered' => $success,
-            'skipped' => $failed,
-        ]);
     }
 }

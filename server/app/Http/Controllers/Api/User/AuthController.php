@@ -49,10 +49,18 @@ class AuthController extends BaseController
             return response()->json(['error' => 'Tài khoản hoặc mật khẩu không đúng'], 401);
         }
 
+        $user = Auth::user();
+
+        if ($user->is_active == false) {
+            Auth::logout();
+            return response()->json(['error' => 'Tài khoản của bạn đã bị khóa'], 403);
+        }
+
         $refreshToken = $this->createRefreshToken();
 
         return $this->respondWithToken($token, $refreshToken);
     }
+
 
     public function profile()
     {
@@ -122,10 +130,14 @@ class AuthController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email',
+        ], [
+            'email.required' => 'Vui lòng nhập địa chỉ email',
+            'email.email' => 'Địa chỉ email không hợp lệ',
+            'email.exists' => 'Email không tồn tại trong hệ thống',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Email không hợp lệ'], 422);
+            return response()->json(['message' => 'Email không tồn tại'], 422);
         }
 
         $status = Password::sendResetLink(
@@ -141,6 +153,7 @@ class AuthController extends BaseController
 
     public function resetPassword(Request $request)
     {
+
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'token' => 'required',
@@ -158,8 +171,12 @@ class AuthController extends BaseController
             }
         );
 
+
         if ($status === Password::PASSWORD_RESET) {
-            $token = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
+            $token = Auth::attempt([
+                'email' => $request->email,
+                'password' => $request->password,
+            ]);
 
             return response()->json([
                 'message' => 'Đặt lại mật khẩu thành công',
@@ -167,6 +184,6 @@ class AuthController extends BaseController
             ]);
         }
 
-        return response()->json(['message' => 'Token không hợp lệ hoặc đã hết hạn'], 400);
+        return response()->json(['message' => "Token đã hết hạn"], 422);
     }
 }

@@ -15,8 +15,8 @@ import PasswordField from "../../../components/password-field";
 import InputField from "../../../components/input-field";
 import { login, profile } from "../api";
 import { AxiosError } from "axios";
-import Cookies from 'js-cookie'
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const schema = z.object({
   user_name: z.string().min(1, "Tên đăng nhập không được để trống"),
@@ -31,8 +31,6 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [loginError, setLoginError] = useState("");
-
   const {
     register,
     handleSubmit,
@@ -43,7 +41,7 @@ export function LoginForm({
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    setLoginError("");
+    let loginError = "";
     try {
       const res = await login(data.user_name, data.password);
       const res_profile = await profile();
@@ -65,12 +63,13 @@ export function LoginForm({
       const axiosError = error as AxiosError<{ error: string }>;
 
       if (axiosError.response && axiosError.response.data) {
-        setLoginError(axiosError.response.data.error || "Đăng nhập thất bại.");
+        loginError = (axiosError.response.data.error || "Tên đăng nhập hoặc mật khẩu không chính xác.");
       } else if (axiosError.message === "Network Error") {
-        setLoginError("Không thể kết nối đến server.");
+        loginError = ("Không thể kết nối đến server.");
       } else {
-        setLoginError("Đã có lỗi xảy ra.");
+        loginError = ("Đã có lỗi xảy ra.");
       }
+      toast.error(loginError);
     } finally {
       setLoading(false);
     }
@@ -99,13 +98,9 @@ export function LoginForm({
                 <PasswordField
                   register={register("password")}
                   error={errors.password}
-                  forgotPasswordLink="#"
+                  forgotPasswordLink="/forgot-password"
                 />
               </div>
-
-              {loginError && (
-                <p className="text-sx text-red-500 text-center">{loginError}</p>
-              )}
 
               <Button variant="default" type="submit" className="w-full" disabled={loading}>
                 {loading ? "Đang đăng nhập..." : "Đăng nhập"}

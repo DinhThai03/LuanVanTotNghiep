@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BiSolidSchool } from "react-icons/bi";
 import { FaBell, FaBook, FaBriefcase, FaCalendarAlt, FaChalkboardTeacher, FaTable, FaUserFriends, FaUserGraduate, FaUserShield } from "react-icons/fa";
-import { PiClockCountdownFill } from "react-icons/pi";
+import { PiClockCountdownFill, PiExamFill } from "react-icons/pi";
 import { IoHome } from "react-icons/io5";
 import { MdMeetingRoom } from "react-icons/md";
 import Cookies from "js-cookie";
 import { profile } from "@/features/auth/api";
 import { IoMdBookmarks, IoMdNotifications } from "react-icons/io";
 import { TbCircleDashedLetterA } from "react-icons/tb";
-import { GiArchiveRegister, GiMoneyStack, GiSpellBook, GiTeacher } from "react-icons/gi";
+import { GiArchiveRegister, GiLockedDoor, GiMoneyStack, GiSpellBook, GiTeacher } from "react-icons/gi";
 import { SiGoogleclassroom } from "react-icons/si";
 import { FaListCheck, FaMoneyCheckDollar } from "react-icons/fa6";
 import { BsTable } from "react-icons/bs";
@@ -148,6 +148,26 @@ const menuItems = [
         visible: ["admin"],
       },
     ],
+  },
+
+  {
+    title: "Quản lý kì thi",
+    items: [
+      {
+        icon: <PiExamFill className="w-4.5 h-4.5" />,
+        label: "Lịch thi",
+        href: "/admin/lists/exam-schedule",
+        visible: ["admin"],
+      },
+
+      {
+        icon: <GiLockedDoor className="w-4.5 h-4.5" />,
+        label: "Phòng thi",
+        href: "/admin/lists/exam-room",
+        visible: ["admin"],
+      },
+    ],
+
   },
 
   {

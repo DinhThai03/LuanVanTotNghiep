@@ -36,6 +36,9 @@ import AdminTuitionFeeForm from "./AdminTuitionFeeForm";
 import { AnnouncementForm } from "./AnnouncementForm";
 import { AnnouncementData } from "@/types/AnnouncementType";
 import ExcelUploadForm from "./inportForm/ExcelUploadForm";
+import { ExamRoomForm } from "./ExamRoomForm";
+import { ExamRoomData, ExamSchedule } from "@/types/ExamType";
+import { ExamScheduleForm } from "./ExamSchedule";
 
 export type ModalType = "create" | "update";
 interface AdminTuitionFeeFormProps {
@@ -185,6 +188,25 @@ const FormModal = ({
         return (
           <GradeForm
             data={data as GradeData}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
+
+      case "examSchedule":
+        return (
+          <ExamScheduleForm
+            type={type}
+            data={data as ExamSchedule}
+            onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
+          />
+        );
+
+
+      case "examRoom":
+        return (
+          <ExamRoomForm
+            type={type}
+            data={data as ExamRoomData}
             onSubmitSuccess={(admin) => { onSubmitSuccess?.(admin); onClose?.() }}
           />
         );

@@ -100,7 +100,6 @@ class TeacherController extends Controller
         return Teacher::with('user')->where('user_id', $id)->first();
     }
 
-
     public function update(Request $request, string $code): JsonResponse
     {
         $teacher = Teacher::where('code', $code)->first();

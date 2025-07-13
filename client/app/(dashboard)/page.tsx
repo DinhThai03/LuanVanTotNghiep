@@ -17,7 +17,7 @@ const Page = () => {
                     const res = await getFilterAnnouncements({ target: "students" });
                     setAnnouncementData(res.data);
                 } else {
-                    const res = await getFilterAnnouncements({ target: "all" });
+                    const res = await getFilterAnnouncements({ target: "teachers" });
                     setAnnouncementData(res.data);
                 }
             } catch (err) {

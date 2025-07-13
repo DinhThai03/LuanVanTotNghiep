@@ -16,6 +16,7 @@ import { FacultyData } from "@/types/FacultyType";
 import { getFacultys } from "@/services/Faculty";
 import CheckboxGroupField from "../checkbox-group-field";
 import FileUploader from "../FileUploader";
+import { useRouter } from "next/navigation";
 
 const subjectSchema = z.object({
     id: z.coerce.number().optional(),
@@ -63,6 +64,7 @@ export const SubjectForm = ({
     data,
     onSubmitSuccess,
 }: SubjectFormProps) => {
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [faculties, setFaculties] = useState<FacultyData[]>([]);
 
@@ -119,9 +121,12 @@ export const SubjectForm = ({
             try {
                 setLoading(true);
                 const res = await getFacultys();
-                if (res) {
+                if (res && res.data) {
                     setFaculties(res.data);
+                } else {
+                    router.push('/admin/lists/facultys')
                 }
+
             } catch (err) {
                 const axiosErr = err as AxiosError<any>;
                 let message = "Đã có lỗi xảy ra khi lấy danh sách khoa.";
@@ -206,13 +211,6 @@ export const SubjectForm = ({
     };
 
     const selectedFaculties = watch("faculty_ids") || [];
-
-    const handleFacultyChange = (facultyId: number) => {
-        const newSelected = selectedFaculties.includes(facultyId)
-            ? selectedFaculties.filter(id => id !== facultyId)
-            : [...selectedFaculties, facultyId];
-        setValue("faculty_ids", newSelected);
-    };
 
     return (
         <div className="p-4">

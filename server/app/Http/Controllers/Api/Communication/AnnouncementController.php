@@ -143,7 +143,6 @@ class AnnouncementController extends Controller
 
     public function destroy($id): JsonResponse
     {
-        Log::info("haha");
 
         $announcement = Announcement::find($id);
 
@@ -164,7 +163,7 @@ class AnnouncementController extends Controller
 
     public function filter(Request $request): JsonResponse
     {
-        $target = $request->input('target'); // all, students, teachers
+        $target = $request->input('target'); // 'all', 'students', 'teachers'
         $query = Announcement::query()->with('classes');
 
         // Lọc theo ngày nếu có
@@ -178,22 +177,25 @@ class AnnouncementController extends Controller
 
         switch ($target) {
             case 'students':
-                if ($request->has('class_id')) {
-                    $query->where(function ($q) use ($request) {
-                        $q->where('target_type', 'students')
-                            ->orWhere(function ($sub) use ($request) {
-                                $sub->where('target_type', 'custom')
-                                    ->whereHas('classes', function ($c) use ($request) {
-                                        $c->where('class_id', $request->input('class_id'));
-                                    });
-                            });
-                    });
-                }
+                $classId = $request->input('class_id');
+
+                $query->where(function ($q) use ($classId) {
+                    $q->where('target_type', 'all')
+                        ->orWhere('target_type', 'students');
+
+                    if ($classId) {
+                        $q->orWhere(function ($sub) use ($classId) {
+                            $sub->where('target_type', 'custom')
+                                ->whereHas('classes', function ($c) use ($classId) {
+                                    $c->where('class_id', $classId);
+                                });
+                        });
+                    }
+                });
                 break;
 
             case 'teachers':
-                // Nếu cần lọc kỹ hơn theo môn học hoặc bộ môn của giáo viên
-                $query->where('target_type', 'teachers');
+                $query->whereIn('target_type', ['all', 'teachers']);
                 break;
 
             case 'all':

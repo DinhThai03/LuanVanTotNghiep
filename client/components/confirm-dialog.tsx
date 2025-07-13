@@ -15,13 +15,12 @@ import { ReactNode } from "react"
 type ConfirmDeleteDialogProps = {
     open: boolean
     title: string
-    message: ReactNode // 👈 sửa từ string thành ReactNode
+    message: ReactNode
     onConfirm: () => void
     onCancel?: () => void
     cancelText?: string
     confirmText?: string
 }
-
 
 export const ConfirmDialog = ({
     open,
@@ -46,7 +45,7 @@ export const ConfirmDialog = ({
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    {oncancel &&
+                    {onCancel && // 👈 Đã sửa từ oncancel thành onCancel
                         <AlertDialogCancel onClick={onCancel}>
                             {cancelText}
                         </AlertDialogCancel>

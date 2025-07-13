@@ -146,7 +146,7 @@ const LessonPage = () => {
         columnHelper.accessor("day_of_week", {
             id: "day_of_week",
             header: (info) => <DefaultHeader info={info} name="Thứ" />,
-            cell: ({ getValue }) => getValue().toString() === "1" ? "Chủ nhật" : `Thứ ${getValue()}`,
+            cell: ({ getValue }) => getValue().toString() === "7" ? "Chủ nhật" : `Thứ ${getValue() + 1}`,
             size: 80,
         }),
         columnHelper.accessor("start_time", {

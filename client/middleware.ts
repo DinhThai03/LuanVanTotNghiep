@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 
 const publicRoutes = [
     "/forgot-password",
+    "/reset-password",
     "/contact",
 ];
 
@@ -11,8 +12,20 @@ const publicRoutes = [
 const restrictedForAdmin = [
     "/",
     "/student-schedule",
+    "/teacher-schedule",
+    "/exam-schedule",
     "/tuition-fee",
+    "/registrations",
     "/result",
+];
+
+const studentOnlyRoutes = [
+    "/registration",
+];
+
+// Route chỉ dành cho giáo viên
+const teacherOnlyRoutes = [
+    "/teacher-schedule",
 ];
 
 export function middleware(request: NextRequest) {
@@ -51,6 +64,30 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL(redirectUrl, request.url));
         }
 
+        // Giáo viên truy cập route của student hoặc parent
+        if (
+            role === "teacher" &&
+            [...studentOnlyRoutes].some(route => pathname.startsWith(route))
+        ) {
+            return NextResponse.redirect(new URL("/", request.url));
+        }
+
+        // Student truy cập route teacher hoặc parent
+        if (
+            role === "student" &&
+            [...teacherOnlyRoutes].some(route => pathname.startsWith(route))
+        ) {
+            return NextResponse.redirect(new URL("/", request.url));
+        }
+
+        // Parent truy cập route teacher hoặc student
+        if (
+            role === "parent" &&
+            [...teacherOnlyRoutes, ...studentOnlyRoutes].some(route => pathname.startsWith(route))
+        ) {
+            return NextResponse.redirect(new URL("/", request.url));
+        }
+
         return NextResponse.next();
     } catch (e) {
         const res = NextResponse.redirect(new URL("/login", request.url));
@@ -60,5 +97,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: "/((?!api|_next/static|_next/image|favicon\\.ico|robots\\.txt).*)",
+    matcher: [
+        "/((?!api|_next/static|_next/image|favicon\\.ico|robots\\.txt|.*\\.(?:png|jpg|jpeg|svg|webp|ico|txt|js|css)).*)",
+    ],
 };

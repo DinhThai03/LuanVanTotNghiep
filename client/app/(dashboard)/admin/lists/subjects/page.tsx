@@ -11,7 +11,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { SubjectData } from "@/types/SubjectType";
-import { deleteSubject, getSubjects } from "@/services/Subject";
+import { deleteSubject, getSubjects, importSubjects } from "@/services/Subject";
 import FormModal from "@/components/form/FormModal";
 // import { deleteSubject } from "@/services/Subject"; // nếu có API delete
 
@@ -25,6 +25,9 @@ const SubjectPage = () => {
     const [editingSubject, setEditingSubject] = useState<SubjectData | null>(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
+    const [showImportForm, setShowImportForm] = useState(false);
+    const [importErrors, setImportErrors] = useState<any[] | null>(null);
+
 
     useEffect(() => {
         const fetchSubjects = async () => {
@@ -80,6 +83,56 @@ const SubjectPage = () => {
             setShowConfirm(false);
             setSelectedSubject(null);
         }
+    };
+
+    const handleUpload = async (formData: FormData) => {
+        try {
+            await importSubjects(formData);
+            toast.success("Nhập dữ liệu thành công!");
+        } catch (err) {
+            const axiosErr = err as AxiosError<any>;
+            const resData = axiosErr.response?.data;
+
+            if (axiosErr.response?.status === 422) {
+                // 1a. Lỗi từng dòng trong file Excel (mảng lỗi từ getErrors())
+                if (Array.isArray(resData?.errors)) {
+                    const errors = resData.errors;
+
+                    setImportErrors(errors); // << lưu để hiển thị dialog
+
+                    if (errors.length <= 5) {
+                        errors.forEach((errObj: any) => {
+                            const row = errObj.row;
+                            const messages = Object.entries(errObj.errors)
+                                .map(([field, msgList]) => `${field}: ${(Array.isArray(msgList) ? msgList.join(', ') : msgList)}`)
+                                .join(' | ');
+                            toast.error(`Dòng ${row}: ${messages}`);
+                        });
+                    } else {
+                        toast.error(`Có ${errors.length} dòng lỗi. Vui lòng kiểm tra chi tiết.`);
+                    }
+                }
+                // 1b. Lỗi validate trực tiếp từ Laravel validate()
+                else if (resData?.errors && typeof resData.errors === 'object') {
+                    Object.entries(resData.errors).forEach(([field, messages]) => {
+                        const msg = Array.isArray(messages) ? messages.join(', ') : messages;
+                        toast.error(`${field}: ${msg}`);
+                    });
+                }
+                return;
+            }
+
+
+            // 4. Lỗi quá kích thước file (413 Payload Too Large)
+            if (axiosErr.response?.status === 413) {
+                toast.error("File quá lớn. Vui lòng chọn file nhỏ hơn.");
+                return;
+            }
+
+            // 5. Các lỗi khác
+            toast.error(resData?.message || "Đã xảy ra lỗi không xác định.");
+        }
+
     };
 
     const columns = [
@@ -250,7 +303,19 @@ const SubjectPage = () => {
                             setShowUpdateForm(false);
                             setEditingSubject(null);
                         }}
+                        onImportClick={() => setShowImportForm(true)}
                     />
+
+                    {showImportForm && (
+                        <FormModal
+                            table="import"
+                            type="create"
+                            onUpload={handleUpload}
+                            onClose={() => {
+                                setShowImportForm(false);
+                            }}
+                        />
+                    )}
 
                     {showAddForm &&
                         <FormModal
@@ -286,6 +351,32 @@ const SubjectPage = () => {
                         }}
                         onConfirm={handleDelete}
                     />
+
+                    {importErrors && (
+                        <ConfirmDialog
+                            open={!!importErrors}
+                            title="Chi tiết lỗi khi nhập file"
+                            message={
+                                <div className="max-h-[300px] overflow-y-auto space-y-2 text-sm text-left">
+                                    {importErrors.map((err, idx) => (
+                                        <div key={idx}>
+                                            <div className="font-semibold">Dòng {err.row}:</div>
+                                            <ul className="list-disc list-inside">
+                                                {Object.entries(err.errors).map(([field, messages]: [string, any], i) => (
+                                                    <li key={i}>
+                                                        {field}: {Array.isArray(messages) ? messages.join(', ') : messages}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    ))}
+                                </div>
+                            }
+                            confirmText="Đóng"
+                            onConfirm={() => setImportErrors(null)}
+                        />
+                    )}
+
                 </>
             )}
         </div>

@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Api\Academic;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateSubjectRequest;
 use App\Http\Requests\UpdateSubjectRequest;
+use App\Imports\SubjectsImport;
 use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SubjectController extends Controller
 {
@@ -107,5 +111,41 @@ class SubjectController extends Controller
         $subject->delete();
 
         return response()->json(['message' => 'Xóa môn học thành công.']);
+    }
+
+    public function import(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        $import = new SubjectsImport();
+
+        try {
+            DB::beginTransaction();
+
+            Excel::import($import, $request->file('file'));
+
+            DB::commit();
+
+            $errors = $import->getErrors();
+
+            if (!empty($errors)) {
+                return response()->json([
+                    'message' => 'Một số dòng không thể nhập.',
+                    'errors' => $errors
+                ], 422); // Trả về lỗi xác thực để hiển thị ở phía client
+            }
+
+            return response()->json([
+                'message' => 'Nhập dữ liệu môn học thành công.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Lỗi khi nhập dữ liệu môn học.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

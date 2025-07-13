@@ -27,7 +27,7 @@ const lessonSchema = z.object({
     start_time: z.string().min(1, "Giờ bắt đầu là bắt buộc"),
     end_time: z.string().min(1, "Giờ kết thúc là bắt buộc"),
     room_id: z.coerce.number().min(1, "Chọn phòng học"),
-    is_active: z.boolean({
+    is_active: z.coerce.number({
         required_error: "Trạng thái hoạt động là bắt buộc",
         invalid_type_error: "Trạng thái hoạt động không hợp lệ",
     }),
@@ -81,7 +81,7 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
             start_time: data?.start_time ?? "",
             end_time: data?.end_time ?? "",
             room_id: data?.room_id ?? 1,
-            is_active: data ? !!data.is_active : true,
+            is_active: data ? Number(data.is_active) : 1,
             teacher_subject_id: data?.teacher_subject_id ?? 1,
         },
     });
@@ -139,7 +139,7 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
                 start_time: data.start_time,
                 end_time: data.end_time,
                 room_id: data.room_id,
-                is_active: !!data.is_active,
+                is_active: Number(data.is_active),
                 teacher_subject_id: data.teacher_subject_id,
             });
         }
@@ -202,13 +202,13 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
                     id="day_of_week"
                     label="Thứ"
                     options={[
-                        { label: "Chủ nhật", value: 1 },
-                        { label: "Thứ 2", value: 2 },
-                        { label: "Thứ 3", value: 3 },
-                        { label: "Thứ 4", value: 4 },
-                        { label: "Thứ 5", value: 5 },
-                        { label: "Thứ 6", value: 6 },
-                        { label: "Thứ 7", value: 7 },
+                        { label: "Chủ nhật", value: 7 },
+                        { label: "Thứ 2", value: 1 },
+                        { label: "Thứ 3", value: 2 },
+                        { label: "Thứ 4", value: 3 },
+                        { label: "Thứ 5", value: 4 },
+                        { label: "Thứ 6", value: 5 },
+                        { label: "Thứ 7", value: 6 },
                     ]}
                     register={register("day_of_week", { valueAsNumber: true })}
                     error={errors.day_of_week}
@@ -261,12 +261,10 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
                     id="is_active"
                     label="Trạng thái"
                     options={[
-                        { label: "Hoạt động", value: "true" },
-                        { label: "Không hoạt động", value: "false" },
+                        { label: "Hoạt động", value: 1 },
+                        { label: "Không hoạt động", value: 0 },
                     ]}
-                    register={register("is_active", {
-                        setValueAs: (v) => v === "true",
-                    })}
+                    register={register("is_active", { valueAsNumber: true })}
                     error={errors.is_active}
                 />
 

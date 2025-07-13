@@ -18,7 +18,7 @@ const roomSchema = z.object({
     name: z.string().min(1, "Tên phòng không được để trống"),
     size: z.coerce.number().min(10, "Sức chứa phải lớn hơn 10"),
     room_type: z.string().min(1, "Loại phòng không được để trống"),
-    is_active: z.boolean(),
+    is_active: z.coerce.number().int().min(1, "vui lòng nhập chọn trạng thái"),
 });
 
 type FormData = z.infer<typeof roomSchema>;
@@ -55,7 +55,7 @@ export const RoomForm = ({ type, data, onSubmitSuccess }: RoomFormProps) => {
             name: data?.name ?? "",
             size: data?.size ?? 10,
             room_type: data?.room_type ?? "LT",
-            is_active: data?.is_active === 1,
+            is_active: data?.is_active ?? 1,
         },
     });
 
@@ -67,7 +67,7 @@ export const RoomForm = ({ type, data, onSubmitSuccess }: RoomFormProps) => {
                 name: data.name,
                 size: data.size,
                 room_type: data.room_type,
-                is_active: data.is_active === 1,
+                is_active: data.is_active,
             });
         }
     }, [data, reset]);

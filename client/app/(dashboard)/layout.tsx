@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/navbar";
 import Menu from "@/components/menu";
-import { Toaster } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 
@@ -27,7 +26,6 @@ export default function RootLayout({
                     {children}
                 </div>
             </div>
-            <Toaster richColors position="top-center" />
         </>
 
     );

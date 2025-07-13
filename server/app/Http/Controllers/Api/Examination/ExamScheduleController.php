@@ -16,7 +16,7 @@ class ExamScheduleController extends Controller
      */
     public function index()
     {
-        $examSchedules = ExamSchedule::all();
+        $examSchedules = ExamSchedule::with('SemesterSubject.subject')->get();
         return response()->json($examSchedules);
     }
 
@@ -26,6 +26,7 @@ class ExamScheduleController extends Controller
     public function store(CreateExamScheduleRequest $request)
     {
         $examSchedule = ExamSchedule::create($request->validated());
+        $examSchedule->load('SemesterSubject.subject');
         return response()->json([
             'message' => 'Tạo lịch thi thành công.',
             'data' => $examSchedule,
@@ -60,6 +61,7 @@ class ExamScheduleController extends Controller
         $validated = $request->validated();
 
         $examSchedule->update($validated);
+        $examSchedule->load('SemesterSubject.subject');
 
         return response()->json([
             'message' => 'Cập nhật lịch thi thành công.',

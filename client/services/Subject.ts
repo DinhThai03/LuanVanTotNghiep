@@ -38,3 +38,13 @@ export const deleteSubject = async (id: number) => {
     const res = await axios.delete(`/api/subject/${id}`);
     return res.data;
 };
+
+export const importSubjects = async (formData: FormData) => {
+    const res = await axios.post("/api/subjects/import", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return res.data;
+
+};

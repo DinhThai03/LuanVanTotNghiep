@@ -129,6 +129,7 @@ Route::get('subject/{id}', [SubjectController::class, 'show']);
 Route::post('subject', [SubjectController::class, 'store']);
 Route::post('subject/{id}', [SubjectController::class, 'update']);
 Route::delete('subject/{id}', [SubjectController::class, 'destroy']);
+Route::post('/subjects/import', [SubjectController::class, 'import']);
 
 //============== SEMESTER_SUBJECT ==============
 Route::get('semester_subjects', [SemesterSubjectController::class, 'index']);

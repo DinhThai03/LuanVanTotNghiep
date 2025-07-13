@@ -7,18 +7,22 @@ use App\Http\Requests\CreateExamClassRoomRequest;
 use App\Http\Requests\StoreExamClassRoomRequest;
 use App\Http\Requests\UpdateExamClassRoomRequest;
 use App\Models\ExamClassRoom;
+use App\Models\Room;
 use Illuminate\Http\Request;
 
 class ExamClassRoomController extends Controller
 {
     public function index()
     {
-        return response()->json(ExamClassRoom::all());
+        $exam = ExamClassRoom::with('examSchedule.SemesterSubject.subject', 'class', 'room')->get();
+        return response()->json($exam);
     }
 
     public function store(CreateExamClassRoomRequest $request)
     {
         $examClassRoom = ExamClassRoom::create($request->validated());
+
+        $examClassRoom->load('examSchedule.SemesterSubject.subject', 'class', 'room');
 
         return response()->json([
             'message' => 'Tạo phòng thi cho lớp thành công.',
@@ -46,6 +50,7 @@ class ExamClassRoomController extends Controller
         }
 
         $examClassRoom->update($request->validated());
+        $examClassRoom->load('examSchedule.SemesterSubject.subject', 'class', 'room');
 
         return response()->json([
             'message' => 'Cập nhật thành công.',
