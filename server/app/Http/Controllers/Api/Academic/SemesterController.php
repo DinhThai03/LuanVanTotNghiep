@@ -23,7 +23,8 @@ class SemesterController extends Controller
         $semesters = $query->orderBy('id', 'desc')->get();
         return response()->json(['data' => $semesters]);
     }
-
+    
+    //lấy các học kì mà sinh viên đó học
     public function getSemestersByStudent(string $userId): JsonResponse
     {
         $student = Student::with('schoolClass.cohort')->where('user_id', $userId)->first();

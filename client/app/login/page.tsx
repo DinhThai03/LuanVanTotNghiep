@@ -37,7 +37,7 @@ const LoginPage = () => {
                 </div>
             </div>
             <div className="w-full h-[50px] bg-gray-900 text-white flex items-center justify-center text-sm shadow-inner">
-                <Copyright width={15} /> 2025 Đại học Công nghệ Sài Gòn
+                <Copyright width={15} />LVTN - Trần Đình Thái - 2025
             </div>
 
         </div>

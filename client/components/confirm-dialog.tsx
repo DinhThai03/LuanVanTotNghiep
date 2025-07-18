@@ -45,7 +45,7 @@ export const ConfirmDialog = ({
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    {onCancel && // 👈 Đã sửa từ oncancel thành onCancel
+                    {onCancel &&
                         <AlertDialogCancel onClick={onCancel}>
                             {cancelText}
                         </AlertDialogCancel>

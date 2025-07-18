@@ -151,6 +151,7 @@ const StudentsByLessonPage = () => {
                     <DataTable<StudentData, any>
                         columns={columns}
                         data={Array.from(studentMap.values())}
+                        lesson_id={Number(id)}
                     />
                 </>
             )}

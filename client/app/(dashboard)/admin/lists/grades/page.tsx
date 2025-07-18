@@ -13,7 +13,7 @@ import FormModal from "@/components/form/FormModal";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
-import { getGrades, deleteGrade } from "@/services/Grade";
+import { getGrades, deleteGrade, importGrades } from "@/services/Grade";
 import { getAcademicYears } from "@/services/AcademicYear";
 import { getSemesters } from "@/services/Semesters";
 import { getclasses } from "@/services/Classed";
@@ -44,6 +44,9 @@ const GradesPage = () => {
     const [selectedGrade, setSelectedGrade] = useState<GradeData | null>(null);
     const [editingGrade, setEditingGrade] = useState<GradeData | null>(null);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
+
+    const [showImportForm, setShowImportForm] = useState(false);
+    const [importErrors, setImportErrors] = useState<any[] | null>(null);
 
     // Load Academic Years
     useEffect(() => {
@@ -137,6 +140,56 @@ const GradesPage = () => {
 
     const handleUpdateSuccess = (grade: GradeData) => {
         setGradeMap((prev) => new Map(prev).set(grade.registration_id, grade));
+    };
+
+    const handleUpload = async (formData: FormData) => {
+        try {
+            await importGrades(formData);
+            toast.success("Nhập dữ liệu thành công!");
+        } catch (err) {
+            const axiosErr = err as AxiosError<any>;
+            const resData = axiosErr.response?.data;
+
+            if (axiosErr.response?.status === 422) {
+                // 1a. Lỗi từng dòng trong file Excel (mảng lỗi từ getErrors())
+                if (Array.isArray(resData?.errors)) {
+                    const errors = resData.errors;
+
+                    setImportErrors(errors); // << lưu để hiển thị dialog
+
+                    if (errors.length <= 5) {
+                        errors.forEach((errObj: any) => {
+                            const row = errObj.row;
+                            const messages = Object.entries(errObj.errors)
+                                .map(([field, msgList]) => `${field}: ${(Array.isArray(msgList) ? msgList.join(', ') : msgList)}`)
+                                .join(' | ');
+                            toast.error(`Dòng ${row}: ${messages}`);
+                        });
+                    } else {
+                        toast.error(`Có ${errors.length} dòng lỗi. Vui lòng kiểm tra chi tiết.`);
+                    }
+                }
+                // 1b. Lỗi validate trực tiếp từ Laravel validate()
+                else if (resData?.errors && typeof resData.errors === 'object') {
+                    Object.entries(resData.errors).forEach(([field, messages]) => {
+                        const msg = Array.isArray(messages) ? messages.join(', ') : messages;
+                        toast.error(`${field}: ${msg}`);
+                    });
+                }
+                return;
+            }
+
+
+            // 4. Lỗi quá kích thước file (413 Payload Too Large)
+            if (axiosErr.response?.status === 413) {
+                toast.error("File quá lớn. Vui lòng chọn file nhỏ hơn.");
+                return;
+            }
+
+            // 5. Các lỗi khác
+            toast.error(resData?.message || "Đã xảy ra lỗi không xác định.");
+        }
+
     };
 
     const handleDelete = async () => {
@@ -343,7 +396,20 @@ const GradesPage = () => {
                         columns={columns}
                         data={Array.from(gradeMap.values())}
                         className="h-[calc(100vh-150px)]"
+                        onImportClick={() => setShowImportForm(true)}
                     />
+
+                    {showImportForm && (
+                        <FormModal
+                            table="import"
+                            type="create"
+                            onUpload={handleUpload}
+                            onClose={() => {
+                                setShowImportForm(false);
+                            }}
+                        />
+                    )}
+
                     {showUpdateForm && editingGrade && (
                         <FormModal
                             table="grade"

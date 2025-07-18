@@ -1,8 +1,6 @@
 // services/grade.ts
 import axios from "@/lib/Axios";
 
-// Lấy danh sách giảng viên
-
 export const getGrades = async (
     academicYearId?: number,
     semesterId?: number,
@@ -26,20 +24,27 @@ export const getStudentGrades = async (user_id: number) => {
 };
 
 
-// Thêm giảng viên mới
 export const addGrade = async (grade: FormData) => {
     const res = await axios.post("/api/grade", grade);
     return res;
 };
 
-// Cập nhật giảng viên
 export const updateGrade = async (id: number, grade: FormData) => {
     const res = await axios.post(`/api/grade/${id}`, grade);
     return res;
 };
 
-// Xoá giảng viên
 export const deleteGrade = async (id: number) => {
     const res = await axios.delete(`/api/grade/${id}`);
     return res.data;
+};
+
+export const importGrades = async (formData: FormData) => {
+    const res = await axios.post("/api/grades/import", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return res.data;
+
 };

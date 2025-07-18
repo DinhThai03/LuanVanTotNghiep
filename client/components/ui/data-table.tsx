@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Columns } from "lucide-react"
 import { useEffect, useState } from "react"
-import { FaPlus } from "react-icons/fa"
+import { FaFileInvoice, FaPlus } from "react-icons/fa"
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import { BiTable } from "react-icons/bi"
@@ -52,6 +52,7 @@ interface DataTableProps<TData, TValue> {
     className?: string
     onImportClick?: () => void
     onAddClick?: () => void
+    lesson_id?: number
 }
 
 export function DataTable<TData, TValue>({
@@ -59,7 +60,8 @@ export function DataTable<TData, TValue>({
     data,
     className = "h-full",
     onImportClick,
-    onAddClick
+    onAddClick,
+    lesson_id,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -170,6 +172,46 @@ export function DataTable<TData, TValue>({
         saveAs(blob, "data.xlsx");
     };
 
+    const handleExportGrades = async () => {
+        const rows = table.getFilteredSelectedRowModel().rows.length > 0
+            ? table.getFilteredSelectedRowModel().rows
+            : table.getFilteredRowModel().rows
+
+        if (!rows.length) {
+            alert("Không có dữ liệu để xuất.");
+            return;
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("BangDiem");
+
+        // Header
+        const headers = [
+            "lesson_id",
+            "ma_sinh_vien",
+            "ho_ten",
+            "diem_qua_trinh",
+            "diem_giua_ky",
+            "diem_cuoi_ky"
+        ];
+        worksheet.addRow(headers);
+
+        rows.forEach((row) => {
+            const data: any = row.original;
+            worksheet.addRow([
+                lesson_id,
+                data.code || "",
+                data.user.last_name + " " + data.user.first_name || "",
+                "",
+                "",
+                ""
+            ]);
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        saveAs(blob, `bang_diem_lesson_${lesson_id}.xlsx`);
+    };
 
     return (
         <div className={`w-full max-h-full flex flex-col gap-4 ${className}`}>
@@ -222,6 +264,13 @@ export function DataTable<TData, TValue>({
                         <BiTable className=" h-4 w-4" />
                         <p className="hidden md:inline ml-2">Xuất excel</p>
                     </Button>
+
+                    {lesson_id &&
+                        <Button variant="outline" onClick={handleExportGrades}>
+                            <FaFileInvoice className="h-4 w-4" />
+                            <p className="hidden md:inline ml-2">Mẫu bảng điểm</p>
+                        </Button>
+                    }
 
                     {onAddClick &&
                         <Button variant="outline" onClick={onAddClick}>

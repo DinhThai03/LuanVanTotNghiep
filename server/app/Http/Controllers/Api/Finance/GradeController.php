@@ -5,8 +5,13 @@ namespace App\Http\Controllers\Api\Finance;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\CreateGradeRequest;
 use App\Http\Requests\UpdateGradeRequest;
+use App\Imports\GradesImport;
 use App\Models\Grade;
 use App\Models\Student;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GradeController extends Controller
 {
@@ -156,5 +161,41 @@ class GradeController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    public function import(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        $import = new GradesImport();
+
+        try {
+            DB::beginTransaction();
+
+            Excel::import($import, $request->file('file'));
+
+            DB::commit();
+
+            $errors = $import->getErrors();
+
+            if (!empty($errors)) {
+                return response()->json([
+                    'message' => 'Một số dòng không thể nhập.',
+                    'errors' => $errors
+                ], 422); // Trả về lỗi xác thực để hiển thị ở phía client
+            }
+
+            return response()->json([
+                'message' => 'Nhập dữ liệu điểm thành công.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Lỗi khi nhập dữ liệu điểm.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
