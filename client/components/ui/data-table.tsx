@@ -175,7 +175,7 @@ export function DataTable<TData, TValue>({
     const handleExportGrades = async () => {
         const rows = table.getFilteredSelectedRowModel().rows.length > 0
             ? table.getFilteredSelectedRowModel().rows
-            : table.getFilteredRowModel().rows
+            : table.getFilteredRowModel().rows;
 
         if (!rows.length) {
             alert("Không có dữ liệu để xuất.");
@@ -196,20 +196,64 @@ export function DataTable<TData, TValue>({
         ];
         worksheet.addRow(headers);
 
+        // Dữ liệu
         rows.forEach((row) => {
             const data: any = row.original;
             worksheet.addRow([
                 lesson_id,
                 data.code || "",
-                data.user.last_name + " " + data.user.first_name || "",
+                `${data.user.last_name} ${data.user.first_name}` || "",
                 "",
                 "",
                 ""
             ]);
         });
 
+        const headerRow = worksheet.getRow(1);
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        });
+
+        worksheet.columns = [
+            { width: 10 },
+            { width: 20 },
+            { width: 25 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 }
+        ];
+
+        // Khóa các ô cột 1–3 (lesson_id, ma_sinh_vien, ho_ten)
+        for (let col = 1; col <= 3; col++) {
+            worksheet.getColumn(col).eachCell((cell, rowNumber) => {
+                if (rowNumber > 1) {
+                    cell.protection = { locked: true };
+                }
+            });
+        }
+
+        // Mở khóa các ô cột 4–6 (điểm)
+        for (let col = 4; col <= 6; col++) {
+            worksheet.getColumn(col).eachCell((cell, rowNumber) => {
+                if (rowNumber > 1) {
+                    cell.protection = { locked: false };
+                }
+            });
+        }
+
+        // ✅ Bật bảo vệ sheet
+        await worksheet.protect('protect', {
+            selectLockedCells: false,
+            selectUnlockedCells: true,
+            formatColumns: true
+        });
+
+        // Xuất file
         const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
         saveAs(blob, `bang_diem_lesson_${lesson_id}.xlsx`);
     };
 

@@ -1,5 +1,4 @@
-import { ClassData } from "./ClassType";
-import { RoomData } from "./RoomType";
+
 import { SemesterSubjectData } from "./SemesterSubjectType";
 
 export interface ExamSchedule {
@@ -20,8 +19,8 @@ export interface ExamRoomData {
     start_seat: number;
     end_seat: number;
     exam_schedule: ExamSchedule;
-    class: ClassData;
-    room: RoomData;
+    class: string;
+    room: string;
 }
 
 

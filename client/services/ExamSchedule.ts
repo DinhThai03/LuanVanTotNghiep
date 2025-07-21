@@ -6,12 +6,7 @@ export const getExamSchedules = async () => {
 };
 
 export const getStudentExamSchedules = async (student_id: number, semester_id: number) => {
-    const res = await axios.get("/api/exam_schedules", {
-        params: {
-            student_id,
-            semester_id,
-        }
-    });
+    const res = await axios.get(`/api/exam-schedules/student/${student_id}/semester/${semester_id}`);
     return res.data;
 };
 
