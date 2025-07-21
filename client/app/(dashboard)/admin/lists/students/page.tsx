@@ -13,10 +13,12 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { StudentData } from "@/types/StudentType";
-import { deleteStudent, getStudents, importStudent } from "@/services/Student";
+import { deleteStudent, getStudents, importStudent, updateStudent } from "@/services/Student";
 import FormModal from "@/components/form/FormModal";
 import Link from "next/link";
 import { TbScanEye } from "react-icons/tb";
+import { Switch } from "@/components/ui/switch";
+import clsx from "clsx";
 
 const columnHelper = createColumnHelper<StudentData>();
 
@@ -106,6 +108,14 @@ const StudentPage = () => {
             setSelectedStudent(null);
         }
     };
+
+    const handleActive = async (sutdent: StudentData) => {
+        const form = new FormData();
+        form.append("is_active", sutdent.user.is_active ? "0" : "1");
+        const res = await updateStudent(sutdent.code, form);
+
+        setStudentMap(prev => new Map(prev).set(sutdent.user_id, res.data.data));
+    }
 
     const handleUpload = async (formData: FormData) => {
         try {
@@ -280,21 +290,38 @@ const StudentPage = () => {
             size: 120,
             meta: { displayName: "Lớp" },
         }),
-        columnHelper.accessor((r) => r.user.is_active, {
+        columnHelper.display({
             id: "is_active",
             header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
-            cell: ({ getValue }) => {
-                const active = getValue();
+            cell: ({ row }) => {
+                const sutdent = row.original;
+                const active = sutdent.user?.is_active;
                 return (
-                    <span className={`px-2 py-1 rounded text-white text-sm font-medium w-fit ${active ? "bg-green-500" : "bg-red-500"}`}>
-                        {active ? "Hoạt động" : "Đã khóa"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <Switch
+                            checked={!!active}
+                            onCheckedChange={async () => {
+                                try {
+                                    await handleActive(sutdent);
+                                } catch (error) {
+                                    toast.error("Cập nhật trạng thái thất bại");
+                                }
+                            }}
+                            className={clsx(
+                                "data-[state=checked]:bg-green-500",
+                                "data-[state=unchecked]:bg-red-500",
+                                "cursor-pointer"
+                            )}
+                        />
+                        {/* <span className="text-sm">{active ? "Hoạt động" : "Đã khóa"}</span> */}
+                    </div>
                 );
             },
-            enableGlobalFilter: false,
-            size: 100,
-            meta: { displayName: "Trạng thái", hidden: true },
+            enableGlobalFilter: true,
+            size: 140,
+            meta: { displayName: "Trạng thái tài khoản" },
         }),
+
         columnHelper.display({
             id: "actions",
             header: () => "Tùy chọn",
@@ -303,7 +330,7 @@ const StudentPage = () => {
                 return (
                     <div className="flex text-lg gap-4">
                         <Link
-                            href={`/admin/lists/students/${student.user_id}`}
+                            href={`/sutdent/lists/students/${student.user_id}`}
                             className="text-gray-500"
                         >
                             <TbScanEye />

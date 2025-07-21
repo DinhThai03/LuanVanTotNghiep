@@ -12,13 +12,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DefaultHeader } from "@/components/ui/defautl-header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
-import { deleteTeacher, getTeachers, importTeachers } from "@/services/Teacher";
+import { deleteTeacher, getTeachers, importTeachers, updateTeacher } from "@/services/Teacher";
 import { TeacherData } from "@/types/TeacherType";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { TeacherSubjectData } from "@/types/TeacherSubjectType";
 import Link from "next/link";
 import { TbScanEye } from "react-icons/tb";
+import { Switch } from "@/components/ui/switch";
+import clsx from "clsx";
 
 const columnHelper = createColumnHelper<TeacherData>();
 
@@ -159,6 +161,17 @@ const TeacherPage = () => {
         }
     };
 
+    const handleActive = async (teacher: TeacherData) => {
+        const form = new FormData();
+        form.append("is_active", teacher.user.is_active ? "0" : "1");
+        teacher.teacher_subjects.forEach((ts) => {
+            form.append("subject_ids[]", String(ts.subject_id));
+        });
+        const res = await updateTeacher(teacher.code, form);
+
+        setTeacherMap(prev => new Map(prev).set(teacher.user_id, res.data.data));
+    }
+
     const columns = [
         columnHelper.display({
             id: "select",
@@ -181,6 +194,14 @@ const TeacherPage = () => {
             ),
             size: 30,
             meta: { displayName: "Chọn" },
+        }),
+
+        columnHelper.accessor((r) => r.user_id, {
+            id: "user_id",
+            header: (info) => <DefaultHeader info={info} name="id" />,
+            enableGlobalFilter: true,
+            size: 120,
+            meta: { displayName: "id", hidden: true },
         }),
 
         columnHelper.accessor((r) => r.code, {
@@ -322,19 +343,37 @@ const TeacherPage = () => {
             }
         ),
 
-        columnHelper.accessor((r) => r.user.is_active, {
+        columnHelper.display({
             id: "is_active",
             header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
-            cell: ({ getValue }) => {
-                const active = getValue();
+            cell: ({ row }) => {
+                const teacher = row.original;
+                const active = teacher.user?.is_active;
+
+
                 return (
-                    <span className={`px-2 py-1 rounded text-white text-sm font-medium w-fit ${active ? "bg-green-500" : "bg-red-500"}`}>
-                        {active ? "Hoạt động" : "Đã khóa"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <Switch
+                            checked={!!active}
+                            onCheckedChange={async () => {
+                                try {
+                                    await handleActive(teacher);
+                                } catch (error) {
+                                    toast.error("Cập nhật trạng thái thất bại");
+                                }
+                            }}
+                            className={clsx(
+                                "data-[state=checked]:bg-green-500",
+                                "data-[state=unchecked]:bg-red-500",
+                                "cursor-pointer"
+                            )}
+                        />
+                        {/* <span className="text-sm">{active ? "Hoạt động" : "Đã khóa"}</span> */}
+                    </div>
                 );
             },
             enableGlobalFilter: true,
-            size: 100,
+            size: 140,
             meta: { displayName: "Trạng thái tài khoản" },
         }),
 

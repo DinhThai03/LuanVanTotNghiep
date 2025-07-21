@@ -47,6 +47,7 @@ export function middleware(request: NextRequest) {
     try {
         const decoded: any = jwtDecode(accessToken!);
         const role = decoded.role;
+        const is_active = decoded.is_active;
 
         // Không phải admin mà truy cập /admin => redirect
         if (pathname.startsWith("/admin") && role !== "admin") {
@@ -86,6 +87,14 @@ export function middleware(request: NextRequest) {
             [...teacherOnlyRoutes, ...studentOnlyRoutes].some(route => pathname.startsWith(route))
         ) {
             return NextResponse.redirect(new URL("/", request.url));
+        }
+
+        if (
+            (role === "student" || role === "parent") &&
+            !is_active &&
+            pathname !== "/tuition-fee"
+        ) {
+            return NextResponse.redirect(new URL("/tuition-fee?reason=inactive", request.url));
         }
 
         return NextResponse.next();

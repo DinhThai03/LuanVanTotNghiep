@@ -26,7 +26,7 @@ class User extends Authenticatable implements JWTSubject
         'identity_number',
         'issued_date',
         'issued_place',
-        '   ',
+        'ethnicity',
         'religion',
         'is_active',
     ];
@@ -76,6 +76,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'role' => $this->role,
+            'is_active' => $this->is_active,
         ];
     }
 

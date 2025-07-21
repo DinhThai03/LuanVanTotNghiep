@@ -7,6 +7,7 @@ use App\Http\Requests\CreateStudentRequest;
 use App\Http\Requests\CreateStudentWithParentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Http\Requests\UpdateStudentWithParentRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Imports\StudentsImport;
 use App\Models\GuardianModel;
 use App\Models\Semester;
@@ -133,24 +134,6 @@ class StudentController extends Controller
         }
     }
 
-
-    /**
-     * Lấy thông tin một sinh viên theo mã.
-     */
-    // public function show(string $code): JsonResponse
-    // {
-    //     $student = Student::with(['user', 'schoolClass'])->find($code);
-
-    //     if (!$student) {
-    //         return response()->json(['message' => 'Không tìm thấy sinh viên.'], 404);
-    //     }
-
-    //     return response()->json($student);
-    // }
-
-    /**
-     * Lấy thông tin một sinh viên theo user_id.
-     */
     public function show(string $userId): JsonResponse
     {
         $student = Student::with(['user', 'schoolClass'])->where('user_id', $userId)->first();
@@ -162,41 +145,95 @@ class StudentController extends Controller
         return response()->json($student);
     }
 
-
-
-    /**
-     * Cập nhật thông tin sinh viên.
-     */
-    // public function update(UpdateStudentRequest $request, string $code): JsonResponse
-    // {
-    //     $student = Student::find($code);
-
-    //     if (!$student) {
-    //         return response()->json(['message' => 'Không tìm thấy sinh viên.'], 404);
-    //     }
-
-    //     $student->update($request->validated());
-
-    //     return response()->json([
-    //         'message' => 'Cập nhật sinh viên thành công.',
-    //         'data' => $student,
-    //     ]);
-    // }
-
-    public function update(UpdateStudentWithParentRequest $request, $id): JsonResponse
+    public function update(Request $request, string $code): JsonResponse
     {
+        $student = Student::where('code', $code)->with('user')->first();
+
+        if (!$student || !$student->user) {
+            return response()->json(['message' => 'Không tìm thấy sinh viên hoặc người dùng.'], 404);
+        }
+
+        // Tạo validator riêng cho user và student
+        $userValidator = Validator::make(
+            $request->all(),
+            (new UpdateUserRequest())->rules(),
+            (new UpdateUserRequest())->messages()
+        );
+
+        $studentValidator = Validator::make(
+            $request->all(),
+            (new UpdateStudentRequest())->rules(),
+            (new UpdateStudentRequest())->messages()
+        );
+
+        if ($userValidator->fails()) {
+            throw new ValidationException($userValidator);
+        }
+
+        if ($studentValidator->fails()) {
+            throw new ValidationException($studentValidator);
+        }
+
         try {
             DB::beginTransaction();
 
-            $student = Student::findOrFail($id);
-            $studentData = $request->input('student');
-            $studentUser = $student->user;
+            // Xử lý dữ liệu user
+            $userData = $userValidator->validated();
+            if (!empty($userData['password'])) {
+                $userData['password'] = Hash::make($userData['password']);
+            } else {
+                unset($userData['password']);
+            }
 
-            // Cập nhật thông tin User (sinh viên)
-            $studentUser->update([
-                ...\Illuminate\Support\Arr::only($studentData, [
+            // Xử lý dữ liệu student
+            $studentData = $studentValidator->validated();
+
+            // Lấy giá trị is_active từ request nếu có (chỉ áp dụng cho student)
+            $isActive = $request->input('is_active', null);
+            if ($isActive !== null) {
+                $studentData['is_active'] = $isActive;
+            }
+
+            // Cập nhật user và student
+            $student->user->update($userData);
+            $student->update($studentData);
+
+            // Nếu có cập nhật phụ huynh
+            if ($request->has('parent')) {
+                $this->handleParentUpdate($request->input('parent'), $student->code);
+            }
+
+            $student->load('user', 'schoolClass');
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Cập nhật sinh viên và người dùng thành công.',
+                'data' => $student,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Lỗi khi cập nhật sinh viên.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Xử lý cập nhật thông tin phụ huynh
+     */
+    protected function handleParentUpdate(array $parentData, string $studentCode): void
+    {
+        $guardian = GuardianModel::where('student_code', $studentCode)->first();
+
+        if ($guardian) {
+            // Cập nhật thông tin user của phụ huynh
+            $userData = array_filter($parentData, function ($key) {
+                return in_array($key, [
                     'username',
                     'email',
+                    'password',
                     'first_name',
                     'last_name',
                     'sex',
@@ -208,92 +245,16 @@ class StudentController extends Controller
                     'issued_place',
                     'religion',
                     'ethnicity'
-                ]),
-                'password' => $studentData['password']
-                    ? \Illuminate\Support\Facades\Hash::make($studentData['password'])
-                    : $studentUser->password,
-            ]);
+                ]);
+            }, ARRAY_FILTER_USE_KEY);
 
-            // Cập nhật thông tin Student
-            $student->update([
-                'code' => $studentData['code'],
-                'class_id' => $studentData['class_id'],
-                'place_of_birth' => $studentData['place_of_birth'] ?? null,
-                'status' => $studentData['status'] ?? 'studying',
-            ]);
-
-            // === Xử lý phụ huynh nếu có ===
-            if ($request->filled('parent.username')) {
-                $parentData = $request->input('parent');
-                $guardian = $student->parents()->first(); // relationship: hasMany => lấy 1 phụ huynh chính
-
-                if ($guardian) {
-                    $parentUser = $guardian->user;
-
-                    $parentUser->update([
-                        ...\Illuminate\Support\Arr::only($parentData, [
-                            'username',
-                            'email',
-                            'first_name',
-                            'last_name',
-                            'sex',
-                            'date_of_birth',
-                            'address',
-                            'phone',
-                            'identity_number',
-                            'issued_date',
-                            'issued_place',
-                            'religion',
-                            'ethnicity'
-                        ]),
-                        'password' => $parentData['password']
-                            ? \Illuminate\Support\Facades\Hash::make($parentData['password'])
-                            : $parentUser->password,
-                    ]);
-                } else {
-                    // Nếu chưa có phụ huynh => tạo mới
-                    $newParentUser = User::create([
-                        ...\Illuminate\Support\Arr::only($parentData, [
-                            'username',
-                            'email',
-                            'first_name',
-                            'last_name',
-                            'sex',
-                            'date_of_birth',
-                            'address',
-                            'phone',
-                            'identity_number',
-                            'issued_date',
-                            'issued_place',
-                            'religion',
-                            'ethnicity'
-                        ]),
-                        'password' => \Illuminate\Support\Facades\Hash::make($parentData['password']),
-                        'role' => 'parent',
-                    ]);
-
-                    \App\Models\GuardianModel::create([
-                        'user_id' => $newParentUser->id,
-                        'student_code' => $student->code,
-                    ]);
-                }
+            if (!empty($userData['password'])) {
+                $userData['password'] = Hash::make($userData['password']);
+            } else {
+                unset($userData['password']);
             }
 
-            DB::commit();
-
-            $student->load('user', 'schoolClass');
-
-            return response()->json([
-                'message' => 'Cập nhật sinh viên thành công.',
-                'student' => $student,
-            ]);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            report($e);
-            return response()->json([
-                'error' => 'Lỗi khi cập nhật sinh viên.',
-                'message' => $e->getMessage(),
-            ], 500);
+            $guardian->user->update($userData);
         }
     }
 

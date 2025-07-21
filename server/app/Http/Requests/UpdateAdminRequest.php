@@ -22,7 +22,7 @@ class UpdateAdminRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'admin_level' => 'required|integer|min:1',
+            'admin_level' => 'sometime|integer|min:1',
         ];
 
         if ($this->isMethod('POST')) {
@@ -38,7 +38,6 @@ class UpdateAdminRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'admin_level.required' => 'Vui lòng nhập cấp độ quản trị.',
             'admin_level.integer' => 'Cấp độ quản trị phải là số nguyên.',
             'admin_level.min' => 'Cấp độ quản trị phải lớn hơn 0.',
         ];

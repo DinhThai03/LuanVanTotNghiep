@@ -7,7 +7,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { FaRegPenToSquare } from "react-icons/fa6";
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { getAdmins, deleteAdmin } from "@/services/Admins";
+import { getAdmins, deleteAdmin, updateAdmin } from "@/services/Admins";
 import { AdminData } from "@/types/AdminType";
 import { DataTable } from "@/components/ui/data-table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,6 +16,8 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import FormModal from "@/components/form/FormModal";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { Switch } from "@/components/ui/switch";
+import clsx from "clsx";
 
 const columnHelper = createColumnHelper<AdminData>();
 
@@ -100,6 +102,14 @@ const AdminsPage = () => {
             setSelectedAdmin(null);
         }
     };
+
+    const handleActive = async (admin: AdminData) => {
+        const form = new FormData();
+        form.append("is_active", admin.user.is_active ? "0" : "1");
+        const res = await updateAdmin(admin.user_id, form);
+
+        setAdminMap(prev => new Map(prev).set(admin.user_id, res.data.admin));
+    }
 
     const columns = [
         columnHelper.display({
@@ -204,19 +214,36 @@ const AdminsPage = () => {
             size: 100,
         }),
 
-        columnHelper.accessor((r) => r.user.is_active, {
+        columnHelper.display({
             id: "is_active",
             header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
-            cell: ({ getValue }) => {
-                const active = getValue();
+            cell: ({ row }) => {
+                const admin = row.original;
+                const active = admin.user?.is_active;
                 return (
-                    <span className={`px-2 py-1 rounded text-white text-sm font-medium w-fit ${active ? "bg-green-500" : "bg-red-500"}`}>
-                        {active ? "Hoạt động" : "Đã khóa"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <Switch
+                            checked={!!active}
+                            onCheckedChange={async () => {
+                                try {
+                                    await handleActive(admin);
+                                } catch (error) {
+                                    toast.error("Cập nhật trạng thái thất bại");
+                                }
+                            }}
+                            className={clsx(
+                                "data-[state=checked]:bg-green-500",
+                                "data-[state=unchecked]:bg-red-500",
+                                "cursor-pointer"
+                            )}
+                        />
+                        {/* <span className="text-sm">{active ? "Hoạt động" : "Đã khóa"}</span> */}
+                    </div>
                 );
             },
-            meta: { displayName: "Trạng thái" },
-            size: 100,
+            enableGlobalFilter: true,
+            size: 140,
+            meta: { displayName: "Trạng thái tài khoản" },
         }),
 
         columnHelper.accessor((r) => r.admin_level, {

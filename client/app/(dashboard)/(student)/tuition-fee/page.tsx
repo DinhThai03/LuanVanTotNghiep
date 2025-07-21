@@ -11,12 +11,18 @@ import moment from "moment";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getSemestersByStudent } from "@/services/Semesters";
 import { SemesterData } from "@/types/SemesterType";
+import { useSearchParams } from "next/navigation";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const TuitionFeePage = () => {
     const [tuitionData, setTuitionData] = useState<{
         semester: string;
         tuition_fees: any[];
     } | null>(null);
+
+    const searchParams = useSearchParams();
+    const reason = searchParams.get("reason");
+    const [showConfirm, setShowConfirm] = useState(reason == "inactive");
 
     const [student, setStudent] = useState<StudentData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -152,6 +158,13 @@ const TuitionFeePage = () => {
                     )}
                 </div>
             </div>
+            <ConfirmDialog
+                open={showConfirm}
+                title="Chưa hoàn tất học phí"
+                message={`vui lòng hoàn tất học phí đúng hạn`}
+                confirmText="Ok"
+                onConfirm={() => setShowConfirm(false)}
+            />
         </ScrollArea>
     );
 };

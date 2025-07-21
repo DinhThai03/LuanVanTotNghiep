@@ -51,7 +51,7 @@ class AuthController extends BaseController
 
         $user = Auth::user();
 
-        if ($user->is_active == false) {
+        if ($user->is_active == false && ($user->role === "admin") || ($user->role === "teacher")) {
             Auth::logout();
             return response()->json(['error' => 'Tài khoản của bạn đã bị khóa'], 403);
         }
@@ -109,7 +109,6 @@ class AuthController extends BaseController
             'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
             'expires_in' => Auth::factory()->getTTL() * 60,
-            'role' => $user->role,
         ]);
     }
 
