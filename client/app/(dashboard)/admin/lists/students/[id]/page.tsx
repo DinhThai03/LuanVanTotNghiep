@@ -11,13 +11,16 @@ import {
     FaUserGraduate,
     FaPhone,
 } from "react-icons/fa";
-import { MdPlaylistAddCheckCircle } from "react-icons/md";
+import { MdLockReset, MdPlaylistAddCheckCircle } from "react-icons/md";
 
 import { getAttendances } from "@/services/Attendances";
 import { getStudentInfo } from "@/services/Student";
 import { StudentSummary } from "@/types/StudentType";
 import BigCalendar from "@/components/BigCalender";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { resetDefaultPassword } from "@/features/auth/api";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const InfoCard = ({
     icon,
@@ -29,7 +32,7 @@ const InfoCard = ({
     value?: string | number;
 }) => (
     <div className="flex items-center bg-white p-4 rounded-md gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%] shadow-sm">
-        <div className="text-2xl text-indigo-500">{icon}</div>
+        <div className="text-2xl text-gray-500">{icon}</div>
         <div>
             <h1 className="text-md font-semibold text-gray-700">{value}</h1>
             <span className="text-sm text-gray-500">{label}</span>
@@ -41,6 +44,7 @@ const SingleStudentPage = () => {
     const { id } = useParams();
     const [data, setData] = useState<any[]>([]);
     const [student, setStudent] = useState<StudentSummary>();
+    const [showConfirm, setShowConfirm] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -71,6 +75,20 @@ const SingleStudentPage = () => {
 
         if (student) fetchAttendances();
     }, [student]);
+
+
+    const handleResetPassword = async () => {
+        try {
+            const res = await resetDefaultPassword(Number(id));
+            toast.success(`Đã đặt lại mật khẩu mặc định cho người dùng`);
+        } catch (error: any) {
+            const message =
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                "Đã xảy ra lỗi khi đặt lại mật khẩu";
+            toast.error(message);
+        }
+    };
 
     if (!student) {
         return <div className="text-center py-10 text-gray-500">Đang tải dữ liệu...</div>;
@@ -120,21 +138,27 @@ const SingleStudentPage = () => {
                 <div className="bg-white p-4 rounded-md h-full shadow-sm">
                     <h1 className="text-xl font-semibold text-gray-700 mb-4">Liên kết nhanh</h1>
                     <div className="flex flex-col gap-3 text-sm">
-                        <Link
-                            className="p-2 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 transition"
-                            href="/"
+                        <div
+                            className=" flex gap-2 items-center p-2 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 transition"
+                            onClick={() => setShowConfirm(true)}
                         >
-                            📚 Danh sách lớp
-                        </Link>
-                        <Link
-                            className="p-2 rounded bg-purple-50 hover:bg-purple-100 text-purple-700 transition"
-                            href="/"
-                        >
-                            📘 Môn đang học
-                        </Link>
+                            <MdLockReset />
+                            Đặt lại mật khẩu
+                        </div>
+
                     </div>
                 </div>
             </div>
+            <ConfirmDialog
+                title="Đặt lại mật khẩu"
+                message="Mật khẩu sẽ được đặt lại về mật khẩu mặc định"
+                open={showConfirm}
+                confirmText="Đặt lại"
+                cancelText="Hủy"
+                onConfirm={handleResetPassword}
+                onCancel={() => setShowConfirm(false)}
+            />
+
         </div>
     );
 };

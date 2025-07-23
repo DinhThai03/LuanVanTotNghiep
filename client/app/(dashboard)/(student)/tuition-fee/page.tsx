@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import TuitionFeeForm from "@/components/form/TuitionFeeForm";
 import { toast } from "sonner";
 import { getStudentTuitionFee } from "@/services/TuitionFee";
@@ -14,7 +14,8 @@ import { SemesterData } from "@/types/SemesterType";
 import { useSearchParams } from "next/navigation";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
-const TuitionFeePage = () => {
+// Move the main component logic to a separate component
+const TuitionFeeContent = () => {
     const [tuitionData, setTuitionData] = useState<{
         semester: string;
         tuition_fees: any[];
@@ -85,7 +86,6 @@ const TuitionFeePage = () => {
         fetchTuitionFee();
     }, [student, semesterId]);
 
-    // ✅ Loading toàn trang
     if (loading) {
         return (
             <div className="fixed inset-0 flex items-center justify-center bg-white/60 z-50">
@@ -166,6 +166,15 @@ const TuitionFeePage = () => {
                 onConfirm={() => setShowConfirm(false)}
             />
         </ScrollArea>
+    );
+};
+
+// Wrap the component with Suspense
+const TuitionFeePage = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <TuitionFeeContent />
+        </Suspense>
     );
 };
 

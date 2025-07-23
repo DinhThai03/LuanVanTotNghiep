@@ -3,10 +3,10 @@ import { User } from "@/types/UserType";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BiSolidSchool } from "react-icons/bi";
-import { FaBell, FaBook, FaBriefcase, FaCalendarAlt, FaChalkboardTeacher, FaTable, FaUserFriends, FaUserGraduate, FaUserShield } from "react-icons/fa";
-import { PiClockCountdownFill, PiExamFill } from "react-icons/pi";
+import { FaBell, FaBook, FaBriefcase, FaCalendarAlt, FaChalkboardTeacher, FaGraduationCap, FaTable, FaUserFriends, FaUserGraduate, FaUserShield } from "react-icons/fa";
+import { PiClockCountdownFill, PiExamFill, PiGraduationCapBold } from "react-icons/pi";
 import { IoHome } from "react-icons/io5";
-import { MdMeetingRoom } from "react-icons/md";
+import { MdAccountBalanceWallet, MdMeetingRoom } from "react-icons/md";
 import Cookies from "js-cookie";
 import { profile } from "@/features/auth/api";
 import { IoMdBookmarks, IoMdNotifications } from "react-icons/io";
@@ -164,6 +164,20 @@ const menuItems = [
         icon: <GiLockedDoor className="w-4.5 h-4.5" />,
         label: "Phòng thi",
         href: "/admin/lists/exam-room",
+        visible: ["admin"],
+      },
+
+      {
+        icon: <MdAccountBalanceWallet className="w-4.5 h-4.5" />,
+        label: "Tín chỉ tốt nghiệp",
+        href: "/admin/lists/required-credits",
+        visible: ["admin"],
+      },
+
+      {
+        icon: <FaUserGraduate className="w-4.5 h-4.5" />,
+        label: "Xét tốt nghiệp",
+        href: "/admin/lists/graduations",
         visible: ["admin"],
       },
     ],

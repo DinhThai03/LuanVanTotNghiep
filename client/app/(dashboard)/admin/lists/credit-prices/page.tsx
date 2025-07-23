@@ -148,7 +148,7 @@ const CreditPricePage = () => {
 
         columnHelper.accessor("is_active", {
             id: "is_active",
-            header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
+            header: "Trạng thái",
             cell: (info) => (info.getValue() ? "Có hiệu lực" : "Không hiệu lực"),
             meta: { displayName: "Trạng thái" },
             size: 150,

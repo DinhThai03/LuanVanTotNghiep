@@ -73,7 +73,6 @@ class MomoController extends Controller
 
     public function handleIpn(Request $request)
     {
-        Log::debug('🔥 MoMo IPN Called', $request->all());
 
         $partnerCode = env('MOMO_PARTNER_CODE');
         $accessKey = env('MOMO_ACCESS_KEY');
@@ -84,7 +83,6 @@ class MomoController extends Controller
         $signature = hash_hmac("sha256", $rawHash, $secretKey);
 
         if ($signature !== $request->signature) {
-            Log::warning('❌ MoMo IPN - Signature mismatch!');
             return response()->json(['message' => 'Invalid signature'], 400);
         }
 
@@ -92,23 +90,47 @@ class MomoController extends Controller
             $feeIds = explode(',', $request->extraData);
 
             if (count($feeIds)) {
-                $updatedRows = TuitionFee::whereIn('id', $feeIds)
-                    ->whereNull('paid_at')
-                    ->update([
-                        'payment_status' => 'success',
-                        'payment_method' => 'momo',
-                        'transaction_id' => $request->transId,
-                        'paid_at' => now(),
-                    ]);
+                $now = now();
+                $tuitionFees = TuitionFee::with(['registration.student.user', 'registration.lesson'])->whereIn('id', $feeIds)->get();
 
-                Log::info("✅ Đã cập nhật $updatedRows học phí đã thanh toán: ", $feeIds);
-            } else {
-                Log::warning("⚠️ extraData không hợp lệ hoặc rỗng: " . $request->extraData);
+                $updatedRows = 0;
+                $activatedUsers = [];
+
+                foreach ($tuitionFees as $fee) {
+                    if (!$fee->paid_at) {
+                        $fee->payment_status = 'success';
+                        $fee->payment_method = 'momo';
+                        $fee->transaction_id = $request->transId;
+                        $fee->paid_at = $now;
+                        $fee->save();
+                        $updatedRows++;
+                    }
+
+                    $studentCode = $fee->registration->student->code;
+                    $semesterId = $fee->registration->lesson->semester_id;
+
+                    $allFees = TuitionFee::whereHas('registration', function ($query) use ($studentCode, $semesterId) {
+                        $query->where('student_code', $studentCode)
+                            ->whereHas('lesson', function ($q) use ($semesterId) {
+                                $q->where('semester_id', $semesterId);
+                            });
+                    })->get();
+
+                    $total = $allFees->sum(fn($p) => floatval($p->amount));
+                    $paid = $allFees->where('payment_status', 'success')->sum(fn($p) => floatval($p->amount));
+
+                    if ($paid >= $total && $total > 0) {
+                        $user = $fee->registration->student->user;
+                        if (!$user->is_active) {
+                            $user->is_active = true;
+                            $user->save();
+                            $activatedUsers[] = $user->id;
+                        }
+                    }
+                }
             }
-        } else {
-            Log::warning("⚠️ Thanh toán không thành công hoặc thiếu extraData. resultCode: {$request->resultCode}");
-        }
 
-        return response()->json(['message' => 'IPN processed'], 200);
+            return response()->json(['message' => 'IPN processed'], 200);
+        }
     }
 }

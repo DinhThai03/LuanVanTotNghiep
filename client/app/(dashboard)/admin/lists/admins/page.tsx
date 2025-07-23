@@ -216,7 +216,7 @@ const AdminsPage = () => {
 
         columnHelper.display({
             id: "is_active",
-            header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
+            header: "Trạng thái",
             cell: ({ row }) => {
                 const admin = row.original;
                 const active = admin.user?.is_active;
@@ -246,17 +246,17 @@ const AdminsPage = () => {
             meta: { displayName: "Trạng thái tài khoản" },
         }),
 
-        columnHelper.accessor((r) => r.admin_level, {
-            id: "admin_level",
-            header: (info) => <DefaultHeader info={info} name="Cấp" />,
-            cell: ({ getValue }) => (
-                <span className="text-sm font-medium">
-                    {getValue() == 1 ? "Super Admin" : getValue() == 2 ? "Admin" : "Khác"}
-                </span>
-            ),
-            meta: { displayName: "Cấp" },
-            size: 90,
-        }),
+        // columnHelper.accessor((r) => r.admin_level, {
+        //     id: "admin_level",
+        //     header: (info) => <DefaultHeader info={info} name="Cấp" />,
+        //     cell: ({ getValue }) => (
+        //         <span className="text-sm font-medium">
+        //             {getValue() == 1 ? "Super Admin" : getValue() == 2 ? "Admin" : "Khác"}
+        //         </span>
+        //     ),
+        //     meta: { displayName: "Cấp" },
+        //     size: 90,
+        // }),
 
         columnHelper.display({
             id: "actions",

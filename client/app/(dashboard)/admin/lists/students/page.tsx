@@ -292,7 +292,7 @@ const StudentPage = () => {
         }),
         columnHelper.display({
             id: "is_active",
-            header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
+            header: "Trạng thái",
             cell: ({ row }) => {
                 const sutdent = row.original;
                 const active = sutdent.user?.is_active;
@@ -318,7 +318,7 @@ const StudentPage = () => {
                 );
             },
             enableGlobalFilter: true,
-            size: 140,
+            size: 80,
             meta: { displayName: "Trạng thái tài khoản" },
         }),
 
@@ -330,7 +330,7 @@ const StudentPage = () => {
                 return (
                     <div className="flex text-lg gap-4">
                         <Link
-                            href={`/sutdent/lists/students/${student.user_id}`}
+                            href={`/admin/lists/students/${student.user_id}`}
                             className="text-gray-500"
                         >
                             <TbScanEye />

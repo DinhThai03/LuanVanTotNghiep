@@ -185,4 +185,29 @@ class AuthController extends BaseController
 
         return response()->json(['message' => "Token đã hết hạn"], 422);
     }
+
+    public function resetToDefaultPassword(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $currentUser = Auth::user();
+        if (!$currentUser || $currentUser->role !== 'admin') {
+            return response()->json(['error' => 'Không được phép! Chỉ admin mới có quyền đặt lại mật khẩu.'], 403);
+        }
+
+        $user = User::find($request->user_id);
+        $defaultPassword = config('auth.default_password', 'password123');
+
+        $user->password = Hash::make($defaultPassword);
+        $user->setRememberToken(Str::random(60));
+        $user->save();
+
+        return response()->json([
+            'message' => 'Đặt lại mật khẩu mặc định thành công',
+            'user_id' => $user->id,
+            'default_password' => $defaultPassword,
+        ]);
+    }
 }

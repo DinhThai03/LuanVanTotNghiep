@@ -97,6 +97,7 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        'default_password' => env('DEFAULT_USER_PASSWORD', 'password123'),
     ],
 
     /*

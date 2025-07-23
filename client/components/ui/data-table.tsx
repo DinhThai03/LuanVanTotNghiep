@@ -242,7 +242,7 @@ export function DataTable<TData, TValue>({
             });
         }
 
-        // ✅ Bật bảo vệ sheet
+        // Bật bảo vệ sheet
         await worksheet.protect('protect', {
             selectLockedCells: false,
             selectUnlockedCells: true,

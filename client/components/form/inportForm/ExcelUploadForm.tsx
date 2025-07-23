@@ -10,7 +10,9 @@ import FileUploader from "@/components/FileUploader";
 
 const excelSchema = z.object({
     file: z
-        .instanceof(File)
+        .custom<File>((file) => file instanceof File, {
+            message: "Vui lòng chọn file",
+        })
         .refine(
             (file) =>
                 ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"].includes(
@@ -21,6 +23,7 @@ const excelSchema = z.object({
             }
         ),
 });
+
 
 type ExcelFormData = z.infer<typeof excelSchema>;
 

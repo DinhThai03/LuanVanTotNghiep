@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import Image from "next/image";
 
 type ItemCardProps = {
@@ -40,20 +41,19 @@ const ItemCard = ({ type, count }: ItemCardProps) => {
     const label = getLabel(type);
 
     return (
-        <div className={`rounded-2xl ${bgColor} p-4 flex-1 min-w-[160px] shadow-lg`}>
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <span className="text-[10px] bg-white px-2 py-1 rounded-full text-gray-600 border">
-                    Năm 2024/25
-                </span>
-            </div>
+        <div className={clsx(
+            "relative w-full h-[120px] rounded-2xl p-4 transition-all duration-300 flex items-center gap-4 backdrop-blur-md scale-[0.98]",
+            "focus:outline-none focus:ring-2 ring-offset-0",
+            getBgColor(type),
+
+        )}>
 
             {/* Main Count */}
-            <h1 className="text-3xl font-bold my-4 text-gray-800">{count}</h1>
+            < h1 className="text-3xl font-bold my-4 text-gray-800" > {count}</ h1>
 
             {/* Label */}
-            <h2 className="text-sm font-medium text-gray-600">{label}</h2>
-        </div>
+            < h2 className="text-sm font-medium text-gray-600" > {label}</ h2>
+        </div >
     );
 };
 

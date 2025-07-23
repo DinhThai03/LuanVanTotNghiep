@@ -155,7 +155,7 @@ const RoomPage = () => {
 
         columnHelper.accessor("is_active", {
             id: "is_active",
-            header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
+            header: "Trạng thái",
             cell: ({ getValue }) => getValue() ? "Hoạt động" : "Không hoạt động",
             enableGlobalFilter: true,
             size: 100,

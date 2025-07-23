@@ -222,21 +222,47 @@ class TuitionFeeController extends Controller
 
         $now = Carbon::now();
         $count = 0;
+        $activatedUsers = [];
 
         foreach ($tuitionFeeIds as $id) {
-            $fee = TuitionFee::find($id);
+            $fee = TuitionFee::with(['registration.student.user', 'registration.lesson'])->find($id);
             if ($fee) {
                 $fee->payment_status = 'success';
                 $fee->payment_method = 'cash';
                 $fee->paid_at = $now;
-                $fee->transaction_id = 'CASH-' . $now->format('YmdHis');
+                $fee->transaction_id = 'CASH-' . $now->format('YmdHis') . '-' . $id;
                 $fee->save();
                 $count++;
+
+                // Lấy thông tin student_code và semester_id từ khoản học phí
+                $studentCode = $fee->registration->student->code;
+                $semesterId = $fee->registration->lesson->semester_id;
+
+                // Kiểm tra học phí đã đủ chưa để kích hoạt tài khoản
+                $allFees = TuitionFee::whereHas('registration', function ($query) use ($studentCode, $semesterId) {
+                    $query->where('student_code', $studentCode)
+                        ->whereHas('lesson', function ($q) use ($semesterId) {
+                            $q->where('semester_id', $semesterId);
+                        });
+                })->get();
+
+                $total = $allFees->sum(fn($p) => floatval($p->amount));
+                $paid = $allFees->where('payment_status', 'success')->sum(fn($p) => floatval($p->amount));
+
+                if ($paid >= $total && $total > 0) {
+                    $user = $fee->registration->student->user;
+                    if (!$user->is_active) {
+                        $user->is_active = true;
+                        $user->save();
+                        $activatedUsers[] = $user->id;
+                    }
+                }
             }
         }
 
         return response()->json([
             'message' => "Đã cập nhật {$count} khoản học phí là đã thanh toán bằng tiền mặt.",
+            'activated_users' => $activatedUsers,
         ]);
     }
 }

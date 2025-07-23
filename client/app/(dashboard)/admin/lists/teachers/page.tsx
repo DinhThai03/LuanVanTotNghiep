@@ -223,10 +223,20 @@ const TeacherPage = () => {
         columnHelper.accessor((r) => r.status, {
             id: "status",
             header: (info) => <DefaultHeader info={info} name="Tình trạng" />,
+            cell: ({ getValue }) => {
+                const value = getValue();
+                const statusMap: Record<string, string> = {
+                    Probation: "Thử việc",
+                    Official: "Chính thức",
+                    Resigned: "Đã nghỉ",
+                };
+                return statusMap[value] || "Không rõ";
+            },
             enableGlobalFilter: true,
             size: 120,
             meta: { displayName: "Tình trạng công tác" },
         }),
+
 
         columnHelper.accessor((r) => r.user.sex ? "Nam" : "Nữ", {
             id: "sex",
@@ -345,7 +355,7 @@ const TeacherPage = () => {
 
         columnHelper.display({
             id: "is_active",
-            header: (info) => <DefaultHeader info={info} name="Trạng thái" />,
+            header: "Trạng thái",
             cell: ({ row }) => {
                 const teacher = row.original;
                 const active = teacher.user?.is_active;
@@ -373,7 +383,7 @@ const TeacherPage = () => {
                 );
             },
             enableGlobalFilter: true,
-            size: 140,
+            size: 80,
             meta: { displayName: "Trạng thái tài khoản" },
         }),
 

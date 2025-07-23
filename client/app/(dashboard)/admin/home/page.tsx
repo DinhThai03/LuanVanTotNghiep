@@ -63,10 +63,7 @@ const AdminPage = () => {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        const data = await getDashboardStats({
-          academic_year_id: academicYearId,
-          semester_id: semesterId,
-        });
+        const data = await getDashboardStats(Number(academicYearId), Number(semesterId));
         setStats(data);
       } catch (err) {
         console.error("Lỗi khi lấy dữ liệu thống kê:", err);
@@ -100,7 +97,7 @@ const AdminPage = () => {
       <div className='flex flex-col gap-8'>
 
         {/* Select lọc */}
-        <div className="flex flex-wrap gap-4 items-center">
+        {/* <div className="flex flex-wrap gap-4 items-center">
           <div>
             <label className="text-sm font-medium mr-2">Niên khóa:</label>
             <Select
@@ -139,7 +136,7 @@ const AdminPage = () => {
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </div> */}
 
         {/* User cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

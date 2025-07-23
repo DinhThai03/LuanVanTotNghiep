@@ -166,14 +166,14 @@ const ExamRoomPage = () => {
             size: 200,
         }),
 
-        columnHelper.accessor((r) => r.room.name, {
+        columnHelper.accessor((r) => r.room, {
             id: "room",
             header: (info) => <DefaultHeader info={info} name="Phòng" />,
             meta: { displayName: "Phòng" },
             size: 80,
         }),
 
-        columnHelper.accessor((r) => r.class.name, {
+        columnHelper.accessor((r) => r.class, {
             id: "class",
             header: (info) => <DefaultHeader info={info} name="Lớp" />,
             meta: { displayName: "Lớp" },

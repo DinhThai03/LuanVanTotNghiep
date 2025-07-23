@@ -11,7 +11,7 @@ import {
     FaUserGraduate,
     FaPhone
 } from "react-icons/fa";
-import { MdPlaylistAddCheckCircle } from "react-icons/md";
+import { MdLockReset, MdPlaylistAddCheckCircle } from "react-icons/md";
 
 import { getAttendances, getTeacherAttendances } from "@/services/Attendances";
 import { getTeacherInfo } from "@/services/Teacher";
@@ -19,6 +19,9 @@ import { getTeacherInfo } from "@/services/Teacher";
 import BigCalendar from "@/components/BigCalender";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TeacherInfo } from "@/types/TeacherType";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { resetDefaultPassword } from "@/features/auth/api";
+import { toast } from "sonner";
 
 const getStatusLabel = (status: string) => {
     switch (status) {
@@ -55,6 +58,7 @@ const SingleTeacherPage = () => {
     const { id } = useParams();
     const [data, setData] = useState<any[]>([]);
     const [teacher, setTeacher] = useState<TeacherInfo>();
+    const [showConfirm, setShowConfirm] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -86,6 +90,18 @@ const SingleTeacherPage = () => {
         if (teacher) fetchAttendances();
     }, [teacher]);
 
+    const handleResetPassword = async () => {
+        try {
+            const res = await resetDefaultPassword(Number(teacher?.user.id));
+            toast.success(`Đã đặt lại mật khẩu mặc định cho người dùng`);
+        } catch (error: any) {
+            const message =
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                "Đã xảy ra lỗi khi đặt lại mật khẩu";
+            toast.error(message);
+        }
+    };
     if (!teacher) {
         return <div className="text-center py-10 text-gray-500">Đang tải dữ liệu...</div>;
     }
@@ -134,21 +150,27 @@ const SingleTeacherPage = () => {
                 <div className="bg-white p-4 rounded-md h-full shadow-sm">
                     <h1 className="text-xl font-semibold text-gray-700 mb-4">Liên kết nhanh</h1>
                     <div className="flex flex-col gap-3 text-sm">
-                        <Link
-                            className="p-2 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 transition"
-                            href="/"
+                        <div
+                            className=" flex gap-2 items-center p-2 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 transition"
+                            onClick={() => setShowConfirm(true)}
                         >
-                            📚 Danh sách lớp
-                        </Link>
-                        <Link
-                            className="p-2 rounded bg-purple-50 hover:bg-purple-100 text-purple-700 transition"
-                            href="/"
-                        >
-                            📘 Môn đang học
-                        </Link>
+                            <MdLockReset />
+                            Đặt lại mật khẩu
+                        </div>
+
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                title="Đặt lại mật khẩu"
+                message="Mật khẩu sẽ được đặt lại về mật khẩu mặc định"
+                open={showConfirm}
+                confirmText="Đặt lại"
+                cancelText="Hủy"
+                onConfirm={handleResetPassword}
+                onCancel={() => setShowConfirm(false)}
+            />
         </div>
     );
 };

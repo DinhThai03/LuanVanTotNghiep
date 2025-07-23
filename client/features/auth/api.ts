@@ -39,3 +39,8 @@ export const changePassword = async (data: FormData) => {
     const res = await ax.post("/api/auth/change_password", data);
     return res.data;
 };
+
+export const resetDefaultPassword = async (user_id: number) => {
+    const res = await ax.post("/api/auth/reset_default_password", { user_id });
+    return res.data;
+};

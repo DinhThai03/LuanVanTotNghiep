@@ -1,12 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Controller;
 use App\Models\User;
-use App\Models\Student;
-use App\Models\Teacher;
-use App\Models\GuardianModel;
 use App\Models\SchoolClass;
 use App\Models\Subject;
 use App\Models\Lesson;
@@ -16,7 +13,6 @@ class DashboardController extends Controller
 {
     public function stats()
     {
-        // Đếm người dùng theo vai trò và giới tính
         $getCountByRole = fn($role) => [
             'male' => User::where('role', $role)->where('sex', true)->count(),
             'female' => User::where('role', $role)->where('sex', false)->count(),
