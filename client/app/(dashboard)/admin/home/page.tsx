@@ -18,6 +18,8 @@ import { getAcademicYears } from "@/services/AcademicYear";
 import { getSemesters } from "@/services/Semesters";
 import { AcademicYearData } from "@/types/AcademicYearType";
 import { SemesterData } from "@/types/SemesterType";
+import { FacultyData } from "@/types/FacultyType";
+import { getFacultys } from "@/services/Faculty";
 
 type UserGroup = "student" | "teacher" | "parent" | "admin";
 
@@ -35,6 +37,8 @@ const AdminPage = () => {
 
   const [academicYears, setAcademicYears] = useState<AcademicYearData[]>([]);
   const [semesters, setSemesters] = useState<SemesterData[]>([]);
+  const [faculties, setFaculties] = useState<FacultyData[]>([]);
+  const [facultyId, setFacultyId] = useState<number | undefined>();
   const [academicYearId, setAcademicYearId] = useState<number | undefined>();
   const [semesterId, setSemesterId] = useState<number | undefined>();
 
@@ -44,6 +48,12 @@ const AdminPage = () => {
       setAcademicYears(res.data);
       if (res.data.length > 0) {
         setAcademicYearId(res.data[0].id);
+      }
+    });
+    getFacultys().then((res) => {
+      setFaculties(res.data);
+      if (res.data.length > 0) {
+        setFacultyId(res.data[0].id);
       }
     });
   }, []);
@@ -63,7 +73,7 @@ const AdminPage = () => {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        const data = await getDashboardStats(Number(academicYearId), Number(semesterId));
+        const data = await getDashboardStats(Number(academicYearId), Number(facultyId));
         setStats(data);
       } catch (err) {
         console.error("Lỗi khi lấy dữ liệu thống kê:", err);
@@ -73,7 +83,7 @@ const AdminPage = () => {
     };
 
     fetchStats();
-  }, [academicYearId, semesterId]);
+  }, [academicYearId, semesterId, facultyId]);
 
   const getGenderData = () => {
     const key = userGroupMap[selectedGroup];
@@ -97,7 +107,7 @@ const AdminPage = () => {
       <div className='flex flex-col gap-8'>
 
         {/* Select lọc */}
-        {/* <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex flex-wrap gap-4 items-center">
           <div>
             <label className="text-sm font-medium mr-2">Niên khóa:</label>
             <Select
@@ -117,7 +127,7 @@ const AdminPage = () => {
             </Select>
           </div>
 
-          <div>
+          {/* <div>
             <label className="text-sm font-medium mr-2">Học kỳ:</label>
             <Select
               value={semesterId?.toString()}
@@ -135,8 +145,27 @@ const AdminPage = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div> */}
+
+          <div>
+            <label className="text-sm font-medium mr-2">Khoa:</label>
+            <Select
+              value={facultyId?.toString()}
+              onValueChange={(val) => setFacultyId(Number(val))}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Chọn khoa" />
+              </SelectTrigger>
+              <SelectContent>
+                {faculties.map((f) => (
+                  <SelectItem key={f.id} value={f.id.toString()}>
+                    {f.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </div> */}
+        </div>
 
         {/* User cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

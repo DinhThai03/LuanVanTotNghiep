@@ -39,9 +39,11 @@ const Page = () => {
         const fetchAttendances = async () => {
             try {
                 const res = await getAttendances(student?.code!);
+                console
                 setData(res);
+
             } catch (err) {
-                toast.error("Lỗi khi tải dữ liệu điểm danh");
+                toast.error("Lỗi khi tải dữ liệu lịch học");
                 console.error(err);
             }
         };

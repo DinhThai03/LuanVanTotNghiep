@@ -171,7 +171,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('lesson/{id}', [LessonController::class, 'destroy']);
     Route::get('lessons/grouped', [LessonController::class, 'getLessonsGroupedBySubject']);
     Route::get('lessons/teacher', [LessonController::class, 'getLessonsByTeacher']);
-
+    Route::get('lessons/not-entered', [LessonController::class, 'getLessonsNotEnterendByTeacher']);
 
     //============== ROOM ==============
     Route::get('rooms', [RoomController::class, 'index']);
@@ -232,6 +232,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('grade/{id}', [GradeController::class, 'update']);
     Route::delete('grade/{id}', [GradeController::class, 'destroy']);
     Route::post('grades/import', [GradeController::class, 'import']);
+    Route::get('grades/lesson/{lesson_id}', [GradeController::class, 'getGradeByLesson']);
 
     //============== Registration ==============
     Route::get('registrations', [RegistrationController::class, 'index']);

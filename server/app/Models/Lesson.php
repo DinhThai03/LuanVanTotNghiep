@@ -21,6 +21,7 @@ class Lesson extends Model
         'end_time',
         'is_active',
         'teacher_subject_id',
+        'grade_status',
     ];
 
     protected $casts = [

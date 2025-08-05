@@ -50,6 +50,7 @@ class CreateLessonRequest extends FormRequest
             'is_active.boolean' => 'Trạng thái phải là true hoặc false.',
             'teacher_subject_id.required' => 'Môn học của giáo viên là bắt buộc.',
             'teacher_subject_id.exists' => 'Môn học của giáo viên không tồn tại.',
+            'grade_status.in' => 'Trạng thái điểm phải là submitted, approved hoặc rejected.',
         ];
     }
 

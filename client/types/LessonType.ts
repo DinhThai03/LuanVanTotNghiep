@@ -16,6 +16,7 @@ export interface LessonData {
     teacher_subject: TeacherSubjectData;
     room: RoomData;
     semester?: SemesterData;
+    grade_status?: string;
 }
 
 export interface Lecture {

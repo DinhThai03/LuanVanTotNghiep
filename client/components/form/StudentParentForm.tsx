@@ -18,6 +18,7 @@ import { StudentData } from "@/types/StudentType";
 import { getclasses } from "@/services/Classed";
 import { getParentByStudentCode } from "@/services/Parents";
 import { addStudent, updateStudent } from "@/services/Student";
+import { useRouter } from "next/navigation";
 
 const binaryEnum = z.union([z.literal(0), z.literal(1)]);
 
@@ -74,6 +75,7 @@ export default function StudentParentForm({
     data,
     onSubmitSuccess,
 }: StudentParentFormProps) {
+    const route = useRouter();
     const [loading, setLoading] = useState(false);
     const [classList, setClassList] = useState<ClassData[]>([]);
 
@@ -171,9 +173,24 @@ export default function StudentParentForm({
     });
 
     useEffect(() => {
-        getclasses()
-            .then((res) => setClassList(res.data))
-            .catch(() => toast.error("Không thể tải danh sách lớp"));
+        const fetchClasses = async () => {
+            try {
+                const res = await getclasses();
+                if (res && res.data) {
+                    if (res.data.length === 0) {
+                        toast.error("Không có lớp học nào được tìm thấy. Vui lòng tạo lớp học trước.");
+                        route.push("/admin/lists/classed");
+                        return;
+                    }
+                    setClassList(res.data);
+                }
+            } catch (err) {
+                const axiosErr = err as AxiosError<any>;
+                toast.error(axiosErr.response?.data?.message || "Lỗi khi lấy danh sách lớp học");
+            }
+        };
+
+        fetchClasses();
 
         if (type === "update" && data) {
             getParentByStudentCode(data.code)

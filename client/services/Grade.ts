@@ -39,12 +39,20 @@ export const deleteGrade = async (id: number) => {
     return res.data;
 };
 
-export const importGrades = async (formData: FormData) => {
+export const importGrades = async (formData: FormData, lesson_id?: number) => {
     const res = await axios.post("/api/grades/import", formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
+        params: {
+            lesson_id
+        }
     });
     return res.data;
 
+};
+
+export const getGradeByLesson = async (lesson_id: number) => {
+    const res = await axios.get(`/api/grades/lesson/${lesson_id}`);
+    return res.data;
 };

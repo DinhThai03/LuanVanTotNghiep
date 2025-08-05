@@ -45,13 +45,13 @@ class AuthController extends BaseController
     {
         $credentials = $request->only('username', 'password');
 
-        if (! $token = Auth::attempt($credentials)) {
+        if (! $token = Auth::attempt($credentials)) { 
             return response()->json(['error' => 'Tài khoản hoặc mật khẩu không đúng'], 401);
         }
 
         $user = Auth::user();
 
-        if ($user->is_active == false && ($user->role === "admin") || ($user->role === "teacher")) {
+        if ($user->is_active == false && (($user->role === "admin") || ($user->role === "teacher"))) {
             Auth::logout();
             return response()->json(['error' => 'Tài khoản của bạn đã bị khóa'], 403);
         }

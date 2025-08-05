@@ -24,6 +24,7 @@ export function CourseGroup({
 
     useEffect(() => {
         const registeredLecture = lectures.find((lecture) => lecture.is_registered);
+        console.log(lectures, "lectures");
         if (registeredLecture && value === undefined) {
             setValue(String(registeredLecture.id));
             onSelectLecture?.(subjectCode, registeredLecture.id);

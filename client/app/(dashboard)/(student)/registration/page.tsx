@@ -42,6 +42,7 @@ export default function RegisterCoursePage() {
                             semester_id: sRes.id,
                             faculty_id: studentRes.faculty_id,
                             year: studentRes.year,
+                            student_code: studentRes.student_code,
                         });
                         setSubjectLectures(lessons);
                     }

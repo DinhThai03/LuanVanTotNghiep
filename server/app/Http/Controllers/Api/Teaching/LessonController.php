@@ -128,7 +128,7 @@ class LessonController extends Controller
         if (!$lesson) {
             return response()->json(['message' => 'Không tìm thấy lịch học.'], 404);
         }
-
+            
         $lesson->update($request->validated());
         $lesson->load('teacherSubject.teacher.user', 'teacherSubject.subject', 'room');
         return response()->json([
@@ -255,6 +255,31 @@ class LessonController extends Controller
                     'file_path' => $lesson->teacherSubject->subject->file_path,
                 ];
             });
+
+        return response()->json($lessons);
+    }
+
+    public function getLessonsNotEnterendByTeacher(Request $request)
+    {
+        $teacherCode = $request->input('teacher_code');
+        $semesterId = $request->input('semester_id');
+
+        if (!$teacherCode || !$semesterId) {
+            return response()->json(['error' => 'teacher_code and semester_id are required'], 422);
+        }
+
+        $lessons = Lesson::with([
+            'teacherSubject.teacher.user',
+            'teacherSubject.subject',
+            'room',
+            'semester.academicYear'
+        ])
+            ->where('semester_id', $semesterId)
+            ->whereHas('teacherSubject', function ($query) use ($teacherCode) {
+                $query->where('teacher_code', $teacherCode);
+            })
+            ->where('grade_status', 'not_entered')->orWhere('grade_status', 'pending')
+            ->get();
 
         return response()->json($lessons);
     }

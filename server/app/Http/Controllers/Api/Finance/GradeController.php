@@ -166,10 +166,12 @@ class GradeController extends Controller
     public function import(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv'
+            'file' => 'required|mimes:xlsx,xls,csv',
+            'lesson_id' => 'nullable|exists:lessons,id',
         ]);
 
-        $import = new GradesImport();
+        $lessonId = $request->input('lesson_id'); // Có thể null
+        $import = new GradesImport($lessonId);
 
         try {
             DB::beginTransaction();
@@ -184,7 +186,7 @@ class GradeController extends Controller
                 return response()->json([
                     'message' => 'Một số dòng không thể nhập.',
                     'errors' => $errors
-                ], 422); // Trả về lỗi xác thực để hiển thị ở phía client
+                ], 422);
             }
 
             return response()->json([
@@ -197,5 +199,25 @@ class GradeController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getGradeByLesson($lesson_id)
+    {
+        $grades = Grade::with([
+            'registration.student.user',
+            'registration.lesson.teacherSubject.teacher.user',
+            'registration.lesson.teacherSubject.subject',
+            'registration.lesson.semester.academicYear',
+            'registration.student.schoolClass'
+        ])
+            ->whereHas('registration.lesson', function ($query) use ($lesson_id) {
+                $query->where('id', $lesson_id);
+            })
+            ->get();
+
+        return response()->json([
+            'grade_status' => $grades->isEmpty() ? 'not_graded' : $grades->first()->registration->lesson->grade_status,
+            'data' => $grades,
+        ])->setStatusCode(200, 'OK');
     }
 }

@@ -16,6 +16,7 @@ import { deleteLesson, getLessons } from "@/services/Lesson";
 import { LessonData } from "@/types/LessonType";
 import { getSemesters } from "@/services/Semesters";
 import { getFacultys } from "@/services/Faculty";
+import { SemesterData } from "@/types/SemesterType";
 
 const columnHelper = createColumnHelper<LessonData>();
 
@@ -234,9 +235,9 @@ const LessonPage = () => {
                         className="border border-gray-300 rounded p-2"
                     >
                         <option value="">-- Tất cả học kỳ --</option>
-                        {semesters.map((s) => (
+                        {semesters.map((s: SemesterData) => (
                             <option key={s.id} value={s.id}>
-                                {s.name}
+                                {`${s.name} (${s.academic_year.start_year} - ${s.academic_year.end_year})`}
                             </option>
                         ))}
                     </select>

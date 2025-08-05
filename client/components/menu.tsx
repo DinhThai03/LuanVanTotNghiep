@@ -3,11 +3,9 @@ import { User } from "@/types/UserType";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BiSolidSchool } from "react-icons/bi";
-import { FaBell, FaBook, FaBriefcase, FaCalendarAlt, FaChalkboardTeacher, FaGraduationCap, FaTable, FaUserFriends, FaUserGraduate, FaUserShield } from "react-icons/fa";
-import { PiClockCountdownFill, PiExamFill, PiGraduationCapBold } from "react-icons/pi";
-import { IoHome } from "react-icons/io5";
+import { FaBell, FaBook, FaBriefcase, FaCalendarAlt, FaChalkboardTeacher, FaChartBar, FaTable, FaUserFriends, FaUserGraduate, FaUserShield } from "react-icons/fa";
+import { PiClockCountdownFill, PiExamFill } from "react-icons/pi";
 import { MdAccountBalanceWallet, MdMeetingRoom } from "react-icons/md";
-import Cookies from "js-cookie";
 import { profile } from "@/features/auth/api";
 import { IoMdBookmarks, IoMdNotifications } from "react-icons/io";
 import { TbCircleDashedLetterA } from "react-icons/tb";
@@ -20,14 +18,14 @@ const menuItems = [
   {
     items: [
       {
-        icon: <IoHome className="w-4.5 h-4.5" />,
-        label: "Trang chủ",
+        icon: <FaChartBar className="w-4.5 h-4.5" />,
+        label: "Thống kê",
         href: "/admin/home",
         visible: ["admin"],
       },
       {
-        icon: <IoHome className="w-4.5 h-4.5" />,
-        label: "Trang chủ",
+        icon: <FaBell className="w-4.5 h-4.5" />,
+        label: "Thông báo",
         href: "/",
         visible: ["student", "teacher", "parent",],
       },
@@ -254,12 +252,12 @@ const menuItems = [
         href: "/result",
         visible: ["student", "parent",],
       },
-      // {
-      //   icon: <FaBell className="w-4.5 h-4.5" />,
-      //   label: "thông báo",
-      //   href: "/announcements",
-      //   visible: ["student", "teacher", "parent",],
-      // },
+      {
+        icon: <TbCircleDashedLetterA className="w-4.5 h-4.5" />,
+        label: "Nhập điểm",
+        href: "/teacher-grade",
+        visible: ["teacher"],
+      },
     ],
   },
 

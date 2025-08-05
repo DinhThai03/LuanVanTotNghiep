@@ -32,8 +32,7 @@ const subjectSchema = z.object({
         invalid_type_error: "Phân loại không hợp lệ",
     }),
     year: z.coerce.number().min(1).max(4, "Năm học phải từ 1-4"),
-    faculty_ids: z
-        .array(z.coerce.number().int()).optional(),
+    faculty_ids: z.array(z.coerce.number().int()).optional(),
     file: z
         .instanceof(File)
         .refine(
@@ -48,7 +47,26 @@ const subjectSchema = z.object({
                 message: "Tệp không hợp lệ. Chỉ chấp nhận PDF, DOCX, PPT, PPTX.",
             }
         ).optional(),
-});
+})
+    .refine(
+        (data) =>
+            data.process_percent % 5 === 0 &&
+            data.midterm_percent % 5 === 0 &&
+            data.final_percent % 5 === 0,
+        {
+            message: "Các phần trăm phải chia hết cho 5",
+            path: ["process_percent"], // Có thể gắn lỗi chung vào một trường
+        }
+    )
+    .refine(
+        (data) =>
+            data.process_percent + data.midterm_percent + data.final_percent === 100,
+        {
+            message: "Tổng phần trăm phải bằng 100",
+            path: ["process_percent"],
+        }
+    );
+
 
 type FormData = z.infer<typeof subjectSchema>;
 
@@ -122,9 +140,12 @@ export const SubjectForm = ({
                 setLoading(true);
                 const res = await getFacultys();
                 if (res && res.data) {
+                    if (res.data.length === 0) {
+                        router.push('/admin/lists/facultys');
+                        toast.error("Không có khoa nào được tìm thấy. Vui lòng tạo khoa trước.");
+                        return;
+                    }
                     setFaculties(res.data);
-                } else {
-                    router.push('/admin/lists/facultys')
                 }
 
             } catch (err) {
@@ -258,6 +279,9 @@ export const SubjectForm = ({
                     type="number"
                     register={register("process_percent", { valueAsNumber: true })}
                     error={errors.process_percent}
+                    step={5}
+                    min={0}
+                    max={40}
                 />
 
                 <InputField
@@ -266,6 +290,9 @@ export const SubjectForm = ({
                     type="number"
                     register={register("midterm_percent", { valueAsNumber: true })}
                     error={errors.midterm_percent}
+                    step={5}
+                    min={0}
+                    max={50}
                 />
 
                 <InputField
@@ -274,6 +301,9 @@ export const SubjectForm = ({
                     type="number"
                     register={register("final_percent", { valueAsNumber: true })}
                     error={errors.final_percent}
+                    step={5}
+                    min={0}
+                    max={100}
                 />
 
                 <SelectField

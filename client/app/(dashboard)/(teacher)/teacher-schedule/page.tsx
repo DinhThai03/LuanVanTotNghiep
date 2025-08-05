@@ -18,9 +18,7 @@ const Page = () => {
         const fetchInfo = async () => {
             try {
                 const res = await profile();
-                console.log(res);
                 const sRes = await getOneTeachers(res.id);
-                console.log(sRes);
                 setTeacher(sRes);
             } catch (err) {
                 toast.error("Lỗi khi tải thông tin giảng viên");

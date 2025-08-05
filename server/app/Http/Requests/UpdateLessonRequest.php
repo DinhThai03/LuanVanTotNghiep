@@ -26,6 +26,7 @@ class UpdateLessonRequest extends FormRequest
             'room_id' => ['sometimes', 'exists:rooms,id'],
             'is_active' => ['sometimes', 'boolean'],
             'teacher_subject_id' => ['sometimes', 'exists:teacher_subjects,id'],
+            'grade_status' => ['sometimes', 'in:submitted,approved,rejected'],
         ];
     }
 

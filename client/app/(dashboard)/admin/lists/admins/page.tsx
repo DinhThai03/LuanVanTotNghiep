@@ -246,17 +246,17 @@ const AdminsPage = () => {
             meta: { displayName: "Trạng thái tài khoản" },
         }),
 
-        // columnHelper.accessor((r) => r.admin_level, {
-        //     id: "admin_level",
-        //     header: (info) => <DefaultHeader info={info} name="Cấp" />,
-        //     cell: ({ getValue }) => (
-        //         <span className="text-sm font-medium">
-        //             {getValue() == 1 ? "Super Admin" : getValue() == 2 ? "Admin" : "Khác"}
-        //         </span>
-        //     ),
-        //     meta: { displayName: "Cấp" },
-        //     size: 90,
-        // }),
+        columnHelper.accessor((r) => r.admin_level, {
+            id: "admin_level",
+            header: (info) => <DefaultHeader info={info} name="Cấp" />,
+            cell: ({ getValue }) => (
+                <span className="text-sm font-medium">
+                    {getValue() == 1 ? "Super Admin" : getValue() == 2 ? "Super admin" : "Admin"}
+                </span>
+            ),
+            meta: { displayName: "Cấp" },
+            size: 90,
+        }),
 
         columnHelper.display({
             id: "actions",

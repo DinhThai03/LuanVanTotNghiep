@@ -12,7 +12,7 @@ class AcademicYearController extends Controller
 {
     public function index(): JsonResponse
     {
-        $years = AcademicYear::all();
+        $years = AcademicYear::orderBy('start_year', 'desc')->get();
         return response()->json(['data' => $years]);
     }
 

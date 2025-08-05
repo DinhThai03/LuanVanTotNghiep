@@ -267,6 +267,7 @@ export function DataTable<TData, TValue>({
                     onChange={(event) => setSearchValue(event.target.value)}
                 />
                 <div className='flex gap-2'>
+
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto ">

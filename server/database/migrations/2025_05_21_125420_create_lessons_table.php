@@ -24,7 +24,7 @@ return new class extends Migration
             $table->boolean('is_active')->notNullable();
             $table->unsignedBigInteger('teacher_subject_id')->notNullable();
             $table->unsignedBigInteger('semester_id')->notNullable();
-
+            $table->enum('grade_status', ['not_entered', 'pending', 'submitted'])->default('not_entered');
             $table->foreign('teacher_subject_id')->references('id')->on('teacher_subjects');
             $table->foreign('semester_id')->references('id')->on('semesters');
         });

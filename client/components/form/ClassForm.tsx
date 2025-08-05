@@ -17,6 +17,7 @@ import { FacultyData } from "@/types/FacultyType";
 import { getFacultys } from "@/services/Faculty";
 import { CohortData } from "@/types/CohortType";
 import { getCohorts } from "@/services/Cohort";
+import { useRouter } from "next/navigation";
 
 const classeschema = z.object({
     id: z.number().optional(),
@@ -47,6 +48,7 @@ export const ClassedForm = ({
     data,
     onSubmitSuccess,
 }: ClassedFormProps) => {
+    const route = useRouter();
     const [loading, setLoading] = useState(false);
     const [facultys, setFaculty] = useState<FacultyData[]>([]);
     const [cohorts, setCohorts] = useState<CohortData[]>([]);
@@ -78,6 +80,11 @@ export const ClassedForm = ({
                 setLoading(true);
                 const res = await getFacultys();
                 if (res) {
+                    if (res.data.length === 0) {
+                        toast.error("Không có khoa nào được tìm thấy. Vui lòng tạo khoa trước.");
+                        route.push("/admin/lists/facultys");
+                        return;
+                    }
                     setFaculty(res.data);
                     setIsFacultyLoaded(true);
                 }
@@ -104,6 +111,11 @@ export const ClassedForm = ({
                 setLoading(true);
                 const res = await getCohorts();
                 if (res) {
+                    if (res.length === 0) {
+                        toast.error("Không có niên khóa nào được tìm thấy. Vui lòng tạo niên khóa trước.");
+                        route.push("/admin/lists/cohorts");
+                        return;
+                    }
                     setCohorts(res);
                     setIsCohortLoaded(true);
                 }

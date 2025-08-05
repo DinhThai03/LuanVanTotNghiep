@@ -17,6 +17,7 @@ export const getLessonsGroupedBySubject = async (params: {
     semester_id: number;
     faculty_id?: number;
     year?: number;
+    student_code?: string;
 }) => {
     const res = await axios.get("/api/lessons/grouped", { params });
     return res.data;
@@ -37,5 +38,15 @@ export const updateLesson = async (id: number, lesson: FormData) => {
 // Xoá buổi học
 export const deleteLesson = async (id: number) => {
     const res = await axios.delete(`/api/lesson/${id}`);
+    return res.data;
+};
+
+export const getLessonsNotEnteredByTeacher = async (teacher_code: string, semester_id: number) => {
+    const res = await axios.get("/api/lessons/not-entered", {
+        params: {
+            teacher_code,
+            semester_id
+        }
+    });
     return res.data;
 };

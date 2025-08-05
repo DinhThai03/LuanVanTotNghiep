@@ -18,6 +18,8 @@ import { getFacultys } from "@/services/Faculty";
 import { FacultyData } from "@/types/FacultyType";
 import { SubjectData } from "@/types/SubjectType";
 import { getSubjectsByFaculty } from "@/services/Subject";
+import { useRouter } from "next/navigation";
+import { el } from "date-fns/locale";
 
 const binaryEnum = z.union([z.literal(0), z.literal(1)]);
 
@@ -116,6 +118,7 @@ interface TeacherFormProps {
 }
 
 export const TeacherForm = ({ type, data, onSubmitSuccess }: TeacherFormProps) => {
+    const route = useRouter();
     const [loading, setLoading] = useState(false);
     const [faculties, setFaculties] = useState<FacultyData[]>([]);
     const [subjects, setSubjects] = useState<SubjectData[]>([]);
@@ -168,6 +171,11 @@ export const TeacherForm = ({ type, data, onSubmitSuccess }: TeacherFormProps) =
                 setLoading(true);
                 const res = await getFacultys();
                 if (res) {
+                    if (res.length === 0) {
+                        route.push("/admin/lists/facultys");
+                        toast.error("Không có khoa nào được tìm thấy. Vui lòng tạo khoa trước.");
+                        return;
+                    }
                     setFaculties(res.data);
                 }
                 setFacultiesLoaded(true);
@@ -190,6 +198,11 @@ export const TeacherForm = ({ type, data, onSubmitSuccess }: TeacherFormProps) =
 
                 console.log(res);
                 if (res) {
+                    if (res.length === 0) {
+                        route.push("/admin/lists/subjects");
+                        toast.error("Không có môn học nào được tìm thấy cho khoa này. Vui lòng tạo môn học trước.");
+                        return;
+                    }
                     setSubjects(res);
                 }
             } catch (err) {

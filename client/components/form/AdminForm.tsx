@@ -341,7 +341,7 @@ export const AdminForm = ({
                         error={errors.is_active}
                     />
 
-                    {/* <SelectField
+                    <SelectField
                         id="admin_level"
                         label="Cấp quản trị"
                         options={[
@@ -350,7 +350,7 @@ export const AdminForm = ({
                         ]}
                         register={register("admin_level", { valueAsNumber: true })}
                         error={errors.admin_level}
-                    /> */}
+                    />
                 </div>
 
                 <div className="flex gap-4 mt-4">

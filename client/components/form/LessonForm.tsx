@@ -178,7 +178,7 @@ export const LessonForm = ({ type, data, onSubmitSuccess }: LessonFormProps) => 
                     label="Chọn học kỳ"
                     options={semesters.map((s) => ({
                         value: s.id,
-                        label: s.name,
+                        label: s.name + " - " + s.academic_year.start_year + "/" + s.academic_year.end_year,
                     }))}
                     register={register("semester_id", { valueAsNumber: true })}
                     error={errors.semester_id}
